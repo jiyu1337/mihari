@@ -1,0 +1,43 @@
+{
+  "name": "mihari",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint .",
+    "typecheck": "next typegen && tsc --noEmit",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "drizzle-kit migrate",
+    "db:studio": "drizzle-kit studio",
+    "contracts:compile": "solcjs --optimize --optimize-runs 200 --bin --abi --base-path . --include-path node_modules --output-dir contracts/build contracts/src/CorporateActionAttestationRegistry.sol contracts/src/MihariPolicyRegistry.sol contracts/src/MihariToken.sol contracts/src/ProtectionCreditBurner.sol"
+  },
+  "dependencies": {
+    "@fontsource-variable/manrope": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "@neondatabase/serverless": "^1.1.0",
+    "@openzeppelin/contracts": "^5.6.1",
+    "ai": "^7.0.63",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.45.2",
+    "lucide-react": "^1.31.0",
+    "next": "^16.3.0",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "viem": "^2.55.13",
+    "zod": "^4.4.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^26.2.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
+    "drizzle-kit": "^0.31.10",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.3.0",
+    "solc": "^0.8.36",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^6.0.3"
+  }
+}
