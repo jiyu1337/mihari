@@ -1,5 +1,19 @@
 # MIHARI owner guide
 
+## Activate email profiles and MIHARI MAP
+
+MIHARI keeps public Observe mode available when Clerk is not configured. To activate personal profiles:
+
+1. Open the MIHARI project in Vercel.
+2. Install Clerk from the Vercel Marketplace and connect it to the project.
+3. In Clerk, enable email verification code as a sign-in method.
+4. Confirm Vercel created `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` for Production and Preview.
+5. Add `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in` and `NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up`.
+6. Redeploy the latest commit. The build automatically applies the Neon migration.
+7. Open `/sign-in`, complete the email code and confirm `/map` loads.
+
+This setup works on the Vercel Hobby, Clerk Free and Neon Free plans for the current product stage.
+
 This guide is written for a non-developer project owner. It will be expanded as each external service is connected.
 
 ## What already works locally

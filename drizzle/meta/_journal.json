@@ -15,6 +15,13 @@
       "when": 1786628494985,
       "tag": "0001_military_lady_mastermind",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1786645059562,
+      "tag": "0002_thick_phalanx",
+      "breakpoints": true
     }
   ]
 }

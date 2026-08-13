@@ -17,10 +17,11 @@ export const eventStatus = pgEnum("event_status", ["detected", "reviewed", "acti
 
 export const accounts = pgTable("accounts", {
   id: uuid("id").defaultRandom().primaryKey(),
+  authProviderId: text("auth_provider_id").notNull(),
   email: text("email"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => [uniqueIndex("accounts_auth_provider_id_idx").on(table.authProviderId)]);
 
 export const wallets = pgTable("wallets", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -31,6 +32,16 @@ export const wallets = pgTable("wallets", {
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [uniqueIndex("wallet_chain_address_idx").on(table.chainId, table.address)]);
 
+export const walletChallenges = pgTable("wallet_challenges", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  accountId: uuid("account_id").references(() => accounts.id, { onDelete: "cascade" }).notNull(),
+  address: text("address").notNull(),
+  nonce: text("nonce").notNull(),
+  expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  usedAt: timestamp("used_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [uniqueIndex("wallet_challenges_nonce_idx").on(table.nonce)]);
+
 export const watchlists = pgTable("watchlists", {
   id: uuid("id").defaultRandom().primaryKey(),
   accountId: uuid("account_id").references(() => accounts.id, { onDelete: "cascade" }),
@@ -39,7 +50,7 @@ export const watchlists = pgTable("watchlists", {
   mode: policyMode("mode").default("observe").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => [uniqueIndex("watchlists_account_id_idx").on(table.accountId)]);
 
 export const corporateActions = pgTable("corporate_actions", {
   id: uuid("id").defaultRandom().primaryKey(),

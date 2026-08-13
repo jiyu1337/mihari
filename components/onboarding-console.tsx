@@ -1,8 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, Search, Wallet } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, Mail, Search, Wallet } from "lucide-react";
 import type { RobinhoodAsset } from "@/lib/robinhood";
 
 type EthereumProvider = {
@@ -179,7 +180,7 @@ export function OnboardingConsole() {
     setSelectedAssets([]);
   }
 
-  function completeSetup() {
+  async function completeSetup() {
     window.localStorage.setItem("mihari:configuration", JSON.stringify({
       wallet,
       walletChainId: wallet ? CHAIN_ID : null,
@@ -187,6 +188,14 @@ export function OnboardingConsole() {
       mode,
       createdAt: new Date().toISOString(),
     }));
+    const profileResponse = await fetch("/api/profile", { cache: "no-store" }).catch(() => null);
+    if (profileResponse?.ok) {
+      await fetch("/api/profile", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ symbols: selectedAssets, mode }),
+      }).catch(() => undefined);
+    }
     router.push("/app");
   }
 
@@ -215,6 +224,13 @@ export function OnboardingConsole() {
               </p>
             </div>
             <div className="identity-options">
+              <Link className="identity-choice" href="/sign-in">
+                <span className="choice-index mono">A-01 / PERSONAL MAP</span>
+                <Mail size={28} strokeWidth={1.4} />
+                <strong>Sign in with email</strong>
+                <small>Save watchlists, link wallets and map your positions</small>
+                <ArrowRight size={18} />
+              </Link>
               <button className={`identity-choice ${wallet ? "selected" : ""}`} onClick={connectWallet}>
                 <span className="choice-index mono">A–01 / CHAIN 4663</span>
                 <Wallet size={28} strokeWidth={1.4} />

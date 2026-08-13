@@ -1,5 +1,18 @@
 # MIHARI architecture
 
+## MIHARI MAP
+
+MAP adds a personal identity and exposure layer without giving MIHARI custody of funds.
+
+1. Clerk verifies the user's email and manages the session.
+2. Neon stores the MIHARI account, saved watchlist and linked wallet records.
+3. A wallet is linked only after a one-time message signature is verified server-side.
+4. Blockscout returns ERC-20 balances for the verified Robinhood Chain address.
+5. MIHARI keeps only contracts that match the official Robinhood Stock Token catalog.
+6. Current corporate actions are matched to those personal positions.
+
+The signature is not a transaction, costs no gas and grants no spending permission. MIHARI never receives a private key or seed phrase.
+
 ## Product boundary
 
 MIHARI is a corporate-action protection system for tokenized stocks. It is intentionally hybrid:

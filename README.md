@@ -61,8 +61,11 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Price and multiplier context | `LIVE` | Robinhood market data attached to the monitored assets |
 | AI Incident Files | `LIVE` | Observation, Impact Map, risk, confidence and Bounded Response |
 | Incident memory | `LIVE` | Neon persistence and cached analysis to avoid duplicate AI cost |
-| Wallet connection | `READ-ONLY` | Public address and Robinhood Chain network selection only |
-| Vault and lending discovery | `NEXT` | Position indexing is not enabled yet |
+| Email profiles | `LIVE` | Passwordless Clerk accounts with personal saved configuration |
+| Wallet verification | `LIVE` | Free message signature proves ownership without a transaction |
+| Wallet Stock Token mapping | `LIVE` | Verified addresses are indexed through Robinhood Chain Blockscout |
+| Personal exposure matching | `LIVE` | Corporate actions are matched to Stock Tokens found in linked wallets |
+| Vault and lending discovery | `NEXT` | Protocol-level positions are not indexed yet |
 | Policy execution | `NEXT` | No automatic protocol action or fund movement today |
 | Onchain proofs | `NEXT` | Production attestations require audited contracts |
 
@@ -107,7 +110,7 @@ Planned utility is designed around product use:
 | Phase | Status | Focus |
 | --- | :---: | --- |
 | **01 · Observe** | `LIVE` | Official data, watchlists, Event Register, AI Incident Files and read-only identity |
-| **02 · Map** | `NEXT` | Discover wallet positions and map exposure across vaults, lending markets and agents |
+| **02 · Map** | `IN PROGRESS` | Email profiles, wallet Stock Token positions and personal event exposure are live. Vaults, lending markets and agents come next |
 | **03 · Guard** | `PLANNED` | Deterministic policies, operator approval, transaction previews and bounded actions |
 | **04 · Prove** | `PLANNED` | Audited contracts, onchain receipts, independent operators and verifiable monitoring |
 
@@ -121,6 +124,7 @@ Each phase ships only after its data sources, permissions and security assumptio
 | Intelligence | Vercel AI SDK, OpenAI, deterministic rule fallback |
 | Data | Robinhood Stock Token APIs |
 | Persistence | Neon Postgres, Drizzle ORM |
+| Authentication | Clerk passwordless email |
 | Chain | Robinhood Chain, viem |
 | Contracts | Solidity, OpenZeppelin |
 | Hosting | Vercel |
@@ -157,6 +161,8 @@ Use [`.env.example`](./.env.example) as the source of truth.
 | `ROBINHOOD_API_BASE_URL` | Robinhood Stock Token API base URL |
 | `NEXT_PUBLIC_CHAIN_ID` | Robinhood Chain ID |
 | `NEXT_PUBLIC_RPC_URL` | Public Robinhood Chain RPC |
+| `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Public Clerk application key |
+| `CLERK_SECRET_KEY` | Server-side Clerk authentication key |
 
 </details>
 
