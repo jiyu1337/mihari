@@ -179,6 +179,7 @@ export function GuardianConsole() {
   const selectedIsAnalyzing = selected ? analyzingId === selected.id : false;
   const selectedAnalysisError = selected ? analysisErrors[selected.id] : undefined;
   const displayedConfidence = selectedAnalysis?.confidence ?? selected?.confidence ?? null;
+  const selectedRisk = selectedAnalysis?.risk ?? (selected?.severity === "critical" ? "critical" : selected?.severity === "watch" ? "high" : "low");
 
   return (
     <div className="guardian-shell">
@@ -189,8 +190,9 @@ export function GuardianConsole() {
         </Link>
         <nav aria-label="Guardian console">
           <Link className="active" href="/app"><Activity size={17} />Events</Link>
-          <Link href="/app#policies"><ShieldCheck size={17} />Policies</Link>
-          <Link href="/app#proofs"><FileCheck2 size={17} />Proofs</Link>
+          <Link href="/docs#status"><ShieldCheck size={17} />Policies <small>SOON</small></Link>
+          <Link href="/docs#status"><FileCheck2 size={17} />Proofs <small>SOON</small></Link>
+          <Link href="/docs"><Orbit size={17} />Docs</Link>
           <Link href="/launch"><Settings2 size={17} />Setup</Link>
         </nav>
         <div className="console-network mono">
@@ -225,7 +227,7 @@ export function GuardianConsole() {
           <section className="event-register" aria-labelledby="register-title">
             <div className="register-head mono">
               <span id="register-title">{isLive ? "ROBINHOOD EVENT REGISTER" : "SIMULATED EVENT REGISTER"} / 監視中</span>
-              <span>{events.length.toString().padStart(2, "0")} RECORDS</span>
+              <span>{events.length.toString().padStart(2, "0")} EVENTS / {symbols.length.toString().padStart(2, "0")} WATCHED</span>
             </div>
             <div className="event-list">
               {events.length === 0 ? (
@@ -249,6 +251,18 @@ export function GuardianConsole() {
                 </button>
               ))}
             </div>
+            <div className="scope-summary">
+              <div>
+                <p className="mono">WATCHLIST / {symbols.length} ASSETS</p>
+                <div className="scope-symbols">
+                  {symbols.map((symbol) => <span className="mono" key={symbol}>{symbol}</span>)}
+                </div>
+              </div>
+              <p>
+                {events.length} of {symbols.length} watched assets currently have Robinhood corporate-action records.
+                Assets without an event remain monitored and do not appear in the register.
+              </p>
+            </div>
             <div className="source-register mono">
               <p><span>SOURCE 01</span><strong>ASSET METADATA</strong><i>{isLive ? `${assetCount} LIVE` : "FALLBACK"}</i></p>
               <p><span>SOURCE 02</span><strong>CORPORATE ACTIONS</strong><i>{isLive ? "ROBINHOOD" : "SIMULATED"}</i></p>
@@ -266,7 +280,7 @@ export function GuardianConsole() {
               <div className="file-body">
                 <header>
                   <div>
-                    <p className="mono">{selected.asset} / {selected.type}</p>
+                    <p className="mono">{selected.asset} / {selected.type} · RISK {selectedRisk.toUpperCase()}</p>
                     <h2 id="incident-file-title">{selected.name}</h2>
                   </div>
                   <div className="confidence-gauge">

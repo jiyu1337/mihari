@@ -53,7 +53,7 @@ function normalizeSymbols(symbols?: string[]) {
     .map((symbol) => symbol.trim().replace(/x$/i, "").toUpperCase())
     .filter(Boolean);
 
-  return [...new Set(normalized)].slice(0, 12);
+  return [...new Set(normalized)].slice(0, 100);
 }
 
 function processDateToIso(processDate?: RobinhoodCorporateAction["processDate"]) {
@@ -168,13 +168,24 @@ async function fetchJson<T>(url: string, revalidate: number): Promise<T> {
   return response.json() as Promise<T>;
 }
 
+function getBaseUrl() {
+  return (process.env.ROBINHOOD_API_BASE_URL?.trim() || DEFAULT_BASE_URL).replace(/\/+$/, "");
+}
+
+export async function getAssetCatalog(): Promise<RobinhoodAsset[]> {
+  const body = await fetchJson<{ assets?: RobinhoodAsset[] }>(`${getBaseUrl()}/rhj/assets`, 300);
+  return (body.assets ?? [])
+    .filter((asset) => asset.status === "ASSET_STATUS_ACTIVE")
+    .sort((left, right) => left.tokenSymbol.localeCompare(right.tokenSymbol));
+}
+
 export async function getMarketSnapshot(symbols?: string[]): Promise<MarketSnapshot> {
-  const baseUrl = (process.env.ROBINHOOD_API_BASE_URL?.trim() || DEFAULT_BASE_URL).replace(/\/+$/, "");
+  const baseUrl = getBaseUrl();
   const selectedSymbols = normalizeSymbols(symbols);
 
   try {
     const [assetBody, actionBody] = await Promise.all([
-      fetchJson<{ assets?: RobinhoodAsset[] }>(`${baseUrl}/rhj/assets`, 300),
+      getAssetCatalog().then((assets) => ({ assets })),
       fetchJson<{ corpActions?: RobinhoodCorporateAction[] }>(
         `${baseUrl}/rhj/corporate-actions`,
         3_600,
@@ -190,14 +201,16 @@ export async function getMarketSnapshot(symbols?: string[]): Promise<MarketSnaps
     const actions = (actionBody.corpActions ?? [])
       .filter((action) => selectedSymbols.includes(action.tokenSymbol.toUpperCase()))
       .slice(0, 20);
-    const priceResults = await Promise.allSettled(
-      selectedSymbols.map((symbol) =>
-        fetchJson<{ quotes?: RobinhoodPrice[] }>(`${baseUrl}/rhj/prices/${symbol}`, 15),
-      ),
-    );
-    const prices = priceResults.flatMap((result) =>
-      result.status === "fulfilled" ? (result.value.quotes ?? []) : [],
-    );
+    const prices = selectedSymbols.length <= 12
+      ? (await Promise.allSettled(
+          selectedSymbols.map((symbol) =>
+            fetchJson<{ quotes?: RobinhoodPrice[] }>(`${baseUrl}/rhj/prices/${symbol}`, 15),
+          ),
+        )).flatMap((result) =>
+          result.status === "fulfilled" ? (result.value.quotes ?? []) : [],
+        )
+      : (await fetchJson<{ quotes?: RobinhoodPrice[] }>(`${baseUrl}/rhj/prices`, 15)).quotes
+          ?.filter((price) => selectedSymbols.includes(price.tokenSymbol.toUpperCase())) ?? [];
 
     return {
       mode: "live",

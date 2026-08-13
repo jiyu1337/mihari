@@ -21,6 +21,7 @@ export function SiteHeader({ mode = "paper" }: SiteHeaderProps) {
       <nav className="main-nav" aria-label="Primary navigation">
         <Link href="/#system">System</Link>
         <Link href="/#protocol">Protocol</Link>
+        <Link href="/docs">Docs</Link>
         <Link className="nav-launch" href="/launch">
           Launch app <ArrowUpRight size={15} strokeWidth={1.8} />
         </Link>

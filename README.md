@@ -2,7 +2,9 @@
 
 AI corporate-action protection for tokenized stocks on Robinhood Chain.
 
-MIHARI monitors asset metadata, prices and corporate actions; explains portfolio impact; and prepares deterministic protection actions for onchain policies.
+MIHARI monitors official Robinhood Stock Token metadata, prices and corporate actions; uses AI to explain protocol impact; and preserves each analysis in Neon.
+
+Production beta: [mihari-eight.vercel.app](https://mihari-eight.vercel.app)
 
 ## Local development
 
@@ -18,7 +20,8 @@ Open `http://localhost:3000`.
 - Product-owner setup: `docs/OWNER-GUIDE.md`
 - Technical and trust architecture: `docs/ARCHITECTURE.md`
 - Robinhood Chain contracts: `contracts/README.md`
+- Plain-language product documentation: `/docs` in the deployed application
 
 ## Status
 
-The web application, fallback data path and contracts compile successfully. Live database, AI and testnet deployment require service credentials and are the next connection milestone.
+Live Robinhood data, OpenAI analysis and Neon caching are active in production. Wallet connection is read-only. Vault/lending position indexing, policy execution and onchain receipts are not yet enabled.
