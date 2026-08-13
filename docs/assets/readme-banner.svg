@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 520" role="img" aria-labelledby="title description">
+  <title id="title">MIHARI</title>
+  <desc id="description">AI corporate-action intelligence for tokenized stocks on Robinhood Chain.</desc>
+  <rect width="1600" height="520" fill="#0B0B09"/>
+  <g opacity=".28" stroke="#F3F0E7" stroke-width="1">
+    <path d="M64 64h104M64 456h104M1432 64h104M1432 456h104"/>
+    <path d="M64 64v42M1536 64v42M64 414v42M1536 414v42"/>
+    <path stroke-dasharray="3 14" d="M64 132h1472M64 388h1472"/>
+  </g>
+  <g transform="translate(120 124)">
+    <path d="M0 0h96v70L66 44H42v56H0V0Z" fill="#F3F0E7"/>
+    <path d="M126 0h96v100h-42V44h-24l-30 26V0Z" fill="#F3F0E7"/>
+    <path d="M0 126h42v56h54v42H0v-98Z" fill="#F3F0E7"/>
+    <path d="M180 126h42v98h-96v-42h54v-56Z" fill="#F3F0E7"/>
+    <rect x="132" y="122" width="18" height="18" fill="#CCFF00"/>
+  </g>
+  <g transform="translate(430 128)" fill="#F3F0E7">
+    <text x="0" y="108" font-family="Arial, Helvetica, sans-serif" font-size="112" font-weight="700" letter-spacing="-5">MIHARI</text>
+    <text x="4" y="166" font-family="monospace" font-size="20" letter-spacing="5">CORPORATE ACTION INTELLIGENCE</text>
+    <rect x="4" y="202" width="850" height="2" fill="#F3F0E7" opacity=".45"/>
+    <text x="4" y="253" font-family="Arial, Helvetica, sans-serif" font-size="27">AI safety infrastructure for tokenized stocks.</text>
+    <text x="4" y="302" font-family="monospace" font-size="18" letter-spacing="3" fill="#CCFF00">BUILT ON ROBINHOOD CHAIN / 4663</text>
+  </g>
+  <g transform="translate(1390 232)" fill="none" stroke="#F3F0E7" opacity=".65">
+    <circle cx="42" cy="42" r="35"/>
+    <circle cx="42" cy="42" r="5" fill="#CCFF00" stroke="none"/>
+    <path d="M42 0v17M42 67v17M0 42h17M67 42h17"/>
+  </g>
+</svg>

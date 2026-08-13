@@ -1,81 +1,133 @@
-# MIHARI
+<div align="center">
+  <img src="./docs/assets/readme-banner.svg" alt="MIHARI — AI corporate-action intelligence for tokenized stocks" width="100%" />
 
-**AI corporate-action intelligence for tokenized stocks on Robinhood Chain.**
+  <br />
 
-[Live product](https://mihari-eight.vercel.app) · [Documentation](https://mihari-eight.vercel.app/docs) · [Launch app](https://mihari-eight.vercel.app/launch)
+  [![Production Beta](https://img.shields.io/badge/status-production_beta-CCFF00?style=flat-square&labelColor=0B0B09&color=CCFF00)](https://mihari-eight.vercel.app)
+  [![Robinhood Chain](https://img.shields.io/badge/Robinhood_Chain-4663-CCFF00?style=flat-square&labelColor=0B0B09)](https://robinhoodchain.blockscout.com)
+  [![Next.js](https://img.shields.io/badge/Next.js-16-ffffff?style=flat-square&logo=nextdotjs&logoColor=white&labelColor=0B0B09)](https://nextjs.org)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square&logo=typescript&logoColor=white&labelColor=0B0B09)](https://www.typescriptlang.org)
+  [![$MHR](https://img.shields.io/badge/token-%24MHR-CCFF00?style=flat-square&labelColor=0B0B09)](https://robinhoodchain.blockscout.com/address/0x92150e06BAc43011cBe099b2830D947Ee3099809)
 
-MIHARI monitors official Robinhood Stock Token metadata, prices, multipliers and corporate actions. When a dividend, split or multiplier change appears, it turns the source event into a clear Incident File: what changed, where risk may spread and what a safe response could look like.
+  <h3>AI safety infrastructure for tokenized stocks.</h3>
 
-## What users can do today
+  <p>
+    MIHARI monitors official Robinhood Stock Token data, detects corporate actions,<br />
+    maps potential DeFi impact and recommends a bounded response.
+  </p>
 
-1. Enter without a wallet or connect an EVM address in read-only mode.
-2. Select individual Stock Tokens or monitor the full live catalog.
-3. Start Observe mode.
-4. Review corporate actions matching the selected watchlist.
-5. Open an Incident File with the event status, risk, evidence and AI confidence.
-6. Read the Observation, Impact Map and Bounded Response.
+  <p>
+    <a href="https://mihari-eight.vercel.app"><strong>Live product</strong></a>
+    ·
+    <a href="https://mihari-eight.vercel.app/launch"><strong>Launch app</strong></a>
+    ·
+    <a href="https://mihari-eight.vercel.app/docs"><strong>Documentation</strong></a>
+    ·
+    <a href="#quick-start"><strong>Quick start</strong></a>
+  </p>
+</div>
+
+---
+
+## Why MIHARI
+
+Tokenized stocks make equities composable across DeFi. Corporate actions become composable too.
+
+A dividend, split or multiplier change can affect much more than the displayed asset price. If one protocol uses stale data, incorrect valuation can propagate into NAV, quotes, vault accounting, lending collateral and automated strategies.
+
+MIHARI turns each official event into an explainable **Incident File**:
+
+> **What changed → where risk may spread → what a safe response could be**
 
 MIHARI currently monitors and recommends. It does not move funds or execute transactions automatically.
 
-## Live product capabilities
+## Product workflow
 
-- Live Robinhood Stock Token catalog and watchlists.
-- Official corporate-action Event Register.
-- Robinhood price and multiplier context.
-- Structured AI impact analysis with deterministic fallback.
-- Neon Postgres persistence and analysis caching.
-- Optional read-only wallet connection on Robinhood Chain, chain ID `4663`.
-- Responsive product UI and plain-language documentation.
+| Step | User action | What MIHARI does |
+| :---: | --- | --- |
+| `01` | Enter read-only or connect an EVM wallet | Establishes a read-only identity on Robinhood Chain |
+| `02` | Select one Stock Token or the full catalog | Creates the monitoring scope |
+| `03` | Start Observe mode | Syncs official asset, price, multiplier and corporate-action data |
+| `04` | Review the Event Register | Surfaces only watched assets with matching events |
+| `05` | Open an Incident File | Explains evidence, risk, affected systems and confidence |
+| `06` | Review the Bounded Response | Recommends a safe next step while the operator remains in control |
 
-## $MHR token
+## What is live
 
-`$MHR` powers the future MIHARI protection network.
+| Capability | Status | Description |
+| --- | :---: | --- |
+| Robinhood Stock Token catalog | `LIVE` | Full active catalog, search, custom watchlists and Select All |
+| Corporate-action Event Register | `LIVE` | Official events filtered through the selected watchlist |
+| Price and multiplier context | `LIVE` | Robinhood market data attached to the monitored assets |
+| AI Incident Files | `LIVE` | Observation, Impact Map, risk, confidence and Bounded Response |
+| Incident memory | `LIVE` | Neon persistence and cached analysis to avoid duplicate AI cost |
+| Wallet connection | `READ-ONLY` | Public address and Robinhood Chain network selection only |
+| Vault and lending discovery | `NEXT` | Position indexing is not enabled yet |
+| Policy execution | `NEXT` | No automatic protocol action or fund movement today |
+| Onchain proofs | `NEXT` | Production attestations require audited contracts |
 
-| Field | Value |
-| --- | --- |
-| Network | Robinhood Chain |
-| Symbol | `$MHR` |
-| Contract | `0x92150e06BAc43011cBe099b2830D947Ee3099809` |
-| Explorer | [View on Robinhood Chain Blockscout](https://robinhoodchain.blockscout.com/address/0x92150e06BAc43011cBe099b2830D947Ee3099809) |
+## System architecture
 
-Planned utility:
-
-- **Hold** to unlock premium monitoring and AI features.
-- **Lock** for higher limits, product credits and lower usage fees.
-- **Spend** on AI analysis, APIs, position scans and future onchain proofs.
-- **Stake** to support future network security and operator incentives.
-- **Burn** a portion of usage fees as the product is used.
-
-Always verify the contract address before interacting. Token utility features described above are a product roadmap and are not all active today.
-
-## Architecture
-
-```text
-Robinhood Stock Token APIs
-            ↓
-   Normalization and checks
-            ↓
- AI analysis + rule fallback
-            ↓
-    Neon incident memory
-            ↓
-     MIHARI Event Register
+```mermaid
+flowchart LR
+    A["Robinhood Stock Token APIs"] --> B["Normalization & evidence checks"]
+    B --> C["AI analysis"]
+    B --> D["Deterministic fallback"]
+    C --> E["Neon incident memory"]
+    D --> E
+    E --> F["Event Register & Incident File"]
+    F -. future .-> G["Policy execution"]
+    G -. future .-> H["Robinhood Chain proof"]
 ```
 
-The application is intentionally hybrid: official market data and AI inference run offchain, while future policy configuration, execution receipts and attestations are designed for Robinhood Chain.
+MIHARI is intentionally hybrid. Official market data and AI inference run offchain; future policy configuration, execution receipts and attestations are designed for Robinhood Chain.
 
-Main stack:
+## $MHR
 
-- Next.js 16 and React 19
-- TypeScript
-- Vercel AI SDK and OpenAI
-- Neon Postgres and Drizzle ORM
-- viem
-- Solidity and OpenZeppelin
+> [!IMPORTANT]
+> Always verify the contract address before interacting. Planned utility features are not all active today.
 
-## Local development
+| | |
+| --- | --- |
+| **Network** | Robinhood Chain |
+| **Symbol** | `$MHR` |
+| **Contract** | `0x92150e06BAc43011cBe099b2830D947Ee3099809` |
+| **Explorer** | [View contract on Blockscout ↗](https://robinhoodchain.blockscout.com/address/0x92150e06BAc43011cBe099b2830D947Ee3099809) |
 
-Requirements:
+Planned utility is designed around product use:
+
+- **Hold** — unlock premium monitoring and AI features.
+- **Lock** — receive higher limits, product credits and lower usage fees.
+- **Spend** — pay for AI analysis, APIs, position scans and future proofs.
+- **Stake** — support future network security and operator incentives.
+- **Burn** — remove a portion of usage fees from supply as the product is used.
+
+## Roadmap
+
+| Phase | Status | Focus |
+| --- | :---: | --- |
+| **01 · Observe** | `LIVE` | Official data, watchlists, Event Register, AI Incident Files and read-only identity |
+| **02 · Map** | `NEXT` | Discover wallet positions and map exposure across vaults, lending markets and agents |
+| **03 · Guard** | `PLANNED` | Deterministic policies, operator approval, transaction previews and bounded actions |
+| **04 · Prove** | `PLANNED` | Audited contracts, onchain receipts, independent operators and verifiable monitoring |
+
+Each phase ships only after its data sources, permissions and security assumptions can be verified in production.
+
+## Tech stack
+
+| Layer | Technology |
+| --- | --- |
+| Application | Next.js 16, React 19, TypeScript |
+| Intelligence | Vercel AI SDK, OpenAI, deterministic rule fallback |
+| Data | Robinhood Stock Token APIs |
+| Persistence | Neon Postgres, Drizzle ORM |
+| Chain | Robinhood Chain, viem |
+| Contracts | Solidity, OpenZeppelin |
+| Hosting | Vercel |
+
+## Quick start
+
+### Requirements
 
 - Node.js 22 or newer
 - npm
@@ -90,11 +142,12 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-The interface can run without database or AI credentials by using its safe fallback paths. Add server-side credentials to `.env.local` when testing the full stack. Never prefix secrets with `NEXT_PUBLIC_`.
+The interface can run without database or AI credentials by using safe fallback paths. Add server-side credentials to `.env.local` to test the complete stack. Never prefix secrets with `NEXT_PUBLIC_`.
 
-## Environment variables
+<details>
+<summary><strong>Environment variables</strong></summary>
 
-Use [.env.example](./.env.example) as the source of truth.
+Use [`.env.example`](./.env.example) as the source of truth.
 
 | Variable | Purpose |
 | --- | --- |
@@ -105,7 +158,10 @@ Use [.env.example](./.env.example) as the source of truth.
 | `NEXT_PUBLIC_CHAIN_ID` | Robinhood Chain ID |
 | `NEXT_PUBLIC_RPC_URL` | Public Robinhood Chain RPC |
 
-## Commands
+</details>
+
+<details>
+<summary><strong>Available commands</strong></summary>
 
 ```bash
 npm run dev               # Start local development
@@ -116,65 +172,46 @@ npm run db:migrate        # Apply database migrations
 npm run contracts:compile # Compile the Solidity contracts
 ```
 
-## Current boundaries
+</details>
 
-The following features are not live yet:
+## Repository map
 
-- wallet-based vault and lending position discovery;
-- automatic policy execution;
-- production onchain attestations and protection receipts;
-- independent operators, staking, rewards and slashing;
-- audited production deployment of the repository contracts.
-
-The Solidity contracts in this repository are unaudited reference implementations. Do not use them to secure production funds.
-
-## Roadmap
-
-### Phase 01 — Observe · Live
-
-- Full Robinhood Stock Token watchlists.
-- Official asset, price, multiplier and corporate-action data.
-- Event Register and AI-generated Incident Files.
-- Read-only wallet connection and Neon incident memory.
-
-### Phase 02 — Map · Next
-
-- Discover tokenized-stock positions from connected wallets.
-- Map exposure across vaults, lending markets and agent strategies.
-- Show which positions may be affected by each corporate action.
-- Add protocol alerts, webhooks and API access.
-
-### Phase 03 — Guard
-
-- Turn recommendations into deterministic policy actions.
-- Add operator approval and transaction previews.
-- Support bounded actions such as pausing quotes or restricting new lending.
-- Introduce `$MHR` access, credits and security staking.
-
-### Phase 04 — Prove
-
-- Deploy audited policy and attestation contracts on Robinhood Chain.
-- Record evidence, decisions and execution receipts onchain.
-- Add independent operators, verifiable monitoring and slashing conditions.
-- Open the MIHARI protection network to external protocol integrations.
-
-Each phase will ship only after its data sources, permissions and security assumptions can be verified in production.
+```text
+app/                  Next.js pages and server routes
+components/           Product interface components
+contracts/            Solidity reference implementations
+db/                   Drizzle schema and database access
+docs/                 Architecture, owner guide and content plan
+lib/                  Robinhood, AI and product-domain logic
+scripts/              Database and maintenance scripts
+```
 
 ## Documentation
 
-- [Product-owner setup](./docs/OWNER-GUIDE.md)
-- [Technical and trust architecture](./docs/ARCHITECTURE.md)
-- [Content and demo plan](./docs/CONTENT-PLAN.md)
-- [Robinhood Chain contracts](./contracts/README.md)
 - [Public product documentation](https://mihari-eight.vercel.app/docs)
+- [Technical and trust architecture](./docs/ARCHITECTURE.md)
+- [Product-owner setup](./docs/OWNER-GUIDE.md)
+- [Robinhood Chain contracts](./contracts/README.md)
+- [Content and demo plan](./docs/CONTENT-PLAN.md)
 
 ## Security
 
+> [!WARNING]
+> The Solidity contracts in this repository are unaudited reference implementations. Do not use them to secure production funds.
+
 - Never commit `.env` or `.env.local`.
-- Never expose `OPENAI_API_KEY`, database credentials or wallet private keys to the browser.
+- Never expose API keys, database credentials or wallet private keys to the browser.
 - MIHARI will never ask for a seed phrase or private key.
-- Report a suspected credential leak privately before opening a public issue.
+- Report suspected credential leaks privately before opening a public issue.
 
 ## Disclaimer
 
 MIHARI is an independent software project. It is not a broker, financial adviser or investment service. Product analysis is informational and does not guarantee financial outcomes.
+
+---
+
+<div align="center">
+  <strong>MIHARI</strong><br />
+  Monitor. Understand. Respond.<br />
+  <sub>Built on Robinhood Chain.</sub>
+</div>
