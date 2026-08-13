@@ -128,6 +128,38 @@ The following features are not live yet:
 
 The Solidity contracts in this repository are unaudited reference implementations. Do not use them to secure production funds.
 
+## Roadmap
+
+### Phase 01 — Observe · Live
+
+- Full Robinhood Stock Token watchlists.
+- Official asset, price, multiplier and corporate-action data.
+- Event Register and AI-generated Incident Files.
+- Read-only wallet connection and Neon incident memory.
+
+### Phase 02 — Map · Next
+
+- Discover tokenized-stock positions from connected wallets.
+- Map exposure across vaults, lending markets and agent strategies.
+- Show which positions may be affected by each corporate action.
+- Add protocol alerts, webhooks and API access.
+
+### Phase 03 — Guard
+
+- Turn recommendations into deterministic policy actions.
+- Add operator approval and transaction previews.
+- Support bounded actions such as pausing quotes or restricting new lending.
+- Introduce `$MHR` access, credits and security staking.
+
+### Phase 04 — Prove
+
+- Deploy audited policy and attestation contracts on Robinhood Chain.
+- Record evidence, decisions and execution receipts onchain.
+- Add independent operators, verifiable monitoring and slashing conditions.
+- Open the MIHARI protection network to external protocol integrations.
+
+Each phase will ship only after its data sources, permissions and security assumptions can be verified in production.
+
 ## Documentation
 
 - [Product-owner setup](./docs/OWNER-GUIDE.md)
