@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SignUp } from "@clerk/nextjs";
 import { BrandMark } from "@/components/brand-mark";
+import { WalletAuthButton } from "@/components/wallet-auth-button";
 import { isClerkConfigured } from "@/lib/auth-config";
 
 export default function SignUpPage() {
@@ -34,7 +35,13 @@ export default function SignUpPage() {
         </div>
       </section>
       <section className="auth-form-shell">
-        <SignUp
+        <div className="mihari-auth-stack">
+          <div className="mihari-auth-method">
+            <p className="mono">01 / WALLET PROFILE</p>
+            <WalletAuthButton label="Create profile with wallet" />
+          </div>
+          <div className="mihari-auth-divider mono"><span>OR CREATE WITH EMAIL</span></div>
+          <SignUp
           path="/sign-up"
           routing="path"
           fallbackRedirectUrl="/map"
@@ -59,7 +66,8 @@ export default function SignUpPage() {
               footer: "mihari-auth-footer",
             },
           }}
-        />
+          />
+        </div>
       </section>
     </main>
   );

@@ -1,8 +1,8 @@
 # MIHARI owner guide
 
-## Activate email profiles and MIHARI MAP
+## Activate personal profiles and MIHARI MAP
 
-MIHARI keeps public Observe mode available when Clerk is not configured. To activate personal profiles:
+MIHARI keeps public Observe mode available when Clerk is not configured. Personal profiles support passwordless email and wallet-native sign-in. Wallet sessions use `WALLET_SESSION_SECRET` when present and otherwise derive their signature from `CLERK_SECRET_KEY`.
 
 1. Open the MIHARI project in Vercel.
 2. Install Clerk from the Vercel Marketplace and connect it to the project.

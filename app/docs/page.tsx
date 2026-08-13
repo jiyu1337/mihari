@@ -19,8 +19,10 @@ const statusRows = [
   ["Price and multiplier context", "Live", "Reads Robinhood prices and asset multipliers."],
   ["AI risk analysis", "Live", "Explains impact and recommends a bounded response."],
   ["Neon incident memory", "Live", "Caches AI analysis so the same event is not paid for twice."],
-  ["Wallet connection", "Read-only", "Connects an EVM address and selects Robinhood Chain 4663."],
-  ["Vault and lending discovery", "Next", "Positions are not indexed from the wallet yet."],
+  ["Email and wallet profiles", "Live", "Creates a private workspace through email code or EVM signature."],
+  ["Wallet Stock Token mapping", "Live", "Indexes verified wallet balances on Robinhood Chain through Blockscout."],
+  ["Personal Asset Manager", "Live", "Saves a private monitoring scope directly inside the profile."],
+  ["Vault and lending discovery", "Next", "Protocol positions are not indexed yet."],
   ["Policy execution", "Next", "MIHARI does not pause protocols or move funds today."],
   ["Onchain proof", "Next", "No production receipt is written until contracts are audited and deployed."],
 ];
@@ -76,7 +78,7 @@ export default function DocsPage() {
             <p className="docs-kicker mono">01 / USER WORKFLOW</p>
             <h2>What a user can do in MIHARI today.</h2>
             <div className="docs-flow docs-workflow">
-              <div><Wallet size={20} /><span className="mono">01 / ENTER</span><strong>Choose access</strong><p>Continue read-only or connect an EVM address to Robinhood Chain.</p></div>
+              <div><Wallet size={20} /><span className="mono">01 / ENTER</span><strong>Choose access</strong><p>Continue publicly, sign in by email or create a wallet-native profile.</p></div>
               <div><ListChecks size={20} /><span className="mono">02 / SELECT</span><strong>Build a watchlist</strong><p>Choose individual Stock Tokens, Select All, search the catalog or clear the selection.</p></div>
               <div><ShieldCheck size={20} /><span className="mono">03 / OBSERVE</span><strong>Start monitoring</strong><p>Observe mode reads and explains risk. It cannot execute a transaction.</p></div>
               <div><Database size={20} /><span className="mono">04 / SOURCE</span><strong>Sync Robinhood data</strong><p>MIHARI reads asset metadata, prices, multipliers and corporate actions.</p></div>
@@ -146,16 +148,16 @@ export default function DocsPage() {
 
           <section className="docs-section" id="wallet">
             <p className="docs-kicker mono">05 / WALLET</p>
-            <h2>What “Connect wallet” does today.</h2>
+            <h2>What wallet access does today.</h2>
             <div className="wallet-doc-card">
               <Wallet size={26} />
               <div>
-                <strong>Working: address + network</strong>
-                <p>MIHARI requests your public EVM address and switches the wallet to Robinhood Chain mainnet, chain ID 4663.</p>
+                <strong>Wallet-native profile</strong>
+                <p>A free message signature creates a secure MIHARI session without email, gas or a transaction.</p>
               </div>
               <div>
-                <strong>Not implemented yet</strong>
-                <p>No portfolio indexing, account authentication, message signature, transaction approval or fund access.</p>
+                <strong>Personal position mapping</strong>
+                <p>Verified addresses are scanned for official Robinhood Stock Tokens and matched with corporate actions. MIHARI cannot move funds.</p>
               </div>
             </div>
             <p className="docs-note mono">MIHARI WILL NEVER ASK FOR A SEED PHRASE OR PRIVATE KEY.</p>

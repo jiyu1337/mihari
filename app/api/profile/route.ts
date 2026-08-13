@@ -29,7 +29,11 @@ export async function GET() {
   }));
 
   return Response.json({
-    account: { id: account.id, email: account.email },
+    account: {
+      id: account.id,
+      email: account.email,
+      primaryMethod: account.authProviderId.startsWith("wallet:") ? "wallet" : "email",
+    },
     watchlist: savedWatchlist[0] ?? null,
     wallets: savedWallets,
     exposure,

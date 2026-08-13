@@ -4,9 +4,10 @@
 
 MAP adds a personal identity and exposure layer without giving MIHARI custody of funds.
 
-1. Clerk verifies the user's email and manages the session.
-2. Neon stores the MIHARI account, saved watchlist and linked wallet records.
-3. A wallet is linked only after a one-time message signature is verified server-side.
+1. A user enters through Clerk passwordless email or an EVM wallet signature.
+2. Wallet-native access receives a signed HttpOnly MIHARI session after server-side signature verification.
+3. Neon stores the shared MIHARI account, personal watchlist and linked wallet records.
+4. Email and wallet access can be attached to the same account without duplicating the workspace.
 4. Blockscout returns ERC-20 balances for the verified Robinhood Chain address.
 5. MIHARI keeps only contracts that match the official Robinhood Stock Token catalog.
 6. Current corporate actions are matched to those personal positions.

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SignIn } from "@clerk/nextjs";
 import { BrandMark } from "@/components/brand-mark";
+import { WalletAuthButton } from "@/components/wallet-auth-button";
 import { isClerkConfigured } from "@/lib/auth-config";
 
 export default function SignInPage() {
@@ -22,8 +23,14 @@ export default function SignInPage() {
         </div>
       </section>
       <section className="auth-form-shell">
-        {isClerkConfigured() ? (
-          <SignIn
+        <div className="mihari-auth-stack">
+          <div className="mihari-auth-method">
+            <p className="mono">01 / WALLET ACCESS</p>
+            <WalletAuthButton />
+          </div>
+          <div className="mihari-auth-divider mono"><span>OR CONTINUE WITH EMAIL</span></div>
+          {isClerkConfigured() ? (
+            <SignIn
             path="/sign-in"
             routing="path"
             fallbackRedirectUrl="/map"
@@ -48,15 +55,16 @@ export default function SignInPage() {
                 footer: "mihari-auth-footer",
               },
             }}
-          />
-        ) : (
-          <div className="auth-unavailable">
+            />
+          ) : (
+            <div className="auth-unavailable">
             <p className="mono">PROFILE ACCESS / SETUP REQUIRED</p>
             <h2>Email profiles are being connected.</h2>
             <p>Public Observe mode remains available now.</p>
             <Link className="primary-action" href="/launch">Continue read-only</Link>
-          </div>
-        )}
+            </div>
+          )}
+        </div>
       </section>
     </main>
   );

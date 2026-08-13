@@ -45,7 +45,7 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 
 | Step | User action | What MIHARI does |
 | :---: | --- | --- |
-| `01` | Enter read-only or connect an EVM wallet | Establishes a read-only identity on Robinhood Chain |
+| `01` | Enter public Observe mode or create a profile | Opens read-only monitoring, email access or wallet-native access |
 | `02` | Select one Stock Token or the full catalog | Creates the monitoring scope |
 | `03` | Start Observe mode | Syncs official asset, price, multiplier and corporate-action data |
 | `04` | Review the Event Register | Surfaces only watched assets with matching events |
@@ -61,7 +61,8 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Price and multiplier context | `LIVE` | Robinhood market data attached to the monitored assets |
 | AI Incident Files | `LIVE` | Observation, Impact Map, risk, confidence and Bounded Response |
 | Incident memory | `LIVE` | Neon persistence and cached analysis to avoid duplicate AI cost |
-| Email profiles | `LIVE` | Passwordless Clerk accounts with personal saved configuration |
+| Email and wallet profiles | `LIVE` | Passwordless email or EVM signature creates a secure personal workspace |
+| Personal Asset Manager | `LIVE` | Add, remove, search and save monitored Stock Tokens inside the private workspace |
 | Wallet verification | `LIVE` | Free message signature proves ownership without a transaction |
 | Wallet Stock Token mapping | `LIVE` | Verified addresses are indexed through Robinhood Chain Blockscout |
 | Personal exposure matching | `LIVE` | Corporate actions are matched to Stock Tokens found in linked wallets |
@@ -110,7 +111,7 @@ Planned utility is designed around product use:
 | Phase | Status | Focus |
 | --- | :---: | --- |
 | **01 · Observe** | `LIVE` | Official data, watchlists, Event Register, AI Incident Files and read-only identity |
-| **02 · Map** | `IN PROGRESS` | Email profiles, wallet Stock Token positions and personal event exposure are live. Vaults, lending markets and agents come next |
+| **02 · Map** | `IN PROGRESS` | Email or wallet profiles, personal Asset Manager, wallet Stock Token positions and event exposure are live. Vaults, lending markets and agents come next |
 | **03 · Guard** | `PLANNED` | Deterministic policies, operator approval, transaction previews and bounded actions |
 | **04 · Prove** | `PLANNED` | Audited contracts, onchain receipts, independent operators and verifiable monitoring |
 
@@ -124,7 +125,7 @@ Each phase ships only after its data sources, permissions and security assumptio
 | Intelligence | Vercel AI SDK, OpenAI, deterministic rule fallback |
 | Data | Robinhood Stock Token APIs |
 | Persistence | Neon Postgres, Drizzle ORM |
-| Authentication | Clerk passwordless email |
+| Authentication | Clerk passwordless email plus signed EVM wallet sessions |
 | Chain | Robinhood Chain, viem |
 | Contracts | Solidity, OpenZeppelin |
 | Hosting | Vercel |
@@ -163,6 +164,7 @@ Use [`.env.example`](./.env.example) as the source of truth.
 | `NEXT_PUBLIC_RPC_URL` | Public Robinhood Chain RPC |
 | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | Public Clerk application key |
 | `CLERK_SECRET_KEY` | Server-side Clerk authentication key |
+| `WALLET_SESSION_SECRET` | Optional dedicated HMAC secret for wallet sessions. Falls back to `CLERK_SECRET_KEY` |
 
 </details>
 

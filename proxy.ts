@@ -1,6 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { isClerkConfigured } from "@/lib/auth-config";
+import { WALLET_SESSION_COOKIE, verifyWalletSessionToken } from "@/lib/wallet-session";
 
 const isMapRoute = createRouteMatcher(["/map(.*)"]);
 const isProtectedApiRoute = createRouteMatcher(["/api/profile(.*)", "/api/wallets(.*)"]);
@@ -10,6 +11,9 @@ const configuredProxy = clerkMiddleware(async (auth, request) => {
 
   const { userId } = await auth();
   if (userId) return;
+
+  const walletSession = await verifyWalletSessionToken(request.cookies.get(WALLET_SESSION_COOKIE)?.value);
+  if (walletSession) return;
 
   if (isProtectedApiRoute(request)) {
     return Response.json({ error: "Unauthorized" }, { status: 401 });
