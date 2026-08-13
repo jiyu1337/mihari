@@ -17,7 +17,10 @@ export default isClerkConfigured() ? configuredProxy : function proxy() {};
 
 export const config = {
   matcher: [
-    "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-    "/(api|trpc)(.*)",
+    "/map/:path*",
+    "/sign-in/:path*",
+    "/sign-up/:path*",
+    "/api/profile/:path*",
+    "/api/wallets/:path*",
   ],
 };
