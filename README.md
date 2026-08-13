@@ -64,8 +64,9 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Email and wallet profiles | `LIVE` | Passwordless email or EVM signature creates a secure personal workspace |
 | Personal Asset Manager | `LIVE` | Add, remove, search and save monitored Stock Tokens inside the private workspace |
 | Wallet verification | `LIVE` | Free message signature proves ownership without a transaction |
-| Wallet Stock Token mapping | `LIVE` | Verified addresses are indexed through Robinhood Chain Blockscout |
-| Personal exposure matching | `LIVE` | Corporate actions are matched to Stock Tokens found in linked wallets |
+| Wallet Stock Token mapping | `LIVE` | Every verified address is scanned automatically for all official Robinhood Stock Tokens through Robinhood Chain Blockscout |
+| Personal exposure matching | `LIVE` | Corporate actions are matched to Stock Tokens found in linked wallets, independent of the watchlist |
+| Personal risk files | `LIVE` | Event matches open position context, AI or rule-based impact analysis and a bounded response |
 | Vault and lending discovery | `NEXT` | Protocol-level positions are not indexed yet |
 | Policy execution | `NEXT` | No automatic protocol action or fund movement today |
 | Onchain proofs | `NEXT` | Production attestations require audited contracts |
@@ -199,6 +200,7 @@ scripts/              Database and maintenance scripts
 - [Public product documentation](https://mihari-eight.vercel.app/docs)
 - [Technical and trust architecture](./docs/ARCHITECTURE.md)
 - [Product-owner setup](./docs/OWNER-GUIDE.md)
+- [Personal workspace and exposure statuses](./docs/PERSONAL-WORKSPACE.md)
 - [Robinhood Chain contracts](./contracts/README.md)
 - [Content and demo plan](./docs/CONTENT-PLAN.md)
 

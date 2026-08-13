@@ -22,13 +22,14 @@ const statusRows = [
   ["Email and wallet profiles", "Live", "Creates a private workspace through email code or EVM signature."],
   ["Wallet Stock Token mapping", "Live", "Indexes verified wallet balances on Robinhood Chain through Blockscout."],
   ["Personal Asset Manager", "Live", "Saves a private monitoring scope directly inside the profile."],
+  ["Personal risk files", "Live", "Explains corporate actions matched to Stock Tokens found in verified wallets."],
   ["Vault and lending discovery", "Next", "Protocol positions are not indexed yet."],
   ["Policy execution", "Next", "MIHARI does not pause protocols or move funds today."],
   ["Onchain proof", "Next", "No production receipt is written until contracts are audited and deployed."],
 ];
 
 export const metadata = {
-  title: "Documentation — MIHARI",
+  title: "Documentation - MIHARI",
   description: "Plain-language documentation for MIHARI on Robinhood Chain.",
 };
 
@@ -46,6 +47,8 @@ export default function DocsPage() {
             <a href="#assets-events">Assets vs events</a>
             <a href="#ai">AI analysis</a>
             <a href="#wallet">Wallet connection</a>
+            <a href="#workspace">Personal workspace</a>
+            <a href="#exposure-statuses">Exposure statuses</a>
             <a href="#status">What works today</a>
             <a href="#terms">Key terms</a>
           </nav>
@@ -163,9 +166,82 @@ export default function DocsPage() {
             <p className="docs-note mono">MIHARI WILL NEVER ASK FOR A SEED PHRASE OR PRIVATE KEY.</p>
           </section>
 
+          <section className="docs-section" id="workspace">
+            <p className="docs-kicker mono">06 / PERSONAL WORKSPACE</p>
+            <h2>How the private profile is organized.</h2>
+            <p>
+              A profile combines two different sets of information: the assets a user chooses to
+              monitor and the Stock Tokens MIHARI actually finds in verified wallets. Selecting
+              AMC in Assets does not create an AMC position. A position appears in Exposure only
+              when its official contract has a non-zero balance in a linked wallet.
+            </p>
+            <div className="docs-result-grid">
+              <div><span className="mono">OVERVIEW</span><strong>Personal control room</strong><p>Summarizes monitored assets, verified wallets, detected Stock Token positions and event matches.</p></div>
+              <div><span className="mono">ASSETS</span><strong>Watchlist and contract directory</strong><p>Search the live catalog, select a monitoring scope, copy official contracts and open them in Blockscout.</p></div>
+              <div><span className="mono">WALLETS</span><strong>Verified identities</strong><p>Link one or more EVM addresses through a free message signature. MIHARI receives no spending permission.</p></div>
+              <div><span className="mono">EXPOSURE</span><strong>Automatic wallet holdings</strong><p>Scans every verified wallet for all official Robinhood Stock Tokens, including tokens outside the watchlist.</p></div>
+              <div><span className="mono">PROFILE</span><strong>Access methods</strong><p>Shows whether the account uses wallet or email access and lets the user add another access method.</p></div>
+              <div><span className="mono">RESCAN</span><strong>Refresh personal data</strong><p>Reloads the profile, wallet balances, prices and corporate-action matching from the connected sources.</p></div>
+            </div>
+
+            <h3 className="docs-subheading">Terms used in Assets</h3>
+            <div className="status-table docs-label-table">
+              <div><strong>Monitored</strong><span className="status-pill live">Selected</span><p>The asset belongs to the saved watchlist and is checked for corporate actions.</p></div>
+              <div><strong>Not monitored</strong><span className="status-pill next">Not selected</span><p>The asset remains in the live catalog but is not part of the saved watchlist.</p></div>
+              <div><strong>Contract / Chain 4663</strong><span className="status-pill readonly">Source data</span><p>The official Robinhood Stock Token deployment used for wallet matching on Robinhood Chain.</p></div>
+              <div><strong>Save scope</strong><span className="status-pill readonly">Profile action</span><p>Saves the current selection to this private MIHARI profile.</p></div>
+            </div>
+          </section>
+
+          <section className="docs-section" id="exposure-statuses">
+            <p className="docs-kicker mono">07 / EXPOSURE AND RISK</p>
+            <h2>How to read a position and its risk status.</h2>
+            <p>
+              MIHARI reads token balances from Robinhood Chain Blockscout, recognizes only
+              contracts from Robinhood asset metadata, attaches a midpoint from the available bid
+              and ask, and compares each position with the current corporate-action response.
+            </p>
+            <div className="docs-result-grid">
+              <div><span className="mono">ASSET</span><strong>Recognized Stock Token</strong><p>The symbol and company name matched through the official Robinhood contract catalog.</p></div>
+              <div><span className="mono">BALANCE</span><strong>Onchain token amount</strong><p>The non-zero balance found in a verified wallet. It is not necessarily the number of underlying shares without considering the multiplier.</p></div>
+              <div><span className="mono">INDICATIVE VALUE</span><strong>Estimated current value</strong><p>Token balance multiplied by the midpoint between Robinhood bid and ask. It is informational, not an executable quote.</p></div>
+              <div><span className="mono">NO EVENT MATCH</span><strong>No matching record now</strong><p>No corporate-action record for this holding appears in the current Robinhood source response. Monitoring continues. This does not mean zero market, liquidity, smart-contract or future event risk.</p></div>
+              <div><span className="mono">EVENT MATCH</span><strong>Review required</strong><p>A Robinhood corporate-action record matches a Stock Token found in the wallet. Use View Risk to open the personal risk file.</p></div>
+              <div><span className="mono">VIEW RISK</span><strong>Personal risk file</strong><p>Shows what happened, possible impact, a bounded response, evidence confidence and systems that may be affected.</p></div>
+            </div>
+
+            <h3 className="docs-subheading">Personal risk file labels</h3>
+            <div className="status-table docs-label-table">
+              <div><strong>What happened</strong><span className="status-pill readonly">Evidence</span><p>A plain-language summary of the official Robinhood corporate-action record.</p></div>
+              <div><strong>Possible impact</strong><span className="status-pill readonly">Analysis</span><p>How the event may affect quotes, NAV, vault accounting, lending collateral or agents.</p></div>
+              <div><strong>Recommended response</strong><span className="status-pill live">Advisory</span><p>A bounded operator recommendation. MIHARI does not execute it in Observe mode.</p></div>
+              <div><strong>Source summary</strong><span className="status-pill readonly">Immediate</span><p>The official event description is shown while deeper analysis is loading or unavailable.</p></div>
+              <div><strong>AI</strong><span className="status-pill live">Analyzed</span><p>OpenAI produced structured analysis from a server-verified Robinhood event.</p></div>
+              <div><strong>Rule based</strong><span className="status-pill readonly">Fallback</span><p>Deterministic MIHARI rules produced the analysis because AI or persistence was unavailable or limited.</p></div>
+              <div><strong>Confidence</strong><span className="status-pill readonly">0 to 100</span><p>Evidence completeness and consistency. It is not a probability of loss and not a price forecast.</p></div>
+              <div><strong>Affected systems</strong><span className="status-pill readonly">Scope</span><p>Potential categories: quotes, NAV, vaults, lending and agents. This does not yet prove the user has a position in those protocols.</p></div>
+            </div>
+
+            <h3 className="docs-subheading">Risk and source statuses</h3>
+            <div className="status-table docs-label-table">
+              <div><strong>Low</strong><span className="status-pill readonly">Risk</span><p>The record appears resolved or has limited immediate operational impact, but still requires normal monitoring.</p></div>
+              <div><strong>Medium</strong><span className="status-pill readonly">Risk</span><p>The event can require accounting or operational review without an immediate critical mismatch.</p></div>
+              <div><strong>High</strong><span className="status-pill live">Risk</span><p>The event may materially affect valuation, quoting or connected protocol accounting.</p></div>
+              <div><strong>Critical</strong><span className="status-pill live">Risk</span><p>The source indicates an in-progress event or mismatch that should receive immediate operator attention.</p></div>
+              <div><strong>In progress</strong><span className="status-pill live">Source</span><p>Robinhood reports that the corporate action is currently being processed.</p></div>
+              <div><strong>Completed</strong><span className="status-pill readonly">Source</span><p>Robinhood reports that event processing is complete. Downstream systems may still need reconciliation.</p></div>
+              <div><strong>Pending</strong><span className="status-pill next">Source</span><p>The source has not provided a completed event state or effective date yet.</p></div>
+            </div>
+
+            <div className="docs-callout">
+              <strong>What AMC means in the example.</strong>
+              <p>AMC was found automatically in the wallet and valued from live market context. No Event Match means there is no matching corporate-action record in the current response, so MIHARI keeps monitoring it but has no risk file to analyze right now.</p>
+            </div>
+          </section>
+
           <section className="docs-section" id="status">
-            <p className="docs-kicker mono">06 / PRODUCT STATUS</p>
-            <h2>What works today — and what does not.</h2>
+            <p className="docs-kicker mono">08 / PRODUCT STATUS</p>
+            <h2>What works today - and what does not.</h2>
             <div className="status-table">
               {statusRows.map(([feature, status, explanation]) => (
                 <div key={feature}>
@@ -178,13 +254,16 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="terms">
-            <p className="docs-kicker mono">07 / KEY TERMS</p>
+            <p className="docs-kicker mono">09 / KEY TERMS</p>
             <h2>A short glossary.</h2>
             <dl className="docs-glossary">
               <div><dt>NAV</dt><dd>Net Asset Value: the calculated value of assets held by a vault or fund, minus its liabilities.</dd></div>
               <div><dt>Multiplier</dt><dd>The shares-per-token factor used to account for corporate actions such as splits.</dd></div>
               <div><dt>Stale quote</dt><dd>A price that no longer represents the same corporate-action state as the asset metadata.</dd></div>
               <div><dt>Onchain proof</dt><dd>A future transaction or attestation recording what policy decision was made and when.</dd></div>
+              <div><dt>Watchlist</dt><dd>The Stock Tokens a profile asks MIHARI to monitor. It is separate from assets actually held in linked wallets.</dd></div>
+              <div><dt>Exposure</dt><dd>A recognized Robinhood Stock Token balance found automatically in a verified wallet and matched with current event data.</dd></div>
+              <div><dt>Event match</dt><dd>A corporate-action record from Robinhood that has the same symbol as a Stock Token position found in the wallet.</dd></div>
             </dl>
           </section>
         </article>

@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import {
   Activity,
+  AlertTriangle,
   ArrowRight,
   Check,
   CircleUserRound,
@@ -20,9 +21,11 @@ import {
   ShieldCheck,
   Unlink,
   Wallet,
+  X,
 } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { ProfileSignOut } from "@/components/profile-sign-out";
+import type { AnalysisResponse } from "@/lib/analysis";
 import type { MappedPosition } from "@/lib/map-data";
 import type { CorporateEvent } from "@/lib/product-data";
 import type { RobinhoodAsset } from "@/lib/robinhood";
@@ -67,6 +70,12 @@ function formatMoney(value: string | null) {
   }).format(Number(value));
 }
 
+function eventRiskLabel(event: CorporateEvent) {
+  if (event.severity === "critical") return "CRITICAL";
+  if (event.severity === "watch") return "HIGH";
+  return "LOW";
+}
+
 export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
   const [view, setView] = useState<WorkspaceView>("overview");
   const [profile, setProfile] = useState<ProfileResponse | null>(null);
@@ -79,6 +88,11 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [copiedContract, setCopiedContract] = useState("");
+  const [openRiskSymbol, setOpenRiskSymbol] = useState("");
+  const [positionAnalyses, setPositionAnalyses] = useState<Record<string, AnalysisResponse>>({});
+  const [analyzingSymbol, setAnalyzingSymbol] = useState("");
+  const [riskAnalysisError, setRiskAnalysisError] = useState("");
+  const riskFileRef = useRef<HTMLElement>(null);
 
   const loadWorkspace = useCallback(async () => {
     if (authUnavailable) return;
@@ -109,6 +123,12 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
     return () => window.clearTimeout(timer);
   }, [loadWorkspace]);
 
+  useEffect(() => {
+    if (!openRiskSymbol) return;
+    const timer = window.setTimeout(() => riskFileRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+    return () => window.clearTimeout(timer);
+  }, [openRiskSymbol]);
+
   const selectedSet = useMemo(() => new Set(selectedSymbols), [selectedSymbols]);
   const visibleAssets = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -120,6 +140,14 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
     0,
   ) ?? 0, [profile]);
   const exposedPositions = profile?.exposure.positions.filter((position) => position.hasCorporateAction) ?? [];
+  const eventsBySymbol = useMemo(() => new Map(
+    (profile?.exposure.events ?? []).map((event) => [event.asset.toUpperCase(), event]),
+  ), [profile?.exposure.events]);
+  const openRiskPosition = profile?.exposure.positions.find(
+    (position) => position.symbol.toUpperCase() === openRiskSymbol,
+  ) ?? null;
+  const openRiskEvent = openRiskPosition ? eventsBySymbol.get(openRiskPosition.symbol.toUpperCase()) ?? null : null;
+  const openRiskAnalysis = openRiskEvent ? positionAnalyses[openRiskEvent.id] : undefined;
   const allSelected = assets.length > 0 && assets.every((asset) => selectedSet.has(asset.tokenSymbol));
 
   async function saveAssets() {
@@ -155,6 +183,30 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
     await navigator.clipboard.writeText(address);
     setCopiedContract(address);
     window.setTimeout(() => setCopiedContract((current) => current === address ? "" : current), 1600);
+  }
+
+  async function openPositionRisk(position: MappedPosition) {
+    const symbol = position.symbol.toUpperCase();
+    const event = eventsBySymbol.get(symbol);
+    setOpenRiskSymbol(symbol);
+    setRiskAnalysisError("");
+    if (!event || positionAnalyses[event.id]) return;
+
+    setAnalyzingSymbol(symbol);
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eventId: event.id, symbol }),
+      });
+      if (!response.ok) throw new Error(`Analysis unavailable (${response.status})`);
+      const analysis = await response.json() as AnalysisResponse;
+      setPositionAnalyses((current) => ({ ...current, [event.id]: analysis }));
+    } catch (analysisError) {
+      setRiskAnalysisError(analysisError instanceof Error ? analysisError.message : "Analysis unavailable");
+    } finally {
+      setAnalyzingSymbol("");
+    }
   }
 
   async function linkWallet() {
@@ -360,9 +412,55 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
 
         {view === "exposure" ? (
           <section className="workspace-view">
-            <div className="workspace-title compact"><div><p className="mono">04 / POSITION INTELLIGENCE</p><h1>Exposure.</h1></div><p>Live holdings from Robinhood Chain are matched against official corporate-action records.</p></div>
+            <div className="workspace-title compact"><div><p className="mono">04 / POSITION INTELLIGENCE</p><h1>Exposure.</h1></div><p>Every linked wallet is scanned automatically for all official Robinhood Stock Tokens, including assets outside your watchlist. Event matches open a personal risk file.</p></div>
             <div className="workspace-value-band"><span className="mono">INDICATIVE STOCK TOKEN VALUE</span><strong>{formatMoney(totalValue.toFixed(2))}</strong></div>
-            {profile?.exposure.positions.length ? <div className="workspace-position-table"><header className="mono"><span>ASSET</span><span>BALANCE</span><span>VALUE</span><span>EVENT STATUS</span></header>{profile.exposure.positions.map((position) => <div className={position.hasCorporateAction ? "exposed" : ""} key={`${position.wallet}-${position.contractAddress}`}><span><strong>{position.symbol}</strong><small>{position.name}</small></span><span className="mono">{Number(position.balance).toLocaleString(undefined, { maximumFractionDigits: 6 })}</span><span>{formatMoney(position.valueUsd)}</span><span className="mono">{position.hasCorporateAction ? "ACTION MATCH" : "CLEAR"}</span></div>)}</div> : <div className="workspace-empty"><Orbit size={30} /><h2>No Stock Token positions found.</h2><p>Your saved watchlist continues monitoring even when a linked wallet has no position.</p></div>}
+            <div className="workspace-exposure-guide">
+              <div><Orbit size={18} /><span><strong>POSITION FOUND</strong><small>The token balance was found in a verified wallet on Robinhood Chain.</small></span></div>
+              <div><ShieldCheck size={18} /><span><strong>NO ACTIVE EVENT</strong><small>No matching corporate action exists in the current Robinhood source window. This is not a guarantee of zero risk.</small></span></div>
+              <div><AlertTriangle size={18} /><span><strong>EVENT MATCH</strong><small>An official corporate action matches a token you hold. Open the risk file to review its impact.</small></span></div>
+            </div>
+            {profile?.exposure.positions.length ? (
+              <div className="workspace-position-table">
+                <header className="mono"><span>ASSET</span><span>BALANCE</span><span>INDICATIVE VALUE</span><span>EVENT STATUS</span></header>
+                {profile.exposure.positions.map((position) => (
+                  <div className={position.hasCorporateAction ? "exposed" : ""} key={`${position.wallet}-${position.contractAddress}`}>
+                    <span><strong>{position.symbol}</strong><small>{position.name}</small></span>
+                    <span className="mono">{Number(position.balance).toLocaleString(undefined, { maximumFractionDigits: 6 })}</span>
+                    <span>{formatMoney(position.valueUsd)}</span>
+                    <span className="workspace-position-status">
+                      <strong className="mono">{position.hasCorporateAction ? "EVENT MATCH" : "NO ACTIVE EVENT"}</strong>
+                      {position.hasCorporateAction ? <button type="button" onClick={() => void openPositionRisk(position)}>VIEW RISK <ArrowRight size={12} /></button> : <small>MONITORING CONTINUES</small>}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            ) : <div className="workspace-empty"><Orbit size={30} /><h2>No Stock Token positions found.</h2><p>Your saved watchlist continues monitoring even when a linked wallet has no position.</p></div>}
+
+            {openRiskPosition && openRiskEvent ? (
+              <article className="workspace-risk-file" ref={riskFileRef} aria-label={`${openRiskPosition.symbol} personal risk file`}>
+                <header>
+                  <div><p className="mono">PERSONAL RISK FILE / OFFICIAL EVENT MATCH</p><h2>{openRiskPosition.symbol} touches your wallet.</h2></div>
+                  <button type="button" aria-label="Close personal risk file" onClick={() => setOpenRiskSymbol("")}><X size={18} /></button>
+                </header>
+                <div className="workspace-risk-meta mono">
+                  <span>POSITION <strong>{Number(openRiskPosition.balance).toLocaleString(undefined, { maximumFractionDigits: 6 })} {openRiskPosition.symbol}</strong></span>
+                  <span>EVENT <strong>{openRiskEvent.type}</strong></span>
+                  <span>SOURCE STATUS <strong>{openRiskEvent.sourceStatus}</strong></span>
+                  <span>RISK <strong>{openRiskAnalysis?.risk.toUpperCase() ?? eventRiskLabel(openRiskEvent)}</strong></span>
+                </div>
+                <div className="workspace-risk-analysis">
+                  <section><span className="mono">01 / WHAT HAPPENED</span><p>{openRiskAnalysis?.summary ?? openRiskEvent.summary}</p></section>
+                  <section><span className="mono">02 / POSSIBLE IMPACT</span><p>{openRiskAnalysis?.impactAssessment ?? openRiskEvent.impact}</p></section>
+                  <section className="response"><span className="mono">03 / RECOMMENDED RESPONSE</span><p>{openRiskAnalysis?.recommendedAction ?? openRiskEvent.action}</p></section>
+                </div>
+                <footer className="mono">
+                  <span>ANALYSIS <strong>{analyzingSymbol === openRiskPosition.symbol ? "RUNNING" : openRiskAnalysis?.mode === "ai" ? "AI" : openRiskAnalysis?.mode === "deterministic" ? "RULE BASED" : "SOURCE SUMMARY"}</strong></span>
+                  <span>CONFIDENCE <strong>{openRiskAnalysis ? `${openRiskAnalysis.confidence}%` : analyzingSymbol ? "PENDING" : "NOT SCORED"}</strong></span>
+                  <span>AFFECTED SYSTEMS <strong>{openRiskAnalysis?.affectedSystems.join(" / ").toUpperCase() ?? "ANALYSIS PENDING"}</strong></span>
+                </footer>
+                {riskAnalysisError ? <p className="workspace-risk-error mono">{riskAnalysisError}. Official source details are still shown.</p> : null}
+              </article>
+            ) : null}
           </section>
         ) : null}
 
