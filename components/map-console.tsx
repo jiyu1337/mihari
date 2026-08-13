@@ -7,6 +7,8 @@ import {
   ArrowRight,
   Check,
   CircleUserRound,
+  Copy,
+  ExternalLink,
   FileCheck2,
   Link2,
   ListFilter,
@@ -76,6 +78,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
   const [linking, setLinking] = useState(false);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
+  const [copiedContract, setCopiedContract] = useState("");
 
   const loadWorkspace = useCallback(async () => {
     if (authUnavailable) return;
@@ -146,6 +149,12 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
     setSelectedSymbols((current) => current.includes(symbol)
       ? current.filter((item) => item !== symbol)
       : [...current, symbol]);
+  }
+
+  async function copyContract(address: string) {
+    await navigator.clipboard.writeText(address);
+    setCopiedContract(address);
+    window.setTimeout(() => setCopiedContract((current) => current === address ? "" : current), 1600);
   }
 
   async function linkWallet() {
@@ -297,7 +306,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
 
         {view === "assets" ? (
           <section className="workspace-view">
-            <div className="workspace-title compact"><div><p className="mono">02 / ASSET MANAGER</p><h1>Monitoring scope.</h1></div><p>Select the Stock Tokens your profile should watch. Changes are saved to your account, not the public read-only session.</p></div>
+            <div className="workspace-title compact"><div><p className="mono">02 / ASSET MANAGER</p><h1>Assets and contracts.</h1></div><p>Select the Stock Tokens your profile should watch and verify every official Robinhood Chain contract from the same live catalog.</p></div>
             <div className="workspace-asset-toolbar">
               <label><Search size={17} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search symbol or company" /></label>
               <span className="mono">{selectedSymbols.length} SELECTED / {assets.length} LIVE</span>
@@ -307,7 +316,31 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
             <div className="workspace-asset-grid">
               {visibleAssets.map((asset) => {
                 const selected = selectedSet.has(asset.tokenSymbol);
-                return <button className={selected ? "selected" : ""} aria-pressed={selected} key={asset.id ?? asset.tokenSymbol} onClick={() => toggleAsset(asset.tokenSymbol)}><span>{selected ? <Check size={15} /> : "+"}</span><strong>{asset.tokenSymbol}</strong><small>{cleanAssetName(asset.tokenName)}</small><i className="mono">CHAIN 4663</i></button>;
+                const deployment = asset.deployments.find((item) => item.chainId === 4663) ?? asset.deployments[0];
+                const contractAddress = deployment?.contractAddress ?? "";
+                return (
+                  <article className={selected ? "selected" : ""} key={asset.id ?? asset.tokenSymbol}>
+                    <button className="workspace-asset-select" type="button" aria-pressed={selected} onClick={() => toggleAsset(asset.tokenSymbol)}>
+                      <span>{selected ? <Check size={15} /> : "+"}</span>
+                      <strong>{asset.tokenSymbol}</strong>
+                      <small>{cleanAssetName(asset.tokenName)}</small>
+                      <i className="mono">{selected ? "MONITORED" : "NOT MONITORED"}</i>
+                    </button>
+                    <div className="workspace-contract-row">
+                      <span><small className="mono">CONTRACT / CHAIN {deployment?.chainId ?? 4663}</small><code title={contractAddress}>{contractAddress || "NOT PUBLISHED"}</code></span>
+                      {contractAddress ? (
+                        <span className="workspace-contract-actions">
+                          <button type="button" title="Copy contract address" aria-label={`Copy ${asset.tokenSymbol} contract address`} onClick={() => void copyContract(contractAddress)}>
+                            {copiedContract === contractAddress ? <Check size={14} /> : <Copy size={14} />}
+                          </button>
+                          <a href={`https://robinhoodchain.blockscout.com/address/${contractAddress}`} target="_blank" rel="noreferrer" title="Open contract in Blockscout" aria-label={`Open ${asset.tokenSymbol} contract in Blockscout`}>
+                            <ExternalLink size={14} />
+                          </a>
+                        </span>
+                      ) : null}
+                    </div>
+                  </article>
+                );
               })}
             </div>
           </section>
