@@ -6,6 +6,7 @@ import {
   Activity,
   Bell,
   ChevronRight,
+  CircleHelp,
   CircleGauge,
   FileCheck2,
   Orbit,
@@ -223,6 +224,21 @@ export function GuardianConsole() {
           </button>
         </section>
 
+        <details className="screen-guide" open>
+          <summary>
+            <span><CircleHelp size={15} /> HOW TO READ THIS SCREEN</span>
+            <small className="mono">RESULT LABELS / 06</small>
+          </summary>
+          <div className="screen-guide-grid">
+            <p><strong>WATCHED</strong><span>Assets MIHARI checks on every refresh.</span></p>
+            <p><strong>EVENTS</strong><span>Watched assets with an official corporate-action record.</span></p>
+            <p><strong>INCIDENT FILE</strong><span>The selected event and its current source status.</span></p>
+            <p><strong>AI CONFIDENCE</strong><span>Evidence completeness, not a price prediction.</span></p>
+            <p><strong>BOUNDED RESPONSE</strong><span>A recommended safe action. Nothing executes automatically.</span></p>
+            <p><strong>CHAIN PROOF</strong><span>An onchain receipt. “Not recorded” means no transaction ran.</span></p>
+          </div>
+        </details>
+
         <div className="console-workspace">
           <section className="event-register" aria-labelledby="register-title">
             <div className="register-head mono">
@@ -255,7 +271,8 @@ export function GuardianConsole() {
               <div>
                 <p className="mono">WATCHLIST / {symbols.length} ASSETS</p>
                 <div className="scope-symbols">
-                  {symbols.map((symbol) => <span className="mono" key={symbol}>{symbol}</span>)}
+                  {symbols.slice(0, 12).map((symbol) => <span className="mono" key={symbol}>{symbol}</span>)}
+                  {symbols.length > 12 && <span className="mono">+{symbols.length - 12} MORE</span>}
                 </div>
               </div>
               <p>

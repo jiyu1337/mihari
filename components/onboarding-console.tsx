@@ -121,6 +121,11 @@ export function OnboardingConsole() {
       `${asset.tokenSymbol} ${asset.tokenName}`.toLowerCase().includes(query),
     );
   }, [assetCatalog, assetSearch]);
+  const selectedAssetSet = useMemo(() => new Set(selectedAssets), [selectedAssets]);
+  const allAssetsSelected = useMemo(
+    () => assetCatalog.length > 0 && assetCatalog.every((asset) => selectedAssetSet.has(asset.tokenSymbol)),
+    [assetCatalog, selectedAssetSet],
+  );
 
   async function connectWallet() {
     setWalletError("");
@@ -164,6 +169,14 @@ export function OnboardingConsole() {
         ? current.filter((item) => item !== symbol)
         : [...current, symbol],
     );
+  }
+
+  function selectAllAssets() {
+    setSelectedAssets([...new Set(assetCatalog.map((asset) => asset.tokenSymbol))]);
+  }
+
+  function clearSelectedAssets() {
+    setSelectedAssets([]);
   }
 
   function completeSetup() {
@@ -247,13 +260,21 @@ export function OnboardingConsole() {
                   placeholder="Search symbol or company"
                 />
               </label>
-              <span className="mono">
-                {catalogMode === "loading" ? "SYNCING CATALOG" : `${assetCatalog.length} ${catalogMode === "live" ? "LIVE" : "FALLBACK"} ASSETS`}
-              </span>
+              <div className="asset-catalog-meta mono">
+                <span>
+                  {catalogMode === "loading" ? "SYNCING CATALOG" : `${assetCatalog.length} ${catalogMode === "live" ? "LIVE" : "FALLBACK"} ASSETS`}
+                </span>
+                <button type="button" onClick={selectAllAssets} disabled={allAssetsSelected || catalogMode === "loading"}>
+                  SELECT ALL
+                </button>
+                <button type="button" onClick={clearSelectedAssets} disabled={selectedAssets.length === 0}>
+                  CLEAR
+                </button>
+              </div>
             </div>
             <div className="asset-selector live-asset-selector">
-              {visibleAssets.slice(0, 120).map((asset) => {
-                const selected = selectedAssets.includes(asset.tokenSymbol);
+              {visibleAssets.map((asset) => {
+                const selected = selectedAssetSet.has(asset.tokenSymbol);
                 return (
                   <button
                     style={{ contentVisibility: "auto", containIntrinsicSize: "112px" }}

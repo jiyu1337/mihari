@@ -53,7 +53,7 @@ function normalizeSymbols(symbols?: string[]) {
     .map((symbol) => symbol.trim().replace(/x$/i, "").toUpperCase())
     .filter(Boolean);
 
-  return [...new Set(normalized)].slice(0, 100);
+  return [...new Set(normalized)].slice(0, 250);
 }
 
 function processDateToIso(processDate?: RobinhoodCorporateAction["processDate"]) {
