@@ -262,6 +262,32 @@ a {
   line-height: 1.5;
 }
 
+.hero-token {
+  width: min(100%, 470px);
+  margin-top: 1.25rem;
+  border: 1px solid var(--ink);
+  background: var(--white);
+}
+
+.hero-token span,
+.hero-token a {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.65rem 0.75rem;
+}
+
+.hero-token span {
+  border-bottom: 1px solid var(--ink);
+  font-size: 0.53rem;
+  letter-spacing: 0.08em;
+}
+
+.hero-token span i { width: 7px; height: 7px; background: var(--neon); border: 1px solid var(--ink); }
+.hero-token a { justify-content: space-between; color: var(--ink); font-size: 0.52rem; overflow-wrap: anywhere; }
+.hero-token a:hover { background: var(--neon); }
+
 .scroll-cue {
   grid-column: 2;
   display: inline-flex;

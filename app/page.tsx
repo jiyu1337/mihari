@@ -4,6 +4,7 @@ import {
   ArrowRight,
   Check,
   Database,
+  ExternalLink,
   Fingerprint,
   ScanSearch,
 } from "lucide-react";
@@ -40,6 +41,17 @@ export default function Home() {
           <Link className="primary-action" href="/launch">
             Start monitoring <ArrowRight size={18} />
           </Link>
+          <div className="hero-token mono">
+            <span><i /> $MHR / ROBINHOOD CHAIN</span>
+            <a
+              href="https://robinhoodchain.blockscout.com/address/0x92150e06BAc43011cBe099b2830D947Ee3099809"
+              target="_blank"
+              rel="noreferrer"
+            >
+              0x92150e06BAc43011cBe099b2830D947Ee3099809
+              <ExternalLink size={12} />
+            </a>
+          </div>
           <p className="hero-note mono">READ-ONLY MONITORING IS FREE · NO FUNDS REQUIRED</p>
         </div>
         <a className="scroll-cue mono" href="#incident">
