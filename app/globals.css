@@ -1565,11 +1565,18 @@ a {
 .docs-section > p:not(.docs-kicker, .docs-note) { max-width: 760px; font-size: 0.95rem; line-height: 1.75; }
 .docs-flow { display: grid; grid-template-columns: repeat(4, 1fr); margin-top: 2.5rem; border-top: 1px solid var(--ink); border-left: 1px solid var(--ink); }
 .docs-flow > div { min-height: 190px; display: flex; flex-direction: column; gap: 0.7rem; padding: 1.2rem; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.docs-workflow { grid-template-columns: repeat(3, 1fr); }
+.docs-workflow > div { min-height: 175px; }
 .docs-flow svg { margin-bottom: auto; }
 .docs-flow span { font-size: 0.5rem; letter-spacing: 0.08em; color: var(--heather-3); }
 .docs-flow p { margin: 0; font-size: 0.75rem; line-height: 1.5; color: var(--heather-3); }
 .docs-callout { display: flex; justify-content: space-between; gap: 2rem; margin-top: 1.5rem; padding: 1.2rem; border-left: 5px solid var(--neon); background: var(--white); }
 .docs-callout p { margin: 0; font-size: 0.8rem; }
+.docs-result-grid { display: grid; grid-template-columns: repeat(2, 1fr); margin-top: 2rem; border-top: 1px solid var(--ink); border-left: 1px solid var(--ink); }
+.docs-result-grid > div { min-height: 145px; display: flex; flex-direction: column; gap: 0.55rem; padding: 1.2rem; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); background: var(--white); }
+.docs-result-grid span { font-size: 0.5rem; letter-spacing: 0.08em; color: var(--heather-3); }
+.docs-result-grid strong { margin-top: auto; font-size: 0.95rem; }
+.docs-result-grid p { margin: 0; color: var(--heather-3); font-size: 0.75rem; line-height: 1.5; }
 .docs-compare { display: grid; grid-template-columns: 1fr auto 1fr; align-items: stretch; gap: 1rem; margin: 2rem 0; }
 .docs-compare > div { padding: 1.4rem; border: 1px solid var(--ink); background: var(--white); }
 .docs-compare > svg { align-self: center; }
@@ -1603,6 +1610,7 @@ a {
   .docs-sidebar nav a::before { content: "•"; display: block; text-align: center; font-size: 1rem; }
   .docs-sidebar-status span { display: none; }
   .docs-flow { grid-template-columns: repeat(2, 1fr); }
+  .docs-workflow { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 600px) {
@@ -1612,6 +1620,8 @@ a {
   .live-asset-selector { grid-template-columns: 1fr; }
   .docs-content { padding-top: 3rem; }
   .docs-flow,
+  .docs-workflow,
+  .docs-result-grid,
   .docs-compare,
   .wallet-doc-card { grid-template-columns: 1fr; }
   .docs-compare > svg { transform: rotate(90deg); }

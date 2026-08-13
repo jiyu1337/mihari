@@ -1,180 +1,197 @@
 # MIHARI Content Plan
 
-The complete working content plan is maintained in this repository and covers positioning, short-form X posts, a 14-day publishing calendar, and 10-second feature-demo scripts.
+Updated for the production beta. This document separates what can be demonstrated today from future product layers.
 
-## Positioning
+## Current positioning
 
-MIHARI is an AI guardian for tokenized stocks. It tracks splits, dividends and multiplier changes, maps potential impact across NAV, vault and lending positions, and recommends a bounded response before a data mismatch becomes protocol risk.
+MIHARI is an AI guardian for tokenized stocks on Robinhood Chain. Users choose the assets they want to monitor; MIHARI reads official Robinhood asset, price, multiplier and corporate-action data, surfaces matching events and turns each event into a clear Incident File.
 
-Core message:
+Current product statement:
 
-> Corporate actions don't stop at the asset layer.
+> Monitor Robinhood Stock Tokens, understand corporate-action risk and receive a bounded response before a data mismatch spreads across DeFi.
+
+Current capability statement:
+
+> Live monitoring, AI analysis and bounded recommendations. No automatic execution or fund access.
+
+## What is live now
+
+- Full live Robinhood Stock Token catalog.
+- Search, individual selection, `Select All` and `Clear`.
+- Read-only onboarding without a wallet.
+- Optional EVM wallet connection and Robinhood Chain network switch.
+- Official corporate-action Event Register.
+- Robinhood price and multiplier context.
+- AI Observation, Impact Map, risk level and Bounded Response.
+- AI evidence-confidence score.
+- Neon persistence and analysis caching.
+
+## What is coming next
+
+- Wallet-based vault and lending position discovery.
+- Protocol-specific policy preparation and approval.
+- Bounded onchain execution.
+- Audited Robinhood Chain contracts.
+- Onchain decision and response receipts.
+
+Do not describe these roadmap features as live.
 
 ## Communication rules
 
-- One post, one idea.
-- Do not present simulated events as live data.
-- Do not present placeholder hashes as onchain receipts.
-- Use `public preview` until the live data, persistence, AI and onchain flow are complete.
-- Publish execution demos only after the relevant production feature is working.
+- One post, one clear idea.
+- Prefer screenshots and demos from the live product.
+- State when data comes from Robinhood APIs.
+- `AI confidence` means evidence quality, not price confidence.
+- `Bounded response` is a recommendation, not an executed action.
+- `Chain proof: not recorded` means no transaction was submitted.
+- Never imply that MIHARI controls funds, pauses protocols or protects lending positions automatically today.
+- Never present placeholder hashes or simulated records as onchain proof.
 
-## Launch post
+## Product workflow
 
-> MIHARI is an AI guardian for tokenized stocks—tracking splits, dividends and multiplier changes.
->
-> As tokenized stocks become composable across Robinhood Chain, one data mismatch can spread risk across multiple DeFi protocols.
->
-> MIHARI detects the mismatch, maps affected positions and recommends a safe response before it becomes protocol risk.
->
-> Launching today.
+1. Enter in read-only mode or connect an EVM wallet.
+2. Search the live catalog and build a watchlist, or select every active asset.
+3. Start Observe mode.
+4. MIHARI syncs official Robinhood asset, price, multiplier and corporate-action data.
+5. The Event Register shows watched assets with matching events.
+6. The user opens an Incident File.
+7. MIHARI explains the event, maps possible impact and recommends a bounded response.
+8. The user decides what to do. Nothing executes automatically.
 
 ## 14-day publishing plan
 
-| Day | Topic | Format |
-|---|---|---|
-| 1 | What is MIHARI? | Launch post |
-| 2 | Corporate-action propagation risk | Problem post |
-| 3 | How multipliers work | Educational post |
-| 4 | Event Register | 10-second demo |
-| 5 | Why a price feed is not enough | Educational post |
-| 6 | The role of AI in MIHARI | Product/trust post |
-| 7 | Split Detection | Demo after live integration |
-| 8 | What is NAV? | Educational post |
-| 9 | MIHARI for lending | Use-case post |
-| 10 | AI Impact Map | 10-second demo |
-| 11 | Why AI does not control funds | Trust post |
-| 12 | Onchain proofs | Product vision post |
-| 13 | Read-only watchlist setup | 10-second demo |
-| 14 | What comes next | Roadmap post |
+| Day | Topic | Format | Status |
+|---|---|---|---|
+| 1 | What is MIHARI? | Product introduction | Live |
+| 2 | The product workflow | Short thread or carousel | Live |
+| 3 | 194 watched assets vs a few events | Educational post | Live |
+| 4 | Build a watchlist with Select All | 10-second demo | Live |
+| 5 | Reading the Event Register | Educational post | Live |
+| 6 | From official event to Incident File | 10-second demo | Live |
+| 7 | What AI Confidence means | Trust post | Live |
+| 8 | What is NAV? | Educational post | General education |
+| 9 | Why multipliers matter | Educational post | General education |
+| 10 | AI Impact Map | 10-second demo | Live |
+| 11 | Why MIHARI is read-only today | Trust post | Live |
+| 12 | Built on Robinhood Chain | Ecosystem post | Live foundation |
+| 13 | Vault and lending discovery | Roadmap post | Coming next |
+| 14 | Policy execution and onchain proofs | Roadmap post | Coming next |
 
 ## Short-post library
 
-### Corporate-action risk
+### Product workflow
 
-> Corporate actions don't stop at the asset layer.
+> Choose the Robinhood Stock Tokens you want to monitor.
 >
-> A missed multiplier change can affect pricing, NAV, collateral and lending positions across DeFi.
+> MIHARI watches official asset, price, multiplier and corporate-action data, surfaces relevant events and turns each one into a clear risk report.
 >
-> That propagation risk is what MIHARI monitors.
+> Live analysis. Bounded recommendations. No automatic execution.
 
-### Multiplier
+### Watched assets vs events
 
-> A stock split changes more than the displayed price.
+> 194 watched assets does not mean 194 incidents.
 >
-> Token quantity, multiplier and protocol accounting must remain synchronized.
+> MIHARI monitors the full selected watchlist, but the Event Register only shows assets with a matching corporate-action record.
 >
-> MIHARI watches for the moment they diverge.
+> Quiet assets remain monitored in the background.
 
-### Price semantics
+### Event Register
 
-> A valid price can still produce an invalid valuation.
+> The MIHARI Event Register is an attention layer.
 >
-> If the price and corporate-action multiplier represent different states, NAV and collateral calculations can become stale.
+> It filters official Robinhood corporate actions through your watchlist, so you see the records that matter to your monitoring scope.
 
-### AI in MIHARI
+### Incident File
 
-> AI in MIHARI doesn't authorize transactions.
+> One corporate action becomes one Incident File:
 >
-> It interprets corporate actions, maps affected systems and explains the safest permitted response.
+> Observation → Impact Map → Bounded Response.
 >
-> Policy rules remain deterministic.
+> The source event remains visible. The AI explanation never replaces the evidence.
+
+### AI Confidence
+
+> AI Confidence in MIHARI is not a price prediction.
+>
+> It describes how complete and consistent the available event evidence is before MIHARI recommends a response.
+
+### Read-only trust model
+
+> MIHARI can monitor without a wallet.
+>
+> Wallet connection currently adds a public EVM identity and selects Robinhood Chain. It does not request a signature, transaction approval or access to funds.
 
 ### NAV
 
-> NAV is the calculated value behind a vault share.
+> NAV is the calculated value behind a vault or fund share.
 >
-> When a tokenized stock changes through a split or dividend, that calculation must change correctly—and at the right time.
+> A dividend, split or multiplier change must be reflected correctly — and at the right time — or downstream valuations can become stale.
 
-### Lending
+### Multiplier
 
-> If a tokenized stock is used as collateral, a stale valuation becomes lending risk.
+> A valid price can still produce an invalid valuation.
 >
-> MIHARI identifies affected positions before recommending a pause, warning or manual review.
+> If price data and the corporate-action multiplier represent different states, NAV and collateral calculations can diverge.
 
-### Trust model
+### Lending roadmap
 
-> AI proposes. Policy decides. The chain records.
+> Corporate actions become lending risk when tokenized stocks are used as collateral.
 >
-> MIHARI separates analysis from authorization so a model never receives unchecked control over user funds.
-
-### Onchain proofs
-
-> A protection decision shouldn't disappear inside a black box.
+> MIHARI’s next layer will discover affected positions and prepare a bounded policy response for operator approval.
 >
-> MIHARI is building onchain receipts for the event, evidence, policy decision and final response on Robinhood Chain.
+> Coming next — not live execution today.
 
-### Roadmap
+### Onchain proof roadmap
 
-> What's next for MIHARI:
+> A protection decision should not disappear inside a black box.
 >
-> → Live Stock Token data  
-> → AI impact maps  
-> → Vault and lending indexing  
-> → Onchain policy receipts  
-> → Bounded protection automation
+> MIHARI is building auditable Robinhood Chain receipts for evidence, policy decisions and final responses.
+>
+> Contracts and production receipts are coming next.
 
-## Video format
+## Ten-second demo scripts
 
-- Duration: 8–10 seconds.
-- Robin Black background, ivory UI, Robin Neon only for an active signal.
-- One feature per clip.
-- Slow, clearly visible cursor movement.
-- Maximum one short phrase on screen.
-- Start immediately inside the product; no intro animation.
-- Hold the final state for one second.
+### Demo 01 — Select All
 
-## Video 01 — Event Register
+**Status:** Live now.
 
-**Publish status:** available now as a clearly described product preview.
-
-- `0–2s`: Open the Event Register.
-- `2–5s`: Select a multiplier-change record.
-- `5–8s`: Show Observation, Impact Map and Bounded Response.
-- `8–10s`: Focus on source and affected-position status.
+- `0–2s`: Enter read-only mode.
+- `2–5s`: Open the live Stock Token catalog.
+- `5–7s`: Click `SELECT ALL`.
+- `7–10s`: Hold on `194 WATCHED` and continue to Observe.
 
 On-screen text:
 
-> ONE EVENT.  
-> EVERY AFFECTED POSITION.
+> ONE CLICK. FULL WATCH SCOPE.
 
 Transcript:
 
-> MIHARI turns a corporate action into a clear protocol risk report.
+> Select every active Robinhood Stock Token and start monitoring in seconds.
 
-Post:
+### Demo 02 — Events vs watched assets
 
-> From corporate action to protocol impact—in one incident file.
+**Status:** Live now.
 
-## Video 02 — Split Detection
-
-**Publish status:** after live Stock Token integration, or mark it `CONCEPT`.
-
-- `0–2s`: `Current multiplier: ×1`.
-- `2–4s`: `Pending multiplier: ×4` appears.
-- `4–7s`: MIHARI marks the mismatch.
-- `7–10s`: policy recommendation changes to `PAUSE QUOTES`.
+- `0–3s`: Show the watch-scope count.
+- `3–6s`: Highlight the smaller event count.
+- `6–10s`: Select one event in the register.
 
 On-screen text:
 
-> ×1 → ×4  
-> MISMATCH DETECTED
+> WATCH EVERYTHING. SURFACE WHAT CHANGED.
 
 Transcript:
 
-> The price changed. The multiplier didn't. MIHARI catches the gap.
+> MIHARI monitors your full watchlist and surfaces only matching corporate actions.
 
-Post:
+### Demo 03 — Incident File
 
-> A valid price and a stale multiplier can still create a wrong valuation.
+**Status:** Live now.
 
-## Video 03 — AI Impact Map
-
-**Publish status:** as concept now; as live demo after AI is connected to the dashboard.
-
-- `0–3s`: A corporate-action event enters MIHARI.
-- `3–6s`: Lines connect it to `NAV`, `Vaults` and `Lending`.
-- `6–8s`: At-risk positions highlight.
-- `8–10s`: A bounded response appears.
+- `0–2s`: Select a corporate-action record.
+- `2–4s`: Show event status, risk and record ID.
+- `4–7s`: Move through Observation and Impact Map.
+- `7–10s`: Hold on Bounded Response.
 
 On-screen text:
 
@@ -182,84 +199,57 @@ On-screen text:
 
 Transcript:
 
-> MIHARI maps where one market event can spread across DeFi.
+> One official event becomes a clear, bounded protocol risk report.
 
-Post:
+### Demo 04 — AI Confidence
 
-> Corporate actions are events. Protocol exposure is a graph.
+**Status:** Live now.
 
-## Video 04 — Read-only Onboarding
-
-**Publish status:** available now.
-
-- `0–2s`: Select `Continue read-only`.
-- `2–5s`: Select three Stock Tokens.
-- `5–7s`: Select `OBSERVE`.
-- `7–10s`: Open the dashboard.
+- `0–3s`: Open a live event.
+- `3–6s`: AI analysis resolves.
+- `6–10s`: Focus on confidence and the evidence labels.
 
 On-screen text:
 
-> NO WALLET.  
-> NO FUNDS.  
-> START MONITORING.
+> EVIDENCE QUALITY. NOT PRICE PREDICTION.
 
 Transcript:
 
-> Choose your assets and start monitoring without connecting a wallet.
+> MIHARI scores the completeness of the evidence behind its recommendation.
 
-Post:
+### Demo 05 — Read-only wallet flow
 
-> Monitoring should be easy to start. Wallet optional. No funds required.
+**Status:** Live now.
 
-## Video 05 — Policy Guardrails
-
-**Publish status:** only after the policy engine works in production.
-
-- `0–3s`: AI recommends `Pause lending`.
-- `3–6s`: The policy engine checks permitted actions.
-- `6–8s`: Show transaction preview.
-- `8–10s`: Show `AWAITING USER APPROVAL`.
+- `0–3s`: Click Connect Wallet.
+- `3–6s`: Show Robinhood Chain selected.
+- `6–10s`: Open Observe mode with the address label.
 
 On-screen text:
 
-> AI PROPOSES.  
-> POLICY CONTROLS.
+> IDENTITY ONLY. NO FUND ACCESS.
 
 Transcript:
 
-> AI recommends the response. Deterministic policy controls what can happen.
+> Connect an EVM identity without signing a transaction or granting fund access.
 
-Post:
+### Demo 06 — Vault and lending discovery
 
-> Intelligence without unchecked execution.
+**Status:** Coming next. Do not publish as a product demo yet.
 
-## Video 06 — Onchain Receipt
+- Show only as a clearly labelled concept or roadmap animation.
+- Do not use live UI language until wallet position indexing exists.
 
-**Publish status:** only after contract deployment and a real transaction.
+### Demo 07 — Onchain receipt
 
-- `0–3s`: Event becomes `VERIFIED`.
-- `3–6s`: Turn the policy decision into a receipt.
-- `6–8s`: Confirm the transaction.
-- `8–10s`: Open the Robinhood Chain explorer.
-
-On-screen text:
-
-> DECISION RECORDED.  
-> PROOF ONCHAIN.
-
-Transcript:
-
-> The evidence, policy decision and response become independently auditable.
-
-Post:
-
-> A protection decision shouldn't disappear inside a black box.
+**Status:** Coming next. Publish only after audited contract deployment and a real explorer transaction.
 
 ## Visual consistency
 
 - Robin Black `#0B0B09`.
 - Warm ivory `#F3F0E7`.
-- Robin Neon `#CCFF00` only as the active signal.
+- Robin Neon `#CCFF00` only for an active signal or selected state.
 - Exact MIHARI logo without reinterpretation.
 - Japanese technical-manual and precision-instrument aesthetic.
+- Compact layouts with stable alignment; no floating decorative panels.
 - No crypto clichés, cyberpunk, coins, robots, candlestick charts or generic blockchain icons.
