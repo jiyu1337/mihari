@@ -19,7 +19,7 @@ export default function SignInPage() {
         </div>
         <div className="auth-status mono">
           <span>EMAIL ACCESS</span>
-          <strong>NO PASSWORD REQUIRED</strong>
+          <strong>EMAIL AND PASSWORD</strong>
         </div>
       </section>
       <section className="auth-form-shell">

@@ -17,7 +17,7 @@ Current capability statement:
 ## What is live now
 
 - Full live Robinhood Stock Token catalog.
-- Search, individual selection, `Select All` and `Clear`.
+- Search, individual selection, `Select 20` and `Clear`.
 - Read-only onboarding without a wallet.
 - Optional EVM wallet connection and Robinhood Chain network switch.
 - Official corporate-action Event Register.
@@ -64,8 +64,8 @@ Do not describe these roadmap features as live.
 |---|---|---|---|
 | 1 | What is MIHARI? | Product introduction | Live |
 | 2 | The product workflow | Short thread or carousel | Live |
-| 3 | 194 watched assets vs a few events | Educational post | Live |
-| 4 | Build a watchlist with Select All | 10-second demo | Live |
+| 3 | 20 watched assets vs a few events | Educational post | Live |
+| 4 | Build a watchlist with Select 20 | 10-second demo | Live |
 | 5 | Reading the Event Register | Educational post | Live |
 | 6 | From official event to Incident File | 10-second demo | Live |
 | 7 | What AI Confidence means | Trust post | Live |
@@ -89,7 +89,7 @@ Do not describe these roadmap features as live.
 
 ### Watched assets vs events
 
-> 194 watched assets does not mean 194 incidents.
+> 20 watched assets does not mean 20 incidents.
 >
 > MIHARI monitors the full selected watchlist, but the Event Register only shows assets with a matching corporate-action record.
 >
@@ -125,7 +125,7 @@ Do not describe these roadmap features as live.
 
 > NAV is the calculated value behind a vault or fund share.
 >
-> A dividend, split or multiplier change must be reflected correctly — and at the right time — or downstream valuations can become stale.
+> A dividend, split or multiplier change must be reflected correctly and at the right time, or downstream valuations can become stale.
 
 ### Multiplier
 
@@ -139,7 +139,7 @@ Do not describe these roadmap features as live.
 >
 > MIHARI’s next layer will discover affected positions and prepare a bounded policy response for operator approval.
 >
-> Coming next — not live execution today.
+> Coming next. This is not live execution today.
 
 ### Onchain proof roadmap
 
@@ -151,14 +151,14 @@ Do not describe these roadmap features as live.
 
 ## Ten-second demo scripts
 
-### Demo 01 — Select All
+### Demo 01: Select 20
 
 **Status:** Live now.
 
-- `0–2s`: Enter read-only mode.
-- `2–5s`: Open the live Stock Token catalog.
-- `5–7s`: Click `SELECT ALL`.
-- `7–10s`: Hold on `194 WATCHED` and continue to Observe.
+- `0-2s`: Enter read-only mode.
+- `2-5s`: Open the live Stock Token catalog.
+- `5-7s`: Click `SELECT 20`.
+- `7-10s`: Hold on `20 WATCHED` and continue to Observe.
 
 On-screen text:
 
@@ -168,13 +168,13 @@ Transcript:
 
 > Select every active Robinhood Stock Token and start monitoring in seconds.
 
-### Demo 02 — Events vs watched assets
+### Demo 02: Events vs watched assets
 
 **Status:** Live now.
 
-- `0–3s`: Show the watch-scope count.
-- `3–6s`: Highlight the smaller event count.
-- `6–10s`: Select one event in the register.
+- `0-3s`: Show the watch-scope count.
+- `3-6s`: Highlight the smaller event count.
+- `6-10s`: Select one event in the register.
 
 On-screen text:
 
@@ -184,14 +184,14 @@ Transcript:
 
 > MIHARI monitors your full watchlist and surfaces only matching corporate actions.
 
-### Demo 03 — Incident File
+### Demo 03: Incident File
 
 **Status:** Live now.
 
-- `0–2s`: Select a corporate-action record.
-- `2–4s`: Show event status, risk and record ID.
-- `4–7s`: Move through Observation and Impact Map.
-- `7–10s`: Hold on Bounded Response.
+- `0-2s`: Select a corporate-action record.
+- `2-4s`: Show event status, risk and record ID.
+- `4-7s`: Move through Observation and Impact Map.
+- `7-10s`: Hold on Bounded Response.
 
 On-screen text:
 
@@ -201,13 +201,13 @@ Transcript:
 
 > One official event becomes a clear, bounded protocol risk report.
 
-### Demo 04 — AI Confidence
+### Demo 04: AI Confidence
 
 **Status:** Live now.
 
-- `0–3s`: Open a live event.
-- `3–6s`: AI analysis resolves.
-- `6–10s`: Focus on confidence and the evidence labels.
+- `0-3s`: Open a live event.
+- `3-6s`: AI analysis resolves.
+- `6-10s`: Focus on confidence and the evidence labels.
 
 On-screen text:
 
@@ -217,13 +217,13 @@ Transcript:
 
 > MIHARI scores the completeness of the evidence behind its recommendation.
 
-### Demo 05 — Read-only wallet flow
+### Demo 05: Read-only wallet flow
 
 **Status:** Live now.
 
-- `0–3s`: Click Connect Wallet.
-- `3–6s`: Show Robinhood Chain selected.
-- `6–10s`: Open Observe mode with the address label.
+- `0-3s`: Click Connect Wallet.
+- `3-6s`: Show Robinhood Chain selected.
+- `6-10s`: Open Observe mode with the address label.
 
 On-screen text:
 
@@ -233,14 +233,14 @@ Transcript:
 
 > Connect an EVM identity without signing a transaction or granting fund access.
 
-### Demo 06 — Vault and lending discovery
+### Demo 06: Vault and lending discovery
 
 **Status:** Coming next. Do not publish as a product demo yet.
 
 - Show only as a clearly labelled concept or roadmap animation.
 - Do not use live UI language until wallet position indexing exists.
 
-### Demo 07 — Onchain receipt
+### Demo 07: Onchain receipt
 
 **Status:** Coming next. Publish only after audited contract deployment and a real explorer transaction.
 

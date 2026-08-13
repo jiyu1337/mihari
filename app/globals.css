@@ -1615,8 +1615,11 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .docs-compare p { margin: 0; font-size: 0.8rem; line-height: 1.55; }
 .docs-list { list-style: none; display: grid; gap: 0.7rem; margin: 2rem 0 0; padding: 0; }
 .docs-list li { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid var(--rule); font-size: 0.82rem; }
-.wallet-doc-card { display: grid; grid-template-columns: 50px 1fr 1fr; gap: 1.5rem; padding: 1.5rem; border: 1px solid var(--ink); background: var(--white); }
-.wallet-doc-card p { margin: 0.5rem 0 0; font-size: 0.8rem; line-height: 1.6; color: var(--heather-3); }
+.wallet-doc-card { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--ink); border-left: 1px solid var(--ink); background: var(--white); }
+.wallet-doc-card > div { min-width: 0; min-height: 210px; display: flex; flex-direction: column; align-items: flex-start; gap: 0.75rem; padding: 1.4rem; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.wallet-doc-card > div svg { margin-bottom: auto; }
+.wallet-doc-card p { margin: 0; font-size: 0.8rem; line-height: 1.6; color: var(--heather-3); }
+.docs-callout-muted { border-left-color: var(--heather-3); background: var(--heather-1); }
 .docs-note { margin: 1rem 0 0; font-size: 0.52rem; letter-spacing: 0.08em; }
 .status-table { margin-top: 2rem; border-top: 1px solid var(--ink); }
 .status-table > div { display: grid; grid-template-columns: minmax(180px, 0.8fr) 110px 1.4fr; align-items: center; gap: 1rem; min-height: 68px; padding: 0.8rem 0; border-bottom: 1px solid var(--ink); }

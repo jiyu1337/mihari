@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./docs/assets/readme-banner.svg" alt="MIHARI — AI corporate-action intelligence for tokenized stocks" width="100%" />
+  <img src="./docs/assets/readme-banner.svg" alt="MIHARI: AI corporate-action intelligence for tokenized stocks" width="100%" />
 
   <br />
 
@@ -61,7 +61,7 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Price and multiplier context | `LIVE` | Robinhood market data attached to the monitored assets |
 | AI Incident Files | `LIVE` | Observation, Impact Map, risk, confidence and Bounded Response |
 | Incident memory | `LIVE` | Neon persistence and cached analysis to avoid duplicate AI cost |
-| Email and wallet profiles | `LIVE` | Passwordless email or EVM signature creates a secure personal workspace |
+| Email and wallet profiles | `LIVE` | Email and password or an EVM signature creates a secure personal workspace |
 | Personal Asset Manager | `LIVE` | Add, remove, search and save monitored Stock Tokens inside the private workspace |
 | Private Event Register | `LIVE` | Refreshes watchlist corporate actions every 60 seconds while the view is open and opens an Incident File |
 | Wallet verification | `LIVE` | Free message signature proves ownership without a transaction |
@@ -103,11 +103,11 @@ MIHARI is intentionally hybrid. Official market data and AI inference run offcha
 
 Planned utility is designed around product use:
 
-- **Hold** — unlock premium monitoring and AI features.
-- **Lock** — receive higher limits, product credits and lower usage fees.
-- **Spend** — pay for AI analysis, APIs, position scans and future proofs.
-- **Stake** — support future network security and operator incentives.
-- **Burn** — remove a portion of usage fees from supply as the product is used.
+- **Hold**: unlock premium monitoring and AI features.
+- **Lock**: receive higher limits, product credits and lower usage fees.
+- **Spend**: pay for AI analysis, APIs, position scans and future proofs.
+- **Stake**: support future network security and operator incentives.
+- **Burn**: remove a portion of usage fees from supply as the product is used.
 
 ## Roadmap
 
@@ -128,7 +128,7 @@ Each phase ships only after its data sources, permissions and security assumptio
 | Intelligence | Vercel AI SDK, OpenAI, deterministic rule fallback |
 | Data | Robinhood Stock Token APIs |
 | Persistence | Neon Postgres, Drizzle ORM |
-| Authentication | Clerk passwordless email plus signed EVM wallet sessions |
+| Authentication | Clerk email and password plus signed EVM wallet sessions |
 | Chain | Robinhood Chain, viem |
 | Contracts | Solidity, OpenZeppelin |
 | Hosting | Vercel |

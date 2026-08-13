@@ -2,15 +2,15 @@
 
 ## Activate personal profiles and MIHARI MAP
 
-MIHARI keeps public Observe mode available when Clerk is not configured. Personal profiles support passwordless email and wallet-native sign-in. Wallet sessions use `WALLET_SESSION_SECRET` when present and otherwise derive their signature from `CLERK_SECRET_KEY`.
+MIHARI keeps public Observe mode available when Clerk is not configured. Personal profiles support email and password or wallet-native sign-in. Wallet sessions use `WALLET_SESSION_SECRET` when present and otherwise derive their signature from `CLERK_SECRET_KEY`.
 
 1. Open the MIHARI project in Vercel.
 2. Install Clerk from the Vercel Marketplace and connect it to the project.
-3. In Clerk, enable email verification code as a sign-in method.
+3. In Clerk, keep email and password enabled as the email account method.
 4. Confirm Vercel created `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` and `CLERK_SECRET_KEY` for Production and Preview.
 5. Add `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in` and `NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up`.
 6. Redeploy the latest commit. The build automatically applies the Neon migration.
-7. Open `/sign-in`, complete the email code and confirm `/map` loads.
+7. Open `/sign-up`, create an email and password account and confirm `/map` loads.
 
 This setup works on the Vercel Hobby, Clerk Free and Neon Free plans for the current product stage.
 
@@ -94,7 +94,7 @@ git push
 
 You will not need to write these commands yourself while we are collaborating; they are documented so the project never depends on one person.
 
-## Vercel deployment — upcoming connection step
+## Vercel deployment: upcoming connection step
 
 1. Sign in to Vercel with the GitHub account that owns the repository.
 2. Import the MIHARI repository.
@@ -106,7 +106,7 @@ You will not need to write these commands yourself while we are collaborating; t
 
 I will handle the commands and verify the deployment. You will only need to approve account access and choose the final domain.
 
-## Database — upcoming connection step
+## Database: upcoming connection step
 
 Neon Postgres is connected through Vercel Marketplace. The production build applies reviewed, versioned Drizzle migrations before compiling the app.
 

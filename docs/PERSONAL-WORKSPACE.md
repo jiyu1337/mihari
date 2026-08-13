@@ -13,6 +13,15 @@ MIHARI keeps two independent scopes:
 
 Selecting an asset does not create a wallet position. Removing an asset from the watchlist does not hide a real wallet position. Exposure scans every verified wallet for every official Robinhood Stock Token contract in the live Robinhood asset catalog.
 
+## Live data sources
+
+- Robinhood APIs provide the official asset catalog, prices, multipliers and corporate actions.
+- Robinhood Chain Blockscout provides onchain token balances for verified wallets.
+- OpenAI analyzes only events that the MIHARI server verifies against Robinhood.
+- Neon stores accounts, watchlists, wallet links and cached incident analysis.
+
+The public event console can use clearly labelled simulated data if Robinhood is unavailable. Private personal risk analysis requires an official event and does not treat simulated records as wallet evidence.
+
 ## Data flow
 
 1. The user verifies an EVM wallet with a free message signature.

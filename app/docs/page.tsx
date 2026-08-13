@@ -19,7 +19,7 @@ const statusRows = [
   ["Price and multiplier context", "Live", "Reads Robinhood prices and asset multipliers."],
   ["AI risk analysis", "Live", "Explains impact and recommends a bounded response."],
   ["Neon incident memory", "Live", "Caches AI analysis so the same event is not paid for twice."],
-  ["Email and wallet profiles", "Live", "Creates a private workspace through email code or EVM signature."],
+  ["Email and wallet profiles", "Live", "Creates a private workspace with email and password or an EVM wallet signature."],
   ["Wallet Stock Token mapping", "Live", "Indexes verified wallet balances on Robinhood Chain through Blockscout."],
   ["Personal Asset Manager", "Live", "Saves a private monitoring scope directly inside the profile."],
   ["Private Event Register", "Live", "Refreshes official events for up to 20 monitored assets while the view is open."],
@@ -48,8 +48,10 @@ export default function DocsPage() {
             <a href="#results">Reading results</a>
             <a href="#assets-events">Assets vs events</a>
             <a href="#ai">AI analysis</a>
+            <a href="#data-sources">Live data</a>
             <a href="#wallet">Wallet connection</a>
-            <a href="#workspace">Personal workspace</a>
+            <a href="#map">MIHARI MAP</a>
+            <a href="#map-pages">MAP pages</a>
             <a href="#exposure-statuses">Exposure statuses</a>
             <a href="#status">What works today</a>
             <a href="#terms">Key terms</a>
@@ -65,9 +67,9 @@ export default function DocsPage() {
             <p className="mono">PRODUCT DOCUMENTATION / 製品説明</p>
             <h1>MIHARI, in plain language.</h1>
             <p>
-              MIHARI monitors Robinhood Stock Tokens for corporate actions such as dividends
-              and stock splits. It explains what changed, where the risk may spread and what a
-              safe operator response could look like.
+              MIHARI watches Robinhood Stock Tokens for dividends, splits, multiplier changes
+              and other corporate actions. It turns official event data into a clear explanation
+              of what happened, what may be affected and what the user should review next.
             </p>
             <div className="docs-actions">
               <Link className="primary-action primary-action-dark" href="/app">
@@ -83,13 +85,13 @@ export default function DocsPage() {
             <p className="docs-kicker mono">01 / USER WORKFLOW</p>
             <h2>What a user can do in MIHARI today.</h2>
             <div className="docs-flow docs-workflow">
-              <div><Wallet size={20} /><span className="mono">01 / ENTER</span><strong>Choose access</strong><p>Continue publicly, sign in by email or create a wallet-native profile.</p></div>
+              <div><Wallet size={20} /><span className="mono">01 / ENTER</span><strong>Choose how to enter</strong><p>Open public Observe mode, use email and password, or create a wallet-first profile with a message signature.</p></div>
               <div><ListChecks size={20} /><span className="mono">02 / SELECT</span><strong>Build a watchlist</strong><p>Choose up to 20 Stock Tokens, search the catalog or clear the selection.</p></div>
               <div><ShieldCheck size={20} /><span className="mono">03 / OBSERVE</span><strong>Start monitoring</strong><p>Observe mode reads and explains risk. It cannot execute a transaction.</p></div>
-              <div><Database size={20} /><span className="mono">04 / SOURCE</span><strong>Sync Robinhood data</strong><p>MIHARI reads asset metadata, prices, multipliers and corporate actions.</p></div>
-              <div><Eye size={20} /><span className="mono">05 / REVIEW</span><strong>Open an event</strong><p>The register shows only watched assets with a corporate-action record.</p></div>
-              <div><Bot size={20} /><span className="mono">06 / ANALYZE</span><strong>Read the Incident File</strong><p>Review the event, impact map, confidence and bounded response.</p></div>
-              <div><Check size={20} /><span className="mono">07 / DECIDE</span><strong>Choose the next step</strong><p>The operator decides what to do. MIHARI does not move funds.</p></div>
+              <div><Database size={20} /><span className="mono">04 / SOURCE</span><strong>Read official data</strong><p>MIHARI checks Robinhood asset metadata, prices, multipliers and corporate actions.</p></div>
+              <div><Eye size={20} /><span className="mono">05 / REVIEW</span><strong>Open a matching event</strong><p>The Event Register shows watched assets that currently have an official corporate-action record.</p></div>
+              <div><Bot size={20} /><span className="mono">06 / ANALYZE</span><strong>Read the Incident File</strong><p>See what happened, the possible impact, confidence, affected systems and a safe response.</p></div>
+              <div><Check size={20} /><span className="mono">07 / DECIDE</span><strong>Stay in control</strong><p>MIHARI recommends what to review. It does not move funds or execute the response.</p></div>
             </div>
             <div className="docs-callout">
               <strong>MIHARI is not a trading bot.</strong>
@@ -114,7 +116,7 @@ export default function DocsPage() {
 
           <section className="docs-section" id="assets-events">
             <p className="docs-kicker mono">03 / ASSETS VS EVENTS</p>
-            <h2>Why can MIHARI show 194 watched assets but only a few events?</h2>
+            <h2>Why can a watchlist contain 20 assets but Events show only a few?</h2>
             <div className="docs-compare">
               <div>
                 <span className="mono">WATCHLIST · SELECTED ASSETS</span>
@@ -129,8 +131,8 @@ export default function DocsPage() {
               </div>
             </div>
             <p>
-              Every other selected asset remains monitored. It is not missing; Robinhood simply
-              has no matching corporate action for it in the current source window.
+              The other selected assets are still being checked. They do not appear in the Event
+              Register until Robinhood returns a matching corporate-action record for them.
             </p>
           </section>
 
@@ -151,58 +153,106 @@ export default function DocsPage() {
             </ul>
           </section>
 
+          <section className="docs-section" id="data-sources">
+            <p className="docs-kicker mono">05 / LIVE DATA</p>
+            <h2>Which information is real and where it comes from.</h2>
+            <p>
+              The production app uses live source data. MIHARI does not infer wallet balances or
+              invent a corporate action. Each part of the product has a named source and a clear
+              fallback boundary.
+            </p>
+            <div className="docs-result-grid">
+              <div><span className="mono">ROBINHOOD ASSET API</span><strong>Official Stock Token catalog</strong><p>Provides active symbols, token names, contract deployments, status and multiplier metadata used to identify official assets.</p></div>
+              <div><span className="mono">ROBINHOOD PRICE API</span><strong>Live market context</strong><p>Provides bid and ask data used to calculate the indicative value shown in Exposure. The displayed value is informational, not an executable quote.</p></div>
+              <div><span className="mono">ROBINHOOD CORPORATE ACTIONS</span><strong>Official event records</strong><p>Provides dividends, splits, event status and available event details. The private Event Register checks only the saved watchlist.</p></div>
+              <div><span className="mono">ROBINHOOD CHAIN BLOCKSCOUT</span><strong>Onchain wallet balances</strong><p>Provides ERC-20 balances for verified addresses. MIHARI matches contracts against Robinhood metadata and separately checks the official $MHR contract.</p></div>
+              <div><span className="mono">OPENAI</span><strong>Structured risk explanation</strong><p>The model receives an event only after the server verifies it against Robinhood. It returns analysis and recommendations, not source facts or transaction authority.</p></div>
+              <div><span className="mono">NEON</span><strong>Profile and incident memory</strong><p>Stores private watchlists, linked wallet records and cached event analysis so repeated views do not create unnecessary AI calls.</p></div>
+            </div>
+            <div className="docs-callout">
+              <strong>What is not live yet.</strong>
+              <p>MIHARI does not yet index personal vault shares, lending collateral, borrowed positions or agent-managed positions. It can explain how an event may affect those systems, but it does not claim to have found a specific protocol position.</p>
+            </div>
+            <div className="docs-callout docs-callout-muted">
+              <strong>Fallback behavior.</strong>
+              <p>If Robinhood data is unavailable, the public console may display clearly labelled simulated fallback records. Private wallet risk analysis requires a server-verified Robinhood event and does not treat simulated data as personal evidence.</p>
+            </div>
+          </section>
+
           <section className="docs-section" id="wallet">
-            <p className="docs-kicker mono">05 / WALLET</p>
-            <h2>What wallet access does today.</h2>
+            <p className="docs-kicker mono">06 / PROFILE ACCESS</p>
+            <h2>Two ways to create and access a profile.</h2>
             <div className="wallet-doc-card">
-              <Wallet size={26} />
               <div>
-                <strong>Wallet-native profile</strong>
-                <p>A free message signature creates a secure MIHARI session without email, gas or a transaction.</p>
+                <Wallet size={24} />
+                <strong>Wallet-first access</strong>
+                <p>Sign a free message to prove wallet ownership. This path does not require an email or password and does not create a transaction.</p>
               </div>
               <div>
-                <strong>Personal position mapping</strong>
-                <p>Verified addresses are scanned for official Robinhood Stock Tokens and matched with corporate actions. MIHARI cannot move funds.</p>
+                <strong>Email access</strong>
+                <p>Create an account with an email and password. After signing in, you can link one or more wallets to the same MIHARI profile.</p>
               </div>
               <div>
-                <strong>$MHR status</strong>
-                <p>The Wallets view checks the official $MHR contract and labels each verified address as Holder, Not Held or Unavailable.</p>
+                <strong>Link both methods</strong>
+                <p>A wallet-first user can add email access later. The linked email opens the same watchlist, wallets and exposure map.</p>
               </div>
+            </div>
+            <div className="docs-callout">
+              <strong>A signature is not a transaction.</strong>
+              <p>Wallet verification costs no gas and grants no permission to move tokens. The email registration route currently uses a password.</p>
             </div>
             <p className="docs-note mono">MIHARI WILL NEVER ASK FOR A SEED PHRASE OR PRIVATE KEY.</p>
           </section>
 
-          <section className="docs-section" id="workspace">
-            <p className="docs-kicker mono">06 / PERSONAL WORKSPACE</p>
-            <h2>How the private profile is organized.</h2>
+          <section className="docs-section" id="map">
+            <p className="docs-kicker mono">07 / MIHARI MAP</p>
+            <h2>Your private monitoring and exposure workspace.</h2>
             <p>
-              A profile combines two different sets of information: the assets a user chooses to
-              monitor and the Stock Tokens MIHARI actually finds in verified wallets. Selecting
-              AMC in Assets does not create an AMC position. A position appears in Exposure only
-              when its official contract has a non-zero balance in a linked wallet.
+              MIHARI MAP connects a personal watchlist with verified Robinhood Chain wallets. It
+              shows two separate things: assets you want to monitor and Stock Tokens actually
+              found in your wallets. Choosing AMC in Assets adds AMC to monitoring. It does not
+              claim that you own AMC. A holding appears in Exposure only after MIHARI finds a
+              non-zero balance of the official Robinhood contract in a verified wallet.
             </p>
+            <div className="docs-compare">
+              <div><span className="mono">WATCHLIST</span><h3>What you want to monitor</h3><p>Up to 20 Stock Tokens selected manually, including assets you may be researching before buying.</p></div>
+              <ArrowRight size={22} />
+              <div className="highlight"><span className="mono">EXPOSURE</span><h3>What the wallet actually holds</h3><p>Non-zero official Stock Token balances discovered automatically across every verified wallet.</p></div>
+            </div>
+          </section>
+
+          <section className="docs-section" id="map-pages">
+            <p className="docs-kicker mono">08 / MIHARI MAP PAGES</p>
+            <h2>What each page does.</h2>
             <div className="docs-result-grid">
-              <div><span className="mono">OVERVIEW</span><strong>Personal control room</strong><p>Summarizes monitored assets, verified wallets, detected Stock Token positions and event matches.</p></div>
-              <div><span className="mono">EVENTS</span><strong>Private Event Register</strong><p>Shows official events for the saved watchlist, refreshes every 60 seconds and opens an AI Incident File.</p></div>
-              <div><span className="mono">ASSETS</span><strong>Watchlist and contract directory</strong><p>Search the live catalog, select up to 20 monitored assets, copy official contracts and open them in Blockscout.</p></div>
-              <div><span className="mono">WALLETS</span><strong>Verified identities and $MHR</strong><p>Link EVM addresses, read $MHR status and add email access to a wallet-first profile.</p></div>
-              <div><span className="mono">EXPOSURE</span><strong>Automatic wallet holdings</strong><p>Scans every verified wallet for all official Robinhood Stock Tokens, including tokens outside the watchlist.</p></div>
-              <div><span className="mono">PROFILE</span><strong>Access methods</strong><p>Shows whether the account uses wallet or email access and lets the user add another access method.</p></div>
-              <div><span className="mono">RESCAN</span><strong>Refresh personal data</strong><p>Reloads the profile, wallet balances, prices and corporate-action matching from the connected sources.</p></div>
+              <div><span className="mono">OVERVIEW</span><strong>Your profile at a glance</strong><p>See the number of monitored assets, verified wallets, detected Stock Token positions and holdings with matching events. Use the links in each panel to open the relevant page.</p></div>
+              <div><span className="mono">EVENTS</span><strong>Events for your watchlist</strong><p>See current Robinhood corporate actions for saved assets. The page refreshes every 60 seconds while open and labels each event as Held in Wallet or Watchlist Only.</p></div>
+              <div><span className="mono">INCIDENT FILE</span><strong>AI explanation for an event</strong><p>Open an event to read what happened, possible effects on NAV, quotes, vaults or lending, the confidence score and the recommended response.</p></div>
+              <div><span className="mono">ASSETS</span><strong>Watchlist and contract directory</strong><p>Search the live catalog, monitor up to 20 Stock Tokens, copy official contract addresses and verify each deployment in Blockscout.</p></div>
+              <div><span className="mono">WALLETS</span><strong>Verified wallets and $MHR</strong><p>Link multiple EVM addresses, see their verification status and check whether each address holds the official $MHR token.</p></div>
+              <div><span className="mono">EXPOSURE</span><strong>Stock Tokens found onchain</strong><p>MIHARI scans the full official catalog, not only the watchlist. It shows balances, indicative values and whether a current corporate action matches each holding.</p></div>
+              <div><span className="mono">PERSONAL RISK FILE</span><strong>Risk attached to a real holding</strong><p>If a wallet holding has an Event Match, View Risk adds the position balance to the event analysis so the user can review personal exposure.</p></div>
+              <div><span className="mono">PROFILE</span><strong>Access and product mode</strong><p>See whether the profile started with wallet or email access, add the missing access method and confirm that the product remains in read-only Observe mode.</p></div>
+              <div><span className="mono">RESCAN</span><strong>Refresh wallet information</strong><p>Request fresh profile data, wallet balances, Stock Token positions, $MHR status, prices and event matching.</p></div>
             </div>
 
-            <h3 className="docs-subheading">Terms used in Assets</h3>
+            <h3 className="docs-subheading">What the labels mean</h3>
             <div className="status-table docs-label-table">
               <div><strong>Monitored</strong><span className="status-pill live">Selected</span><p>The asset belongs to the saved watchlist and is checked for corporate actions.</p></div>
               <div><strong>Not monitored</strong><span className="status-pill next">Not selected</span><p>The asset remains in the live catalog but is not part of the saved watchlist.</p></div>
+              <div><strong>Held in wallet</strong><span className="status-pill live">Personal</span><p>The event symbol matches a Stock Token balance found in at least one verified wallet.</p></div>
+              <div><strong>Watchlist only</strong><span className="status-pill readonly">Monitoring</span><p>The asset is monitored, but MIHARI did not find that Stock Token in the linked wallets.</p></div>
               <div><strong>Contract / Chain 4663</strong><span className="status-pill readonly">Source data</span><p>The official Robinhood Stock Token deployment used for wallet matching on Robinhood Chain.</p></div>
               <div><strong>Save scope</strong><span className="status-pill readonly">Profile action</span><p>Saves the current selection to this private MIHARI profile.</p></div>
               <div><strong>20 asset limit</strong><span className="status-pill readonly">Current release</span><p>The server and interface both enforce a maximum of 20 monitored assets. Wallet holdings are still scanned across the full official catalog.</p></div>
+              <div><strong>$MHR Holder</strong><span className="status-pill live">Onchain</span><p>The verified address has a non-zero balance of the official $MHR contract.</p></div>
+              <div><strong>$MHR Not Held</strong><span className="status-pill readonly">Onchain</span><p>The balance scan completed and no non-zero $MHR balance was found.</p></div>
+              <div><strong>$MHR Unavailable</strong><span className="status-pill next">Source issue</span><p>The balance source did not return a usable response, so MIHARI does not assume the balance is zero.</p></div>
             </div>
           </section>
 
           <section className="docs-section" id="exposure-statuses">
-            <p className="docs-kicker mono">07 / EXPOSURE AND RISK</p>
+            <p className="docs-kicker mono">09 / EXPOSURE AND RISK</p>
             <h2>How to read a position and its risk status.</h2>
             <p>
               MIHARI reads token balances from Robinhood Chain Blockscout, recognizes only
@@ -248,7 +298,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="status">
-            <p className="docs-kicker mono">08 / PRODUCT STATUS</p>
+            <p className="docs-kicker mono">10 / PRODUCT STATUS</p>
             <h2>What works today - and what does not.</h2>
             <div className="status-table">
               {statusRows.map(([feature, status, explanation]) => (
@@ -262,7 +312,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="terms">
-            <p className="docs-kicker mono">09 / KEY TERMS</p>
+            <p className="docs-kicker mono">11 / KEY TERMS</p>
             <h2>A short glossary.</h2>
             <dl className="docs-glossary">
               <div><dt>NAV</dt><dd>Net Asset Value: the calculated value of assets held by a vault or fund, minus its liabilities.</dd></div>

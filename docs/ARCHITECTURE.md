@@ -4,7 +4,7 @@
 
 MAP adds a personal identity and exposure layer without giving MIHARI custody of funds.
 
-1. A user enters through Clerk passwordless email or an EVM wallet signature.
+1. A user enters through Clerk email and password or an EVM wallet signature.
 2. Wallet-native access receives a signed HttpOnly MIHARI session after server-side signature verification.
 3. Neon stores the shared MIHARI account, personal watchlist and linked wallet records.
 4. Email and wallet access can be attached to the same account without duplicating the workspace.

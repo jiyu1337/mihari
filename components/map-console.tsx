@@ -521,7 +521,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
           <section className="workspace-view">
             <div className="workspace-title compact"><div><p className="mono">06 / PROFILE CONTROL</p><h1>Your profile.</h1></div><p>Manage the identities that open this workspace. Add email to a wallet-native profile or link wallets to an email profile.</p></div>
             <div className="workspace-profile-grid">
-              <article><CircleUserRound size={25} /><span className="mono">PRIMARY ACCESS</span><h2>{profile?.account.primaryMethod === "wallet" ? "Wallet signature" : "Email code"}</h2><p>{profile?.account.email ?? profile?.wallets[0]?.address ?? "MIHARI profile"}</p></article>
+              <article><CircleUserRound size={25} /><span className="mono">PRIMARY ACCESS</span><h2>{profile?.account.primaryMethod === "wallet" ? "Wallet signature" : "Email and password"}</h2><p>{profile?.account.email ?? profile?.wallets[0]?.address ?? "MIHARI profile"}</p></article>
               <article><Activity size={25} /><span className="mono">ADD ACCESS METHOD</span><h2>{profile?.account.email ? "Email connected" : "Add recovery email"}</h2><p>{profile?.account.email ? "You can access this profile by email and linked wallet." : "Connect email access without losing this wallet profile."}</p>{profile?.account.email ? <button onClick={() => setView("wallets")}>MANAGE WALLETS</button> : <Link href="/sign-in?redirect_url=/map">ADD EMAIL ACCESS <ArrowRight size={14} /></Link>}</article>
               <article><FileCheck2 size={25} /><span className="mono">POLICY MODE</span><h2>Observe</h2><p>MIHARI analyzes and recommends. It cannot execute transactions from your account.</p></article>
             </div>
