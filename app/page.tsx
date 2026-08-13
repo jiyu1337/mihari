@@ -20,7 +20,7 @@ export default function Home() {
       <section className="hero" aria-labelledby="hero-title">
         <div className="hero-index mono">
           <span>FIELD SYSTEM No. 01</span>
-          <span>LIVE CORPORATE-ACTION CONTROL</span>
+          <span>CORPORATE-ACTION INTELLIGENCE</span>
         </div>
         <div className="hero-title-wrap">
           <p className="eyebrow mono">AI GUARDIAN FOR TOKENIZED STOCKS / 株式監視</p>
@@ -34,8 +34,8 @@ export default function Home() {
         </div>
         <div className="hero-sidecopy">
           <p>
-            MIHARI detects corporate actions, interprets portfolio impact and activates
-            auditable protection policies on Robinhood Chain.
+            MIHARI detects corporate actions, interprets portfolio impact and prepares
+            auditable protection responses for Robinhood Chain.
           </p>
           <Link className="primary-action" href="/launch">
             Start monitoring <ArrowRight size={18} />
@@ -61,7 +61,7 @@ export default function Home() {
             </div>
             <div className="incident-stamp mono">
               <Check size={18} />
-              AI REVIEWED
+              SIMULATED ANALYSIS
               <small>CONF. 98.2%</small>
             </div>
           </div>
@@ -69,14 +69,14 @@ export default function Home() {
           <div className="incident-verdict">
             <p className="verdict-label mono">MIHARI DECISION / 判定</p>
             <p className="verdict-main">
-              Six automated positions are exposed to stale quotes. New lending is paused;
-              NAV recalculation waits for the active multiplier.
+              In this simulated case, six positions are exposed to stale quotes. MIHARI
+              recommends pausing new lending until the active multiplier is confirmed.
             </p>
             <div className="verdict-proof mono">
               <span>POLICY ACTION</span>
               <strong>QUOTES_PAUSED</strong>
-              <span>ONCHAIN RECEIPT</span>
-              <strong>0x8f31…d2a9</strong>
+              <span>CHAIN RECEIPT</span>
+              <strong>NOT RECORDED</strong>
             </div>
           </div>
         </div>
@@ -137,7 +137,7 @@ export default function Home() {
             <Database size={24} strokeWidth={1.5} />
             <span className="protocol-code mono">MEMORY / 04</span>
             <h3>Permanent incident history</h3>
-            <p>Every source, interpretation, decision and resolution remains traceable.</p>
+            <p>Production incidents will preserve their source, interpretation, decision and resolution.</p>
           </article>
         </div>
       </section>
@@ -151,8 +151,8 @@ export default function Home() {
           <p className="section-kicker mono">START WITHOUT SPENDING / 無料監視</p>
           <h2>Observe first. Automate when you are ready.</h2>
           <p>
-            Anyone can monitor events and receive AI explanations for free. Funds are only
-            needed when a user chooses paid automation, staking or an onchain action.
+            Anyone can begin with read-only monitoring. Funds are only needed when a user
+            explicitly approves a future onchain action and pays network gas.
           </p>
           <Link className="primary-action primary-action-dark" href="/launch">
             Configure your watch <ArrowRight size={18} />
@@ -162,7 +162,7 @@ export default function Home() {
           <p><span>MONITORING</span><strong>FREE</strong></p>
           <p><span>WALLET</span><strong>OPTIONAL</strong></p>
           <p><span>NETWORK</span><strong>ROBINHOOD CHAIN</strong></p>
-          <p><span>STATUS</span><strong className="neon-text">TESTNET ACTIVE</strong></p>
+          <p><span>STATUS</span><strong className="neon-text">PUBLIC PREVIEW</strong></p>
         </div>
       </section>
 
@@ -172,7 +172,7 @@ export default function Home() {
           <span>MIHARI</span>
         </div>
         <p>Corporate Action Intelligence</p>
-        <p className="mono">BUILT ON ROBINHOOD CHAIN · 2026</p>
+        <p className="mono">BUILDING ON ROBINHOOD CHAIN · 2026</p>
       </footer>
     </main>
   );

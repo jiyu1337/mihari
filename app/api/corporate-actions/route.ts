@@ -1,14 +1,16 @@
 import { NextResponse } from "next/server";
-import { getCorporateActions } from "@/lib/robinhood";
+import { getMarketSnapshot } from "@/lib/robinhood";
 
 export const runtime = "nodejs";
 
-export async function GET() {
-  const result = await getCorporateActions();
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const symbols = searchParams.get("symbols")?.split(",");
+  const result = await getMarketSnapshot(symbols);
 
   return NextResponse.json(result, {
     headers: {
-      "Cache-Control": "public, s-maxage=300, stale-while-revalidate=3600",
+      "Cache-Control": "public, s-maxage=15, stale-while-revalidate=60",
     },
   });
 }

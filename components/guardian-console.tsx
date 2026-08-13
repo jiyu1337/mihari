@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   Activity,
@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { corporateEvents, type CorporateEvent } from "@/lib/product-data";
+import type { MarketSnapshot } from "@/lib/robinhood";
 
 type LocalConfiguration = {
   wallet?: string;
@@ -22,8 +23,10 @@ type LocalConfiguration = {
   mode?: string;
 };
 
+type DataMode = "loading" | MarketSnapshot["mode"];
+
 const defaultConfiguration: LocalConfiguration = {
-  assets: ["NVDAx", "AAPLx", "TSLAx"],
+  assets: ["NVDA", "AAPL", "TSLA"],
   mode: "observe",
 };
 
@@ -46,25 +49,91 @@ function shortAddress(address?: string) {
   return address ? `${address.slice(0, 6)}…${address.slice(-4)}` : "READ-ONLY";
 }
 
+function shortEventId(id: string) {
+  if (!id.startsWith("0x")) return id;
+  return `${id.slice(0, 6)}…${id.slice(-4)}`;
+}
+
+function fileIndex(id: string) {
+  if (id.startsWith("0x")) return id.slice(-4).toUpperCase();
+  return id.replace("CA–", "");
+}
+
+function formatSyncTime(value: string | null) {
+  if (!value) return "NOT SYNCED";
+  return new Intl.DateTimeFormat("en", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).format(new Date(value));
+}
+
 export function GuardianConsole() {
-  const [selected, setSelected] = useState<CorporateEvent>(corporateEvents[0]);
+  const [events, setEvents] = useState<CorporateEvent[]>(corporateEvents);
+  const [selectedId, setSelectedId] = useState(corporateEvents[0].id);
+  const [dataMode, setDataMode] = useState<DataMode>("loading");
+  const [fetchedAt, setFetchedAt] = useState<string | null>(null);
+  const [priceCount, setPriceCount] = useState(0);
+  const [assetCount, setAssetCount] = useState(0);
   const [syncing, setSyncing] = useState(false);
   const configurationJson = useSyncExternalStore(
     subscribeToConfiguration,
     getConfigurationSnapshot,
     getServerConfigurationSnapshot,
   );
-  let configuration = defaultConfiguration;
-  try {
-    configuration = JSON.parse(configurationJson) as LocalConfiguration;
-  } catch {
-    configuration = defaultConfiguration;
-  }
+  const configuration = useMemo(() => {
+    try {
+      return JSON.parse(configurationJson) as LocalConfiguration;
+    } catch {
+      return defaultConfiguration;
+    }
+  }, [configurationJson]);
 
-  function simulateSync() {
+  const symbols = useMemo(
+    () => (configuration.assets?.length ? configuration.assets : defaultConfiguration.assets) ?? [],
+    [configuration.assets],
+  );
+  const selected = events.find((event) => event.id === selectedId) ?? events[0] ?? null;
+
+  const syncMarketData = useCallback(async () => {
     setSyncing(true);
-    window.setTimeout(() => setSyncing(false), 900);
-  }
+    try {
+      const query = new URLSearchParams({
+        symbols: symbols.join(","),
+        refresh: Date.now().toString(),
+      });
+      const response = await fetch(`/api/corporate-actions?${query}`, { cache: "no-store" });
+      if (!response.ok) throw new Error(`MIHARI API responded ${response.status}`);
+      const snapshot = (await response.json()) as MarketSnapshot;
+      setEvents(snapshot.events);
+      setDataMode(snapshot.mode);
+      setFetchedAt(snapshot.fetchedAt);
+      setPriceCount(snapshot.prices.length);
+      setAssetCount(snapshot.assets.length);
+      setSelectedId((current) =>
+        snapshot.events.some((event) => event.id === current)
+          ? current
+          : (snapshot.events[0]?.id ?? ""),
+      );
+    } catch {
+      setEvents(corporateEvents);
+      setDataMode("fallback");
+      setFetchedAt(new Date().toISOString());
+      setPriceCount(0);
+      setAssetCount(0);
+    } finally {
+      setSyncing(false);
+    }
+  }, [symbols]);
+
+  useEffect(() => {
+    const initialSync = window.setTimeout(() => void syncMarketData(), 0);
+    return () => window.clearTimeout(initialSync);
+  }, [syncMarketData]);
+
+  const isLive = dataMode === "live";
+  const modeLabel = dataMode === "loading" ? "CONNECTING" : isLive ? "LIVE DATA" : "SIMULATED FALLBACK";
 
   return (
     <div className="guardian-shell">
@@ -80,16 +149,16 @@ export function GuardianConsole() {
           <Link href="/launch"><Settings2 size={17} />Setup</Link>
         </nav>
         <div className="console-network mono">
-          <span><i /> SYSTEM ACTIVE</span>
-          <p>ROBINHOOD TESTNET</p>
-          <strong>CHAIN ID 46630</strong>
+          <span><i /> {modeLabel}</span>
+          <p>ROBINHOOD CHAIN</p>
+          <strong>CHAIN ID 4663</strong>
         </div>
       </aside>
 
       <main className="guardian-main">
         <header className="console-header">
           <div>
-            <p className="mono">CORPORATE ACTION CONTROL / 企業行動監視</p>
+            <p className="mono">CORPORATE ACTION MONITOR / 企業行動監視</p>
             <h1>Event register</h1>
           </div>
           <div className="console-header-actions">
@@ -99,10 +168,10 @@ export function GuardianConsole() {
         </header>
 
         <section className="console-strip mono" aria-label="System status">
-          <p><span>WATCH SCOPE</span><strong>{configuration.assets?.length ?? 3} ASSETS</strong></p>
-          <p><span>POLICY MODE</span><strong>{configuration.mode?.toUpperCase() ?? "OBSERVE"}</strong></p>
-          <p><span>LAST SOURCE SYNC</span><strong>{syncing ? "SYNCING…" : "12 SEC AGO"}</strong></p>
-          <button onClick={simulateSync} disabled={syncing}>
+          <p><span>WATCH SCOPE</span><strong>{symbols.length} ASSETS</strong></p>
+          <p><span>DATA MODE</span><strong>{modeLabel}</strong></p>
+          <p><span>LAST SOURCE SYNC</span><strong>{syncing ? "SYNCING…" : formatSyncTime(fetchedAt)}</strong></p>
+          <button onClick={syncMarketData} disabled={syncing}>
             <RefreshCw className={syncing ? "spin" : ""} size={14} /> REFRESH
           </button>
         </section>
@@ -110,71 +179,90 @@ export function GuardianConsole() {
         <div className="console-workspace">
           <section className="event-register" aria-labelledby="register-title">
             <div className="register-head mono">
-              <span id="register-title">LIVE REGISTER / 監視中</span>
-              <span>{corporateEvents.length.toString().padStart(2, "0")} RECORDS</span>
+              <span id="register-title">{isLive ? "ROBINHOOD EVENT REGISTER" : "SIMULATED EVENT REGISTER"} / 監視中</span>
+              <span>{events.length.toString().padStart(2, "0")} RECORDS</span>
             </div>
             <div className="event-list">
-              {corporateEvents.map((event) => (
+              {events.length === 0 ? (
+                <div className="event-empty mono">
+                  <strong>NO MATCHING CORPORATE ACTIONS</strong>
+                  <span>The selected assets have no recent records in the current source window.</span>
+                </div>
+              ) : events.map((event) => (
                 <button
-                  className={selected.id === event.id ? "selected" : ""}
+                  className={selected?.id === event.id ? "selected" : ""}
                   key={event.id}
-                  onClick={() => setSelected(event)}
+                  onClick={() => setSelectedId(event.id)}
                 >
                   <span className={`severity-mark ${event.severity}`} />
-                  <span className="event-id mono">{event.id}<small>{event.time}</small></span>
+                  <span className="event-id mono">{shortEventId(event.id)}<small>{event.time}</small></span>
                   <span className="event-asset"><strong>{event.asset}</strong><small>{event.type}</small></span>
-                  <span className="event-impact mono">{event.affected} POSITIONS</span>
+                  <span className="event-impact mono">
+                    {event.affected === null ? event.sourceStatus : `${event.affected} POSITIONS`}
+                  </span>
                   <ChevronRight size={17} />
                 </button>
               ))}
             </div>
             <div className="source-register mono">
-              <p><span>SOURCE 01</span><strong>ASSET METADATA</strong><i>VERIFIED</i></p>
-              <p><span>SOURCE 02</span><strong>CORPORATE ACTIONS</strong><i>VERIFIED</i></p>
-              <p><span>SOURCE 03</span><strong>ONCHAIN PRICE FEED</strong><i>VERIFIED</i></p>
+              <p><span>SOURCE 01</span><strong>ASSET METADATA</strong><i>{isLive ? `${assetCount} LIVE` : "FALLBACK"}</i></p>
+              <p><span>SOURCE 02</span><strong>CORPORATE ACTIONS</strong><i>{isLive ? "ROBINHOOD" : "SIMULATED"}</i></p>
+              <p><span>SOURCE 03</span><strong>RAW PRICE QUOTES</strong><i>{isLive ? `${priceCount} LIVE` : "UNAVAILABLE"}</i></p>
             </div>
           </section>
 
-          <article className="incident-file" aria-labelledby="incident-file-title">
-            <div className="file-index mono">
-              <span>INCIDENT FILE</span>
-              <strong>{selected.id.replace("CA–", "")}</strong>
-              <span className={`file-state ${selected.severity}`}>{selected.severity.toUpperCase()}</span>
-            </div>
-            <div className="file-body">
-              <header>
-                <div>
-                  <p className="mono">{selected.asset} / {selected.type}</p>
-                  <h2 id="incident-file-title">{selected.name}</h2>
-                </div>
-                <div className="confidence-gauge">
-                  <CircleGauge size={25} strokeWidth={1.4} />
-                  <span className="mono">AI CONFIDENCE<strong>{selected.confidence}%</strong></span>
-                </div>
-              </header>
+          {selected ? (
+            <article className="incident-file" aria-labelledby="incident-file-title">
+              <div className="file-index mono">
+                <span>INCIDENT FILE</span>
+                <strong>{fileIndex(selected.id)}</strong>
+                <span className={`file-state ${selected.severity}`}>{selected.sourceStatus}</span>
+              </div>
+              <div className="file-body">
+                <header>
+                  <div>
+                    <p className="mono">{selected.asset} / {selected.type}</p>
+                    <h2 id="incident-file-title">{selected.name}</h2>
+                  </div>
+                  <div className="confidence-gauge">
+                    <CircleGauge size={25} strokeWidth={1.4} />
+                    <span className="mono">
+                      {selected.confidence === null ? "AI STATUS" : "AI CONFIDENCE"}
+                      <strong>{selected.confidence === null ? "NOT ANALYZED" : `${selected.confidence}%`}</strong>
+                    </span>
+                  </div>
+                </header>
 
-              <section className="analysis-sheet">
-                <div className="analysis-block">
-                  <span className="analysis-number mono">01</span>
-                  <div><p className="mono">OBSERVATION / 観測</p><h3>{selected.summary}</h3></div>
-                </div>
-                <div className="analysis-block">
-                  <span className="analysis-number mono">02</span>
-                  <div><p className="mono">IMPACT MAP / 影響</p><h3>{selected.impact}</h3></div>
-                </div>
-                <div className="analysis-block action-block">
-                  <span className="analysis-number mono">03</span>
-                  <div><p className="mono">BOUNDED ACTION / 対応</p><h3>{selected.action}</h3></div>
-                </div>
-              </section>
+                <section className="analysis-sheet">
+                  <div className="analysis-block">
+                    <span className="analysis-number mono">01</span>
+                    <div><p className="mono">OBSERVATION / 観測</p><h3>{selected.summary}</h3></div>
+                  </div>
+                  <div className="analysis-block">
+                    <span className="analysis-number mono">02</span>
+                    <div><p className="mono">IMPACT MAP / 影響</p><h3>{selected.impact}</h3></div>
+                  </div>
+                  <div className="analysis-block action-block">
+                    <span className="analysis-number mono">03</span>
+                    <div><p className="mono">BOUNDED RESPONSE / 対応</p><h3>{selected.action}</h3></div>
+                  </div>
+                </section>
 
-              <footer className="file-proof mono">
-                <div><Orbit size={18} /><span>POLICY ENGINE<strong>RULESET 0.3</strong></span></div>
-                <div><ShieldCheck size={18} /><span>AFFECTED<strong>{selected.affected} POSITIONS</strong></span></div>
-                <div><FileCheck2 size={18} /><span>CHAIN PROOF<strong>{selected.proof}</strong></span></div>
-              </footer>
-            </div>
-          </article>
+                <footer className="file-proof mono">
+                  <div><Orbit size={18} /><span>DATA SOURCE<strong>{selected.source === "robinhood" ? "ROBINHOOD API" : "SIMULATION"}</strong></span></div>
+                  <div><ShieldCheck size={18} /><span>AFFECTED<strong>{selected.affected === null ? "INDEXING PENDING" : `${selected.affected} POSITIONS`}</strong></span></div>
+                  <div><FileCheck2 size={18} /><span>CHAIN PROOF<strong>{selected.proof ?? "NOT RECORDED"}</strong></span></div>
+                </footer>
+              </div>
+            </article>
+          ) : (
+            <section className="incident-empty">
+              <Orbit size={30} strokeWidth={1.2} />
+              <p className="mono">SOURCE CONNECTED</p>
+              <h2>No recent corporate actions for this watch scope.</h2>
+              <p>MIHARI will surface a record when the official source reports a matching event.</p>
+            </section>
+          )}
         </div>
       </main>
     </div>

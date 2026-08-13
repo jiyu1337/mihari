@@ -26,7 +26,7 @@ export const wallets = pgTable("wallets", {
   id: uuid("id").defaultRandom().primaryKey(),
   accountId: uuid("account_id").references(() => accounts.id, { onDelete: "cascade" }),
   address: text("address").notNull(),
-  chainId: integer("chain_id").default(46630).notNull(),
+  chainId: integer("chain_id").default(4663).notNull(),
   verified: boolean("verified").default(false).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (table) => [uniqueIndex("wallet_chain_address_idx").on(table.chainId, table.address)]);
@@ -75,7 +75,7 @@ export const policyReceipts = pgTable("policy_receipts", {
   walletId: uuid("wallet_id").references(() => wallets.id, { onDelete: "set null" }),
   policy: text("policy").notNull(),
   decision: text("decision").notNull(),
-  chainId: integer("chain_id").default(46630).notNull(),
+  chainId: integer("chain_id").default(4663).notNull(),
   transactionHash: text("transaction_hash"),
   attestationHash: text("attestation_hash"),
   executedAt: timestamp("executed_at", { withTimezone: true }),

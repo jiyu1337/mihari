@@ -4,7 +4,7 @@ export function EventDiagram() {
       <div className="diagram-axis mono">
         <span>09:30:04</span>
         <span>EVENT CA–014</span>
-        <span>CONFIDENCE 98.2%</span>
+        <span>SIMULATION 98.2%</span>
       </div>
       <div className="diagram-track">
         <span className="track-label mono">SOURCE</span>
@@ -20,10 +20,10 @@ export function EventDiagram() {
         <span className="track-label mono">PROOF</span>
       </div>
       <div className="diagram-notes mono">
-        <span>RH STOCK TOKEN API</span>
-        <span>AI IMPACT MAP</span>
-        <span>POLICY: QUOTES_PAUSED</span>
-        <span>0x8f31…d2a9</span>
+        <span>DEMO EVENT PAYLOAD</span>
+        <span>SIMULATED IMPACT MAP</span>
+        <span>RECOMMEND: PAUSE_QUOTES</span>
+        <span>NO CHAIN RECEIPT</span>
       </div>
     </div>
   );

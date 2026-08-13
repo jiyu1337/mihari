@@ -26,7 +26,7 @@ export const robinhoodMainnet = defineChain({
   },
   rpcUrls: {
     default: {
-      http: ["https://rpc.chain.robinhood.com"],
+      http: [process.env.NEXT_PUBLIC_RPC_URL ?? "https://rpc.mainnet.chain.robinhood.com"],
     },
   },
 });

@@ -10,16 +10,18 @@ export type CorporateEvent = {
   summary: string;
   impact: string;
   action: string;
-  confidence: number;
-  affected: number;
-  proof: string;
+  confidence: number | null;
+  affected: number | null;
+  proof: string | null;
+  source: "robinhood" | "simulated";
+  sourceStatus: string;
 };
 
 export const corporateEvents: CorporateEvent[] = [
   {
     id: "CA–014",
     time: "09:30:04",
-    asset: "NVDAx",
+    asset: "NVDA",
     name: "NVIDIA Tokenized Stock",
     type: "MULTIPLIER CHANGE",
     severity: "critical",
@@ -29,11 +31,13 @@ export const corporateEvents: CorporateEvent[] = [
     confidence: 98,
     affected: 6,
     proof: "0x8f31…d2a9",
+    source: "simulated",
+    sourceStatus: "SIMULATED",
   },
   {
     id: "CA–013",
     time: "08:12:51",
-    asset: "AAPLx",
+    asset: "AAPL",
     name: "Apple Tokenized Stock",
     type: "CASH DIVIDEND",
     severity: "watch",
@@ -43,11 +47,13 @@ export const corporateEvents: CorporateEvent[] = [
     confidence: 95,
     affected: 3,
     proof: "0x3bc1…8a44",
+    source: "simulated",
+    sourceStatus: "SIMULATED",
   },
   {
     id: "CA–012",
     time: "07:48:22",
-    asset: "TSLAx",
+    asset: "TSLA",
     name: "Tesla Tokenized Stock",
     type: "PRICE RECOVERY",
     severity: "verified",
@@ -57,6 +63,8 @@ export const corporateEvents: CorporateEvent[] = [
     confidence: 99,
     affected: 2,
     proof: "0x1d94…7e10",
+    source: "simulated",
+    sourceStatus: "SIMULATED",
   },
 ];
 

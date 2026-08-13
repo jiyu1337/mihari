@@ -15,12 +15,12 @@ declare global {
 }
 
 const assets = [
-  { symbol: "AAPLx", name: "Apple", event: "Dividend watch" },
-  { symbol: "NVDAx", name: "NVIDIA", event: "Multiplier watch" },
-  { symbol: "TSLAx", name: "Tesla", event: "Quote integrity" },
-  { symbol: "AMZNx", name: "Amazon", event: "Corporate actions" },
-  { symbol: "MSFTx", name: "Microsoft", event: "Dividend watch" },
-  { symbol: "SPYx", name: "S&P 500 ETF", event: "NAV integrity" },
+  { symbol: "AAPL", name: "Apple", event: "Dividend watch" },
+  { symbol: "NVDA", name: "NVIDIA", event: "Multiplier watch" },
+  { symbol: "TSLA", name: "Tesla", event: "Quote integrity" },
+  { symbol: "AMZN", name: "Amazon", event: "Corporate actions" },
+  { symbol: "MSFT", name: "Microsoft", event: "Dividend watch" },
+  { symbol: "SPY", name: "S&P 500 ETF", event: "NAV integrity" },
 ];
 
 const modes = [
@@ -35,7 +35,7 @@ const modes = [
     id: "guard",
     label: "GUARD",
     jp: "保護",
-    price: "TESTNET",
+    price: "COMING NEXT",
     description: "Prepare policy actions and request approval before onchain execution.",
   },
   {
@@ -56,7 +56,7 @@ export function OnboardingConsole() {
   const [step, setStep] = useState(1);
   const [wallet, setWallet] = useState("");
   const [walletError, setWalletError] = useState("");
-  const [selectedAssets, setSelectedAssets] = useState(["NVDAx", "AAPLx", "TSLAx"]);
+  const [selectedAssets, setSelectedAssets] = useState(["NVDA", "AAPL", "TSLA"]);
   const [mode, setMode] = useState("observe");
 
   const selectedMode = useMemo(() => modes.find((item) => item.id === mode) ?? modes[0], [mode]);
@@ -124,7 +124,7 @@ export function OnboardingConsole() {
                 <span className="choice-index mono">A–01</span>
                 <Wallet size={28} strokeWidth={1.4} />
                 <strong>{wallet ? shortAddress(wallet) : "Connect EVM wallet"}</strong>
-                <small>{wallet ? "Connected for testnet policy setup" : "Recommended for onchain protection"}</small>
+                <small>{wallet ? "Connected as your read-only identity" : "Recommended for future onchain protection"}</small>
                 {wallet && <Check size={18} />}
               </button>
               <button className="identity-choice" onClick={() => setStep(2)}>
@@ -199,7 +199,7 @@ export function OnboardingConsole() {
                   className={mode === item.id ? "selected" : ""}
                   key={item.id}
                   onClick={() => setMode(item.id)}
-                  disabled={item.id === "automate"}
+                  disabled={item.id !== "observe"}
                 >
                   <span className="mode-top mono"><i>{item.jp}</i>{item.price}</span>
                   <strong>{item.label}</strong>
@@ -212,7 +212,7 @@ export function OnboardingConsole() {
               <p><span>IDENTITY</span><strong>{wallet ? shortAddress(wallet) : "READ-ONLY"}</strong></p>
               <p><span>WATCHING</span><strong>{selectedAssets.join(" · ")}</strong></p>
               <p><span>POLICY</span><strong>{selectedMode.label}</strong></p>
-              <p><span>NETWORK</span><strong>ROBINHOOD TESTNET / 46630</strong></p>
+              <p><span>NETWORK</span><strong>ROBINHOOD CHAIN / 4663</strong></p>
             </div>
             <div className="setup-controls">
               <button className="back-button" onClick={() => setStep(2)}><ArrowLeft size={17} /> Back</button>

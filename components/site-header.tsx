@@ -16,7 +16,7 @@ export function SiteHeader({ mode = "paper" }: SiteHeaderProps) {
       </Link>
       <div className="header-status mono">
         <span className="status-pulse" aria-hidden="true" />
-        RH CHAIN / 46630
+        RH CHAIN / 4663
       </div>
       <nav className="main-nav" aria-label="Primary navigation">
         <Link href="/#system">System</Link>
