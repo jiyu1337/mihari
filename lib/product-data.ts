@@ -15,6 +15,7 @@ export type CorporateEvent = {
   proof: string | null;
   source: "robinhood" | "simulated";
   sourceStatus: string;
+  sourcePayload?: Record<string, unknown>;
 };
 
 export const corporateEvents: CorporateEvent[] = [

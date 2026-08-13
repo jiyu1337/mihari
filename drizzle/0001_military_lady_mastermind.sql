@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "analyses_input_hash_idx" ON "analyses" USING btree ("input_hash");

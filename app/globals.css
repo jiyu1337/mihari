@@ -1299,6 +1299,14 @@ a {
 
 .confidence-gauge > span { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.48rem; letter-spacing: 0.06em; }
 .confidence-gauge strong { font-size: 0.9rem; }
+.confidence-gauge button {
+  margin-left: auto;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid var(--ink);
+  background: transparent;
+  font: 600 0.48rem/1 var(--font-mono), monospace;
+  cursor: pointer;
+}
 
 .analysis-sheet { padding-top: 1rem; }
 

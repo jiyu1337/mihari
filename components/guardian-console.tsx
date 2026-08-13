@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import {
   Activity,
@@ -14,6 +14,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
+import type { AnalysisResponse } from "@/lib/analysis";
 import { corporateEvents, type CorporateEvent } from "@/lib/product-data";
 import type { MarketSnapshot } from "@/lib/robinhood";
 
@@ -77,6 +78,10 @@ export function GuardianConsole() {
   const [priceCount, setPriceCount] = useState(0);
   const [assetCount, setAssetCount] = useState(0);
   const [syncing, setSyncing] = useState(false);
+  const [analyses, setAnalyses] = useState<Record<string, AnalysisResponse>>({});
+  const [analyzingId, setAnalyzingId] = useState<string | null>(null);
+  const [analysisErrors, setAnalysisErrors] = useState<Record<string, string>>({});
+  const requestedAnalysisIds = useRef(new Set<string>());
   const configurationJson = useSyncExternalStore(
     subscribeToConfiguration,
     getConfigurationSnapshot,
@@ -95,6 +100,37 @@ export function GuardianConsole() {
     [configuration.assets],
   );
   const selected = events.find((event) => event.id === selectedId) ?? events[0] ?? null;
+
+  const analyzeEvent = useCallback(async (event: CorporateEvent, force = false) => {
+    if (event.source !== "robinhood") return;
+    if (!force && requestedAnalysisIds.current.has(event.id)) return;
+
+    requestedAnalysisIds.current.add(event.id);
+    setAnalyzingId(event.id);
+    setAnalysisErrors((current) => {
+      const next = { ...current };
+      delete next[event.id];
+      return next;
+    });
+
+    try {
+      const response = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ eventId: event.id, symbol: event.asset }),
+      });
+      if (!response.ok) throw new Error(`Analysis unavailable (${response.status})`);
+      const result = (await response.json()) as AnalysisResponse;
+      setAnalyses((current) => ({ ...current, [event.id]: result }));
+    } catch (error) {
+      setAnalysisErrors((current) => ({
+        ...current,
+        [event.id]: error instanceof Error ? error.message : "Analysis unavailable",
+      }));
+    } finally {
+      setAnalyzingId((current) => (current === event.id ? null : current));
+    }
+  }, []);
 
   const syncMarketData = useCallback(async () => {
     setSyncing(true);
@@ -132,8 +168,17 @@ export function GuardianConsole() {
     return () => window.clearTimeout(initialSync);
   }, [syncMarketData]);
 
+  useEffect(() => {
+    if (!selected || selected.source !== "robinhood" || analyses[selected.id]) return;
+    void analyzeEvent(selected);
+  }, [analyses, analyzeEvent, selected]);
+
   const isLive = dataMode === "live";
   const modeLabel = dataMode === "loading" ? "CONNECTING" : isLive ? "LIVE DATA" : "SIMULATED FALLBACK";
+  const selectedAnalysis = selected ? analyses[selected.id] : undefined;
+  const selectedIsAnalyzing = selected ? analyzingId === selected.id : false;
+  const selectedAnalysisError = selected ? analysisErrors[selected.id] : undefined;
+  const displayedConfidence = selectedAnalysis?.confidence ?? selected?.confidence ?? null;
 
   return (
     <div className="guardian-shell">
@@ -227,30 +272,45 @@ export function GuardianConsole() {
                   <div className="confidence-gauge">
                     <CircleGauge size={25} strokeWidth={1.4} />
                     <span className="mono">
-                      {selected.confidence === null ? "AI STATUS" : "AI CONFIDENCE"}
-                      <strong>{selected.confidence === null ? "NOT ANALYZED" : `${selected.confidence}%`}</strong>
+                      {selectedIsAnalyzing
+                        ? "AI STATUS"
+                        : selectedAnalysis?.mode === "deterministic"
+                          ? "RULE CONFIDENCE"
+                          : displayedConfidence === null
+                            ? "AI STATUS"
+                            : "AI CONFIDENCE"}
+                      <strong>
+                        {selectedIsAnalyzing
+                          ? "ANALYZING…"
+                          : displayedConfidence === null
+                            ? "NOT ANALYZED"
+                            : `${displayedConfidence}%`}
+                      </strong>
                     </span>
+                    {selectedAnalysisError ? (
+                      <button onClick={() => void analyzeEvent(selected, true)}>RETRY</button>
+                    ) : null}
                   </div>
                 </header>
 
                 <section className="analysis-sheet">
                   <div className="analysis-block">
                     <span className="analysis-number mono">01</span>
-                    <div><p className="mono">OBSERVATION / 観測</p><h3>{selected.summary}</h3></div>
+                    <div><p className="mono">OBSERVATION / 観測</p><h3>{selectedAnalysis?.summary ?? selected.summary}</h3></div>
                   </div>
                   <div className="analysis-block">
                     <span className="analysis-number mono">02</span>
-                    <div><p className="mono">IMPACT MAP / 影響</p><h3>{selected.impact}</h3></div>
+                    <div><p className="mono">IMPACT MAP / 影響</p><h3>{selectedAnalysis?.impactAssessment ?? selected.impact}</h3></div>
                   </div>
                   <div className="analysis-block action-block">
                     <span className="analysis-number mono">03</span>
-                    <div><p className="mono">BOUNDED RESPONSE / 対応</p><h3>{selected.action}</h3></div>
+                    <div><p className="mono">BOUNDED RESPONSE / 対応</p><h3>{selectedAnalysis?.recommendedAction ?? selected.action}</h3></div>
                   </div>
                 </section>
 
                 <footer className="file-proof mono">
                   <div><Orbit size={18} /><span>DATA SOURCE<strong>{selected.source === "robinhood" ? "ROBINHOOD API" : "SIMULATION"}</strong></span></div>
-                  <div><ShieldCheck size={18} /><span>AFFECTED<strong>{selected.affected === null ? "INDEXING PENDING" : `${selected.affected} POSITIONS`}</strong></span></div>
+                  <div><ShieldCheck size={18} /><span>AFFECTED<strong>{selectedAnalysis ? selectedAnalysis.affectedSystems.join(" / ").toUpperCase() : selected.affected === null ? "INDEXING PENDING" : `${selected.affected} POSITIONS`}</strong></span></div>
                   <div><FileCheck2 size={18} /><span>CHAIN PROOF<strong>{selected.proof ?? "NOT RECORDED"}</strong></span></div>
                 </footer>
               </div>

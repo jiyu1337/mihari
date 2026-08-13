@@ -67,7 +67,7 @@ export const analyses = pgTable("analyses", {
   confidence: integer("confidence").notNull(),
   inputHash: text("input_hash").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-});
+}, (table) => [uniqueIndex("analyses_input_hash_idx").on(table.inputHash)]);
 
 export const policyReceipts = pgTable("policy_receipts", {
   id: uuid("id").defaultRandom().primaryKey(),

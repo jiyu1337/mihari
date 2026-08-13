@@ -8,6 +8,13 @@
       "when": 1786625904865,
       "tag": "0000_rapid_mesmero",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1786628494985,
+      "tag": "0001_military_lady_mastermind",
+      "breakpoints": true
     }
   ]
 }

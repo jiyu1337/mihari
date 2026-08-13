@@ -10,7 +10,7 @@ This guide is written for a non-developer project owner. It will be expanded as 
 - Wallet detection or a no-wallet read-only path.
 - Watchlist and protection-mode persistence in the browser.
 - Corporate-action API adapter with safe demo fallback.
-- Structured AI endpoint with deterministic fallback when no AI key is present.
+- Structured OpenAI analysis with deterministic fallback, Neon caching and a 25-analysis daily safety limit.
 - Postgres schema for users, wallets, watchlists, events, analyses and receipts.
 - Compilable Robinhood Chain smart contracts.
 
@@ -48,7 +48,8 @@ Required for the next production milestone:
 - `NEON_DATABASE_DATABASE_URL`: primary Neon Postgres connection created by the current Vercel Marketplace integration.
 - `NEON_DATABASE_POSTGRES_URL`: compatible Neon connection variable used as a fallback.
 - `DATABASE_URL`: temporary fallback for the previous manual connection; remove it after Neon is verified.
-- `AI_GATEWAY_API_KEY`: Vercel AI Gateway key.
+- `OPENAI_API_KEY`: direct OpenAI API key. Keep it server-only and marked Sensitive in Vercel.
+- `MIHARI_AI_MODEL`: optional model override; defaults to `gpt-5-mini` for controlled cost.
 - `ROBINHOOD_API_BASE_URL`: official Stock Token API host.
 - `NEXT_PUBLIC_RPC_URL`: Robinhood Chain mainnet RPC.
 - contract address variables after audited mainnet deployment.

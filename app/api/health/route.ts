@@ -37,7 +37,8 @@ export async function GET() {
         : databaseUrl
           ? "legacy"
           : "none",
-    ai: Boolean(process.env.AI_GATEWAY_API_KEY),
+    ai: Boolean(process.env.OPENAI_API_KEY),
+    aiProvider: process.env.OPENAI_API_KEY ? "openai" : "none",
     timestamp: new Date().toISOString(),
   });
 }

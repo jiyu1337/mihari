@@ -131,6 +131,29 @@ function toCorporateEvent(
     proof: null,
     source: "robinhood",
     sourceStatus: action.status.replace("CORPORATE_ACTION_STATUS_", ""),
+    sourcePayload: {
+      corporateAction: {
+        id: action.id,
+        type: action.type,
+        status: action.status,
+        processDate: action.processDate ?? null,
+        tokenSymbol: action.tokenSymbol,
+        deployments: action.deployments,
+        details: action.details,
+      },
+      asset: asset
+        ? {
+            id: asset.id,
+            tokenSymbol: asset.tokenSymbol,
+            tokenName: asset.tokenName,
+            deployments: asset.deployments,
+            currentMultiplier: asset.currentMultiplier,
+            pendingMultiplier: asset.pendingMultiplier,
+            pendingMultiplierEffectiveTime: asset.pendingMultiplierEffectiveTime ?? null,
+            status: asset.status,
+          }
+        : null,
+    },
   };
 }
 
