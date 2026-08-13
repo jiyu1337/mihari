@@ -45,11 +45,12 @@ Never put keys directly in source files or send them in public chat. Copy `.env.
 
 Required for the next production milestone:
 
-- `DATABASE_URL`: Neon Postgres connection string.
+- `NEON_DATABASE_URL`: Neon Postgres connection created by the Vercel Marketplace integration.
+- `DATABASE_URL`: temporary fallback for the previous manual connection; remove it after Neon is verified.
 - `AI_GATEWAY_API_KEY`: Vercel AI Gateway key.
 - `ROBINHOOD_API_BASE_URL`: official Stock Token API host.
-- `NEXT_PUBLIC_RPC_URL`: Robinhood Chain testnet RPC.
-- contract address variables after testnet deployment.
+- `NEXT_PUBLIC_RPC_URL`: Robinhood Chain mainnet RPC.
+- contract address variables after audited mainnet deployment.
 
 ## Quality commands
 
@@ -91,16 +92,15 @@ I will handle the commands and verify the deployment. You will only need to appr
 
 ## Database — upcoming connection step
 
-Neon Postgres is the planned database because it connects directly to Vercel and works with the existing Drizzle schema.
+Neon Postgres is connected through Vercel Marketplace. The production build applies reviewed, versioned Drizzle migrations before compiling the app.
 
-After Neon is provisioned:
+To create a new migration after changing `db/schema.ts`:
 
 ```powershell
 npm run db:generate
-npm run db:migrate
 ```
 
-No production migration should be run without a backup and a reviewed migration file.
+Review the generated SQL before committing it. Never use schema reset or destructive push commands against production.
 
 ## Smart-contract safety
 
