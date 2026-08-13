@@ -169,7 +169,7 @@ async function fetchJson<T>(url: string, revalidate: number): Promise<T> {
 }
 
 export async function getMarketSnapshot(symbols?: string[]): Promise<MarketSnapshot> {
-  const baseUrl = process.env.ROBINHOOD_API_BASE_URL ?? DEFAULT_BASE_URL;
+  const baseUrl = (process.env.ROBINHOOD_API_BASE_URL?.trim() || DEFAULT_BASE_URL).replace(/\/+$/, "");
   const selectedSymbols = normalizeSymbols(symbols);
 
   try {
