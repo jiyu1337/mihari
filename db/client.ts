@@ -3,7 +3,12 @@ import { drizzle } from "drizzle-orm/neon-http";
 import * as schema from "@/db/schema";
 
 export function getDatabaseUrl() {
-  return process.env.NEON_DATABASE_URL ?? process.env.DATABASE_URL;
+  return (
+    process.env.NEON_DATABASE_DATABASE_URL ??
+    process.env.NEON_DATABASE_POSTGRES_URL ??
+    process.env.NEON_DATABASE_URL ??
+    process.env.DATABASE_URL
+  );
 }
 
 export function getDatabase() {

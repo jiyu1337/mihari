@@ -45,7 +45,8 @@ Never put keys directly in source files or send them in public chat. Copy `.env.
 
 Required for the next production milestone:
 
-- `NEON_DATABASE_URL`: Neon Postgres connection created by the Vercel Marketplace integration.
+- `NEON_DATABASE_DATABASE_URL`: primary Neon Postgres connection created by the current Vercel Marketplace integration.
+- `NEON_DATABASE_POSTGRES_URL`: compatible Neon connection variable used as a fallback.
 - `DATABASE_URL`: temporary fallback for the previous manual connection; remove it after Neon is verified.
 - `AI_GATEWAY_API_KEY`: Vercel AI Gateway key.
 - `ROBINHOOD_API_BASE_URL`: official Stock Token API host.

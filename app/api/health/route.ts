@@ -4,6 +4,11 @@ import { getDatabase, getDatabaseUrl } from "@/db/client";
 
 export const dynamic = "force-dynamic";
 
+function getChainId() {
+  const configuredChainId = Number(process.env.NEXT_PUBLIC_CHAIN_ID);
+  return Number.isSafeInteger(configuredChainId) && configuredChainId > 0 ? configuredChainId : 4663;
+}
+
 export async function GET() {
   const databaseUrl = getDatabaseUrl();
   let database = databaseUrl ? "unreachable" : "not_configured";
@@ -22,9 +27,16 @@ export async function GET() {
   return NextResponse.json({
     service: "mihari-web",
     status,
-    chainId: Number(process.env.NEXT_PUBLIC_CHAIN_ID ?? 4663),
+    chainId: getChainId(),
     database,
-    databaseSource: process.env.NEON_DATABASE_URL ? "neon_integration" : databaseUrl ? "legacy" : "none",
+    databaseSource:
+      process.env.NEON_DATABASE_DATABASE_URL ||
+      process.env.NEON_DATABASE_POSTGRES_URL ||
+      process.env.NEON_DATABASE_URL
+        ? "neon_integration"
+        : databaseUrl
+          ? "legacy"
+          : "none",
     ai: Boolean(process.env.AI_GATEWAY_API_KEY),
     timestamp: new Date().toISOString(),
   });
