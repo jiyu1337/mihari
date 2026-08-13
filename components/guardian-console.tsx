@@ -289,10 +289,11 @@ export function GuardianConsole() {
 
           {selected ? (
             <article className="incident-file" aria-labelledby="incident-file-title">
-              <div className="file-index mono">
-                <span>INCIDENT FILE</span>
-                <strong>{fileIndex(selected.id)}</strong>
-                <span className={`file-state ${selected.severity}`}>{selected.sourceStatus}</span>
+              <div className="incident-record-bar mono" aria-label="Selected event metadata">
+                <p><span>SELECTED EVENT</span><strong>{selected.asset} / {selected.type}</strong></p>
+                <p><span>STATUS</span><strong className={`record-status ${selected.severity}`}>{selected.sourceStatus}</strong></p>
+                <p><span>RISK</span><strong>{selectedRisk.toUpperCase()}</strong></p>
+                <p><span>RECORD ID</span><strong>{fileIndex(selected.id)}</strong></p>
               </div>
               <div className="file-body">
                 <header>
