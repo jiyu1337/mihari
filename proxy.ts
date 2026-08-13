@@ -1,14 +1,23 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 import { isClerkConfigured } from "@/lib/auth-config";
 
-const isProtectedRoute = createRouteMatcher([
-  "/map(.*)",
-  "/api/profile(.*)",
-  "/api/wallets(.*)",
-]);
+const isMapRoute = createRouteMatcher(["/map(.*)"]);
+const isProtectedApiRoute = createRouteMatcher(["/api/profile(.*)", "/api/wallets(.*)"]);
 
 const configuredProxy = clerkMiddleware(async (auth, request) => {
-  if (isProtectedRoute(request)) await auth.protect();
+  if (!isMapRoute(request) && !isProtectedApiRoute(request)) return;
+
+  const { userId } = await auth();
+  if (userId) return;
+
+  if (isProtectedApiRoute(request)) {
+    return Response.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const signInUrl = new URL("/sign-in", request.url);
+  signInUrl.searchParams.set("redirect_url", `${request.nextUrl.pathname}${request.nextUrl.search}`);
+  return NextResponse.redirect(signInUrl);
 }, {
   frontendApiProxy: { enabled: true },
 });

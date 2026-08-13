@@ -3,21 +3,9 @@
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { ArrowLeft, ArrowRight, Check, Mail, Search, Wallet } from "lucide-react";
+import { ArrowLeft, ArrowRight, Mail, Search, Wallet } from "lucide-react";
 import type { RobinhoodAsset } from "@/lib/robinhood";
 
-type EthereumProvider = {
-  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
-};
-
-declare global {
-  interface Window {
-    ethereum?: EthereumProvider;
-  }
-}
-
-const CHAIN_ID = 4663;
-const CHAIN_ID_HEX = "0x1237";
 const fallbackAssets = [
   { tokenSymbol: "AAPL", tokenName: "Apple • Robinhood Token" },
   { tokenSymbol: "NVDA", tokenName: "NVIDIA • Robinhood Token" },
@@ -51,25 +39,13 @@ const modes = [
   },
 ];
 
-function shortAddress(address: string) {
-  return `${address.slice(0, 6)}…${address.slice(-4)}`;
-}
-
 function cleanAssetName(name: string) {
   return name.replace(" • Robinhood Token", "");
-}
-
-function getErrorCode(error: unknown) {
-  return typeof error === "object" && error !== null && "code" in error
-    ? Number((error as { code?: unknown }).code)
-    : undefined;
 }
 
 export function OnboardingConsole() {
   const router = useRouter();
   const [step, setStep] = useState(1);
-  const [wallet, setWallet] = useState("");
-  const [walletError, setWalletError] = useState("");
   const [selectedAssets, setSelectedAssets] = useState(["NVDA", "AAPL", "TSLA"]);
   const [assetCatalog, setAssetCatalog] = useState<RobinhoodAsset[]>(fallbackAssets);
   const [catalogMode, setCatalogMode] = useState<"loading" | "live" | "fallback">("loading");
@@ -80,11 +56,9 @@ export function OnboardingConsole() {
     let restoreTimer: number | undefined;
     try {
       const saved = JSON.parse(window.localStorage.getItem("mihari:configuration") ?? "{}") as {
-        wallet?: string;
         assets?: string[];
       };
       restoreTimer = window.setTimeout(() => {
-        if (saved.wallet) setWallet(saved.wallet);
         if (saved.assets?.length) setSelectedAssets(saved.assets);
       }, 0);
     } catch {
@@ -128,42 +102,6 @@ export function OnboardingConsole() {
     [assetCatalog, selectedAssetSet],
   );
 
-  async function connectWallet() {
-    setWalletError("");
-    if (!window.ethereum) {
-      setWalletError("No EVM wallet detected. Install Robinhood Wallet or another EVM wallet, or continue read-only.");
-      return;
-    }
-
-    try {
-      const accounts = (await window.ethereum.request({ method: "eth_requestAccounts" })) as string[];
-      if (!accounts[0]) throw new Error("No wallet account returned");
-
-      try {
-        await window.ethereum.request({
-          method: "wallet_switchEthereumChain",
-          params: [{ chainId: CHAIN_ID_HEX }],
-        });
-      } catch (switchError) {
-        if (getErrorCode(switchError) !== 4902) throw switchError;
-        await window.ethereum.request({
-          method: "wallet_addEthereumChain",
-          params: [{
-            chainId: CHAIN_ID_HEX,
-            chainName: "Robinhood Chain",
-            nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-            rpcUrls: ["https://rpc.mainnet.chain.robinhood.com"],
-            blockExplorerUrls: ["https://robinhoodchain.blockscout.com"],
-          }],
-        });
-      }
-
-      setWallet(accounts[0]);
-    } catch {
-      setWalletError("Connection or network switch was cancelled. Read-only mode remains available.");
-    }
-  }
-
   function toggleAsset(symbol: string) {
     setSelectedAssets((current) =>
       current.includes(symbol)
@@ -182,8 +120,6 @@ export function OnboardingConsole() {
 
   async function completeSetup() {
     window.localStorage.setItem("mihari:configuration", JSON.stringify({
-      wallet,
-      walletChainId: wallet ? CHAIN_ID : null,
       assets: selectedAssets,
       mode,
       createdAt: new Date().toISOString(),
@@ -231,13 +167,13 @@ export function OnboardingConsole() {
                 <small>Save watchlists, link wallets and map your positions</small>
                 <ArrowRight size={18} />
               </Link>
-              <button className={`identity-choice ${wallet ? "selected" : ""}`} onClick={connectWallet}>
+              <Link className="identity-choice" href="/sign-in?redirect_url=/map">
                 <span className="choice-index mono">A–01 / CHAIN 4663</span>
                 <Wallet size={28} strokeWidth={1.4} />
-                <strong>{wallet ? shortAddress(wallet) : "Connect wallet"}</strong>
-                <small>{wallet ? "Connected on Robinhood Chain · read-only" : "Robinhood Wallet or any EVM wallet"}</small>
-                {wallet && <Check size={18} />}
-              </button>
+                <strong>Link wallet to profile</strong>
+                <small>Sign in first, then verify ownership with a free message signature</small>
+                <ArrowRight size={18} />
+              </Link>
               <button className="identity-choice" onClick={() => setStep(2)}>
                 <span className="choice-index mono">A–02 / NO WALLET</span>
                 <span className="readonly-glyph mono">R/O</span>
@@ -246,12 +182,6 @@ export function OnboardingConsole() {
                 <ArrowRight size={18} />
               </button>
             </div>
-            {walletError && <p className="setup-error mono">{walletError}</p>}
-            {wallet && (
-              <button className="setup-next" onClick={() => setStep(2)}>
-                Continue with wallet <ArrowRight size={18} />
-              </button>
-            )}
           </div>
         )}
 
@@ -344,7 +274,7 @@ export function OnboardingConsole() {
               ))}
             </div>
             <div className="configuration-summary mono">
-              <p><span>IDENTITY</span><strong>{wallet ? `${shortAddress(wallet)} · CHAIN 4663` : "READ-ONLY"}</strong></p>
+              <p><span>IDENTITY</span><strong>READ-ONLY</strong></p>
               <p><span>WATCHLIST</span><strong>{selectedAssets.length} ASSETS</strong></p>
               <p><span>POLICY</span><strong>{selectedMode.label}</strong></p>
               <p><span>EXECUTION</span><strong>DISABLED</strong></p>

@@ -1652,6 +1652,13 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .auth-copy > p:last-child { max-width: 580px; margin: 2rem 0 0; font-size: 1rem; line-height: 1.65; }
 .auth-status { display: flex; justify-content: space-between; gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--ink); font-size: 0.55rem; letter-spacing: 0.07em; }
 .auth-form-shell { display: grid; place-items: center; padding: 2rem; background: var(--ink); }
+.mihari-auth-root { width: min(100%, 450px); }
+.mihari-auth-card-box { width: 100%; box-shadow: none !important; }
+.mihari-auth-card { width: 100%; border: 1px solid var(--neon) !important; box-shadow: 8px 8px 0 var(--neon) !important; }
+.mihari-auth-title { font-size: 1.8rem !important; letter-spacing: -0.045em !important; }
+.mihari-auth-subtitle { color: var(--heather-3) !important; }
+.mihari-auth-submit { color: var(--ink) !important; border: 1px solid var(--ink) !important; box-shadow: none !important; font-weight: 800 !important; }
+.mihari-auth-footer { background: transparent !important; }
 .auth-page-single { display: grid; place-items: center; padding: 2rem; background: var(--ink); }
 .auth-unavailable { width: min(100%, 440px); padding: 2rem; background: var(--paper); border: 1px solid var(--neon); }
 .auth-unavailable > p { line-height: 1.6; }

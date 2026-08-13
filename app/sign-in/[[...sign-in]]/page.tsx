@@ -28,12 +28,24 @@ export default function SignInPage() {
             routing="path"
             fallbackRedirectUrl="/map"
             signUpFallbackRedirectUrl="/map"
+            signUpUrl="/sign-up"
             appearance={{
               variables: {
-                colorPrimary: "#10110d",
+                colorPrimary: "#ccff00",
                 colorBackground: "#faf9f5",
+                colorForeground: "#10110d",
+                colorMutedForeground: "#777772",
                 borderRadius: "0px",
                 fontFamily: "Manrope Variable, Arial, sans-serif",
+              },
+              elements: {
+                rootBox: "mihari-auth-root",
+                cardBox: "mihari-auth-card-box",
+                card: "mihari-auth-card",
+                headerTitle: "mihari-auth-title",
+                headerSubtitle: "mihari-auth-subtitle",
+                formButtonPrimary: "mihari-auth-submit",
+                footer: "mihari-auth-footer",
               },
             }}
           />
