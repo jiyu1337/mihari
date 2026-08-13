@@ -1,5 +1,6 @@
 import { formatUnits, getAddress, isAddress } from "viem";
 import { getAssetCatalog, getMarketSnapshot, type RobinhoodAsset } from "@/lib/robinhood";
+import { MHR_CONTRACT_ADDRESS } from "@/lib/token";
 
 const BLOCKSCOUT_API = "https://robinhoodchain.blockscout.com/api/v2";
 
@@ -25,6 +26,12 @@ export type MappedPosition = {
   hasCorporateAction: boolean;
 };
 
+export type MhrHolding = {
+  wallet: string;
+  balance: string | null;
+  status: "holder" | "not_held" | "unavailable";
+};
+
 function stockTokenByAddress(assets: RobinhoodAsset[]) {
   return new Map(
     assets.flatMap((asset) => asset.deployments
@@ -35,9 +42,9 @@ function stockTokenByAddress(assets: RobinhoodAsset[]) {
 
 export async function mapWalletPositions(addresses: string[]) {
   const validAddresses = addresses.filter((address) => isAddress(address)).map(getAddress);
-  if (!validAddresses.length) return { positions: [], events: [], scannedAt: new Date().toISOString() };
+  if (!validAddresses.length) return { positions: [], events: [], mhrHoldings: [], scannedAt: new Date().toISOString() };
 
-  const assets = await getAssetCatalog();
+  const assets = await getAssetCatalog().catch(() => []);
   const assetsByAddress = stockTokenByAddress(assets);
   const balanceResponses = await Promise.allSettled(validAddresses.map(async (wallet) => {
     const response = await fetch(`${BLOCKSCOUT_API}/addresses/${wallet}/token-balances`, {
@@ -64,6 +71,24 @@ export async function mapWalletPositions(addresses: string[]) {
     });
   });
 
+  const mhrHoldings: MhrHolding[] = balanceResponses.map((result, index) => {
+    const wallet = validAddresses[index];
+    if (result.status !== "fulfilled") return { wallet, balance: null, status: "unavailable" };
+
+    const holding = result.value.balances.find(
+      (balance) => balance.token.address_hash.toLowerCase() === MHR_CONTRACT_ADDRESS.toLowerCase(),
+    );
+    if (!holding || BigInt(holding.value) === BigInt(0)) {
+      return { wallet, balance: "0", status: "not_held" };
+    }
+
+    return {
+      wallet,
+      balance: formatUnits(BigInt(holding.value), Number(holding.token.decimals ?? 18)),
+      status: "holder",
+    };
+  });
+
   const symbols = [...new Set(rawPositions.map((position) => position.asset.tokenSymbol))];
   const snapshot = symbols.length ? await getMarketSnapshot(symbols) : null;
   const prices = new Map(snapshot?.prices.map((price) => [price.tokenSymbol.toUpperCase(), price]) ?? []);
@@ -88,6 +113,7 @@ export async function mapWalletPositions(addresses: string[]) {
   return {
     positions,
     events: snapshot?.events ?? [],
+    mhrHoldings,
     scannedAt: new Date().toISOString(),
   };
 }

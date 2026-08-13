@@ -4,11 +4,12 @@ import { getDatabase } from "@/db/client";
 import { wallets, watchlists } from "@/db/schema";
 import { getAuthenticatedAccount } from "@/lib/account";
 import { mapWalletPositions } from "@/lib/map-data";
+import { MAX_WATCHLIST_ASSETS } from "@/lib/product-limits";
 
 export const runtime = "nodejs";
 
 const profileUpdate = z.object({
-  symbols: z.array(z.string().trim().min(1).max(16)).max(250),
+  symbols: z.array(z.string().trim().min(1).max(16)).max(MAX_WATCHLIST_ASSETS),
   mode: z.enum(["observe", "guard", "automate"]).default("observe"),
 });
 
@@ -25,8 +26,13 @@ export async function GET() {
   const exposure = await mapWalletPositions(verifiedAddresses).catch(() => ({
     positions: [],
     events: [],
+    mhrHoldings: [],
     scannedAt: new Date().toISOString(),
   }));
+
+  const mhrByWallet = new Map(
+    exposure.mhrHoldings.map((holding) => [holding.wallet.toLowerCase(), holding]),
+  );
 
   return Response.json({
     account: {
@@ -34,9 +40,22 @@ export async function GET() {
       email: account.email,
       primaryMethod: account.authProviderId.startsWith("wallet:") ? "wallet" : "email",
     },
-    watchlist: savedWatchlist[0] ?? null,
-    wallets: savedWallets,
-    exposure,
+    watchlist: savedWatchlist[0]
+      ? { ...savedWatchlist[0], symbols: savedWatchlist[0].symbols.slice(0, MAX_WATCHLIST_ASSETS) }
+      : null,
+    wallets: savedWallets.map((wallet) => ({
+      ...wallet,
+      mhr: mhrByWallet.get(wallet.address.toLowerCase()) ?? {
+        wallet: wallet.address,
+        balance: null,
+        status: wallet.verified ? "unavailable" : "not_held",
+      },
+    })),
+    exposure: {
+      positions: exposure.positions,
+      events: exposure.events,
+      scannedAt: exposure.scannedAt,
+    },
   }, { headers: { "Cache-Control": "private, no-store" } });
 }
 
@@ -45,7 +64,11 @@ export async function PATCH(request: Request) {
   if (!account) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const parsed = profileUpdate.safeParse(await request.json());
-  if (!parsed.success) return Response.json({ error: "Invalid watchlist" }, { status: 400 });
+  if (!parsed.success) {
+    return Response.json({
+      error: `A monitoring scope can contain up to ${MAX_WATCHLIST_ASSETS} assets.`,
+    }, { status: 400 });
+  }
 
   const symbols = [...new Set(parsed.data.symbols.map((symbol) => symbol.toUpperCase()))];
   const database = getDatabase();

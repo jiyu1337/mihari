@@ -6,6 +6,7 @@ import {
   Activity,
   AlertTriangle,
   ArrowRight,
+  BellRing,
   Check,
   CircleUserRound,
   Copy,
@@ -24,9 +25,12 @@ import {
   X,
 } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
+import { ProfileEvents } from "@/components/profile-events";
 import { ProfileSignOut } from "@/components/profile-sign-out";
 import type { AnalysisResponse } from "@/lib/analysis";
-import type { MappedPosition } from "@/lib/map-data";
+import type { MappedPosition, MhrHolding } from "@/lib/map-data";
+import { MAX_WATCHLIST_ASSETS } from "@/lib/product-limits";
+import { MHR_CONTRACT_ADDRESS } from "@/lib/token";
 import type { CorporateEvent } from "@/lib/product-data";
 import type { RobinhoodAsset } from "@/lib/robinhood";
 
@@ -37,16 +41,17 @@ type EthereumProvider = {
 type ProfileResponse = {
   account: { id: string; email: string | null; primaryMethod: "email" | "wallet" };
   watchlist: { symbols: string[]; mode: string } | null;
-  wallets: Array<{ id: string; address: string; chainId: number; verified: boolean }>;
+  wallets: Array<{ id: string; address: string; chainId: number; verified: boolean; mhr: MhrHolding }>;
   exposure: { positions: MappedPosition[]; events: CorporateEvent[]; scannedAt: string };
 };
 
-type WorkspaceView = "overview" | "assets" | "wallets" | "exposure" | "settings";
+type WorkspaceView = "overview" | "events" | "assets" | "wallets" | "exposure" | "settings";
 type MapConsoleProps = { authUnavailable?: boolean };
 
 const CHAIN_ID_HEX = "0x1237";
 const workspaceNavigation = [
   { id: "overview", label: "Overview", icon: Orbit },
+  { id: "events", label: "Events", icon: BellRing },
   { id: "assets", label: "Assets", icon: ListFilter },
   { id: "wallets", label: "Wallets", icon: Wallet },
   { id: "exposure", label: "Exposure", icon: ShieldCheck },
@@ -68,6 +73,11 @@ function formatMoney(value: string | null) {
     currency: "USD",
     maximumFractionDigits: 2,
   }).format(Number(value));
+}
+
+function formatTokenBalance(value: string | null) {
+  if (value === null) return "CHECK UNAVAILABLE";
+  return Number(value).toLocaleString(undefined, { maximumFractionDigits: 6 });
 }
 
 function eventRiskLabel(event: CorporateEvent) {
@@ -106,7 +116,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
       if (!profileResponse.ok) throw new Error(`Profile unavailable (${profileResponse.status})`);
       const nextProfile = await profileResponse.json() as ProfileResponse;
       setProfile(nextProfile);
-      setSelectedSymbols(nextProfile.watchlist?.symbols ?? []);
+      setSelectedSymbols((nextProfile.watchlist?.symbols ?? []).slice(0, MAX_WATCHLIST_ASSETS));
       if (assetResponse.ok) {
         const assetPayload = await assetResponse.json() as { assets: RobinhoodAsset[] };
         setAssets(assetPayload.assets);
@@ -148,7 +158,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
   ) ?? null;
   const openRiskEvent = openRiskPosition ? eventsBySymbol.get(openRiskPosition.symbol.toUpperCase()) ?? null : null;
   const openRiskAnalysis = openRiskEvent ? positionAnalyses[openRiskEvent.id] : undefined;
-  const allSelected = assets.length > 0 && assets.every((asset) => selectedSet.has(asset.tokenSymbol));
+  const selectionFull = selectedSymbols.length >= Math.min(MAX_WATCHLIST_ASSETS, assets.length);
 
   async function saveAssets() {
     setSaving(true);
@@ -160,7 +170,10 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ symbols: selectedSymbols, mode: "observe" }),
       });
-      if (!response.ok) throw new Error("Watchlist could not be saved");
+      if (!response.ok) {
+        const result = await response.json().catch(() => ({})) as { error?: string };
+        throw new Error(result.error ?? "Watchlist could not be saved");
+      }
       setProfile((current) => current ? {
         ...current,
         watchlist: { symbols: selectedSymbols, mode: "observe" },
@@ -174,9 +187,24 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
   }
 
   function toggleAsset(symbol: string) {
-    setSelectedSymbols((current) => current.includes(symbol)
-      ? current.filter((item) => item !== symbol)
-      : [...current, symbol]);
+    setSelectedSymbols((current) => {
+      if (current.includes(symbol)) return current.filter((item) => item !== symbol);
+      if (current.length >= MAX_WATCHLIST_ASSETS) {
+        setError(`This release supports up to ${MAX_WATCHLIST_ASSETS} monitored assets. Remove one before adding another.`);
+        return current;
+      }
+      setError("");
+      return [...current, symbol];
+    });
+  }
+
+  function selectTwentyVisibleAssets() {
+    if (selectionFull) {
+      setSelectedSymbols([]);
+      return;
+    }
+    setSelectedSymbols(visibleAssets.slice(0, MAX_WATCHLIST_ASSETS).map((asset) => asset.tokenSymbol));
+    setError("");
   }
 
   async function copyContract(address: string) {
@@ -356,13 +384,20 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
           </section>
         ) : null}
 
+        {view === "events" ? (
+          <ProfileEvents
+            heldSymbols={profile?.exposure.positions.map((position) => position.symbol) ?? []}
+            onOpenExposure={() => setView("exposure")}
+          />
+        ) : null}
+
         {view === "assets" ? (
           <section className="workspace-view">
-            <div className="workspace-title compact"><div><p className="mono">02 / ASSET MANAGER</p><h1>Assets and contracts.</h1></div><p>Select the Stock Tokens your profile should watch and verify every official Robinhood Chain contract from the same live catalog.</p></div>
+            <div className="workspace-title compact"><div><p className="mono">03 / ASSET MANAGER</p><h1>Assets and contracts.</h1></div><p>Select up to 20 Stock Tokens your profile should watch and verify every official Robinhood Chain contract from the same live catalog.</p></div>
             <div className="workspace-asset-toolbar">
               <label><Search size={17} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search symbol or company" /></label>
-              <span className="mono">{selectedSymbols.length} SELECTED / {assets.length} LIVE</span>
-              <button onClick={() => setSelectedSymbols(allSelected ? [] : assets.map((asset) => asset.tokenSymbol))}>{allSelected ? "CLEAR ALL" : "SELECT ALL"}</button>
+              <span className="mono">{selectedSymbols.length} / {MAX_WATCHLIST_ASSETS} SELECTED · {assets.length} LIVE</span>
+              <button onClick={selectTwentyVisibleAssets}>{selectionFull ? "CLEAR ALL" : `SELECT ${Math.min(MAX_WATCHLIST_ASSETS, visibleAssets.length)}`}</button>
               <button className="save" onClick={() => void saveAssets()} disabled={saving}>{saving ? "SAVING" : "SAVE SCOPE"}</button>
             </div>
             <div className="workspace-asset-grid">
@@ -400,11 +435,29 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
 
         {view === "wallets" ? (
           <section className="workspace-view">
-            <div className="workspace-title compact"><div><p className="mono">03 / IDENTITY GRAPH</p><h1>Wallets.</h1></div><p>Verify one or more EVM wallets. MIHARI reads Stock Token balances but cannot move funds or request token approvals.</p></div>
+            <div className="workspace-title compact"><div><p className="mono">04 / IDENTITY GRAPH</p><h1>Wallets.</h1></div><p>Verify one or more EVM wallets. MIHARI reads Stock Token and $MHR balances but cannot move funds or request token approvals.</p></div>
+            {!profile?.account.email ? (
+              <div className="workspace-email-link">
+                <div><CircleUserRound size={21} /><span><strong>Wallet-first profile</strong><small>Add email access so the same workspace can be opened without your wallet.</small></span></div>
+                <Link href="/sign-in?redirect_url=/map">LINK EMAIL ACCESS <ArrowRight size={14} /></Link>
+              </div>
+            ) : null}
             <div className="workspace-action-row"><button onClick={() => void linkWallet()} disabled={linking}>{linking ? <LoaderCircle className="spin" size={16} /> : <Link2 size={16} />}{linking ? "VERIFYING" : "LINK ANOTHER WALLET"}</button></div>
             <div className="workspace-wallet-grid">
               {profile?.wallets.length ? profile.wallets.map((wallet) => (
-                <article key={wallet.id}><Wallet size={25} /><span className="mono">VERIFIED IDENTITY</span><h2>{shortAddress(wallet.address)}</h2><p className="mono">ROBINHOOD CHAIN / {wallet.chainId}</p><button onClick={() => void unlinkWallet(wallet.id)}><Unlink size={14} />UNLINK</button></article>
+                <article key={wallet.id}>
+                  <Wallet size={25} />
+                  <span className="mono">VERIFIED IDENTITY</span>
+                  <h2>{shortAddress(wallet.address)}</h2>
+                  <p className="mono">ROBINHOOD CHAIN / {wallet.chainId}</p>
+                  <div className={`workspace-mhr-status ${wallet.mhr.status}`}>
+                    <span className="mono">$MHR STATUS</span>
+                    <strong>{wallet.mhr.status === "holder" ? "HOLDER" : wallet.mhr.status === "not_held" ? "NOT HELD" : "UNAVAILABLE"}</strong>
+                    <small>{formatTokenBalance(wallet.mhr.balance)} MHR</small>
+                    <a href={`https://robinhoodchain.blockscout.com/address/${MHR_CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer">VERIFY CONTRACT <ExternalLink size={12} /></a>
+                  </div>
+                  <button onClick={() => void unlinkWallet(wallet.id)}><Unlink size={14} />UNLINK</button>
+                </article>
               )) : <div className="workspace-empty"><Wallet size={30} /><h2>No verified wallet yet.</h2><p>Link a wallet to discover your Robinhood Stock Token positions.</p></div>}
             </div>
           </section>
@@ -412,11 +465,11 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
 
         {view === "exposure" ? (
           <section className="workspace-view">
-            <div className="workspace-title compact"><div><p className="mono">04 / POSITION INTELLIGENCE</p><h1>Exposure.</h1></div><p>Every linked wallet is scanned automatically for all official Robinhood Stock Tokens, including assets outside your watchlist. Event matches open a personal risk file.</p></div>
+            <div className="workspace-title compact"><div><p className="mono">05 / POSITION INTELLIGENCE</p><h1>Exposure.</h1></div><p>Every linked wallet is scanned automatically for all official Robinhood Stock Tokens, including assets outside your watchlist. Event matches open a personal risk file.</p></div>
             <div className="workspace-value-band"><span className="mono">INDICATIVE STOCK TOKEN VALUE</span><strong>{formatMoney(totalValue.toFixed(2))}</strong></div>
             <div className="workspace-exposure-guide">
               <div><Orbit size={18} /><span><strong>POSITION FOUND</strong><small>The token balance was found in a verified wallet on Robinhood Chain.</small></span></div>
-              <div><ShieldCheck size={18} /><span><strong>NO ACTIVE EVENT</strong><small>No matching corporate action exists in the current Robinhood source window. This is not a guarantee of zero risk.</small></span></div>
+              <div><ShieldCheck size={18} /><span><strong>NO EVENT MATCH</strong><small>No matching corporate action exists in the current Robinhood source window. This is not a guarantee of zero risk.</small></span></div>
               <div><AlertTriangle size={18} /><span><strong>EVENT MATCH</strong><small>An official corporate action matches a token you hold. Open the risk file to review its impact.</small></span></div>
             </div>
             {profile?.exposure.positions.length ? (
@@ -428,7 +481,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
                     <span className="mono">{Number(position.balance).toLocaleString(undefined, { maximumFractionDigits: 6 })}</span>
                     <span>{formatMoney(position.valueUsd)}</span>
                     <span className="workspace-position-status">
-                      <strong className="mono">{position.hasCorporateAction ? "EVENT MATCH" : "NO ACTIVE EVENT"}</strong>
+                      <strong className="mono">{position.hasCorporateAction ? "EVENT MATCH" : "NO EVENT MATCH"}</strong>
                       {position.hasCorporateAction ? <button type="button" onClick={() => void openPositionRisk(position)}>VIEW RISK <ArrowRight size={12} /></button> : <small>MONITORING CONTINUES</small>}
                     </span>
                   </div>
@@ -466,7 +519,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
 
         {view === "settings" ? (
           <section className="workspace-view">
-            <div className="workspace-title compact"><div><p className="mono">05 / PROFILE CONTROL</p><h1>Your profile.</h1></div><p>Manage the identities that open this workspace. Add email to a wallet-native profile or link wallets to an email profile.</p></div>
+            <div className="workspace-title compact"><div><p className="mono">06 / PROFILE CONTROL</p><h1>Your profile.</h1></div><p>Manage the identities that open this workspace. Add email to a wallet-native profile or link wallets to an email profile.</p></div>
             <div className="workspace-profile-grid">
               <article><CircleUserRound size={25} /><span className="mono">PRIMARY ACCESS</span><h2>{profile?.account.primaryMethod === "wallet" ? "Wallet signature" : "Email code"}</h2><p>{profile?.account.email ?? profile?.wallets[0]?.address ?? "MIHARI profile"}</p></article>
               <article><Activity size={25} /><span className="mono">ADD ACCESS METHOD</span><h2>{profile?.account.email ? "Email connected" : "Add recovery email"}</h2><p>{profile?.account.email ? "You can access this profile by email and linked wallet." : "Connect email access without losing this wallet profile."}</p>{profile?.account.email ? <button onClick={() => setView("wallets")}>MANAGE WALLETS</button> : <Link href="/sign-in?redirect_url=/map">ADD EMAIL ACCESS <ArrowRight size={14} /></Link>}</article>

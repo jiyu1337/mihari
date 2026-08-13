@@ -22,6 +22,8 @@ const statusRows = [
   ["Email and wallet profiles", "Live", "Creates a private workspace through email code or EVM signature."],
   ["Wallet Stock Token mapping", "Live", "Indexes verified wallet balances on Robinhood Chain through Blockscout."],
   ["Personal Asset Manager", "Live", "Saves a private monitoring scope directly inside the profile."],
+  ["Private Event Register", "Live", "Refreshes official events for up to 20 monitored assets while the view is open."],
+  ["$MHR wallet status", "Live", "Checks the official $MHR contract balance for every verified wallet."],
   ["Personal risk files", "Live", "Explains corporate actions matched to Stock Tokens found in verified wallets."],
   ["Vault and lending discovery", "Next", "Protocol positions are not indexed yet."],
   ["Policy execution", "Next", "MIHARI does not pause protocols or move funds today."],
@@ -82,7 +84,7 @@ export default function DocsPage() {
             <h2>What a user can do in MIHARI today.</h2>
             <div className="docs-flow docs-workflow">
               <div><Wallet size={20} /><span className="mono">01 / ENTER</span><strong>Choose access</strong><p>Continue publicly, sign in by email or create a wallet-native profile.</p></div>
-              <div><ListChecks size={20} /><span className="mono">02 / SELECT</span><strong>Build a watchlist</strong><p>Choose individual Stock Tokens, Select All, search the catalog or clear the selection.</p></div>
+              <div><ListChecks size={20} /><span className="mono">02 / SELECT</span><strong>Build a watchlist</strong><p>Choose up to 20 Stock Tokens, search the catalog or clear the selection.</p></div>
               <div><ShieldCheck size={20} /><span className="mono">03 / OBSERVE</span><strong>Start monitoring</strong><p>Observe mode reads and explains risk. It cannot execute a transaction.</p></div>
               <div><Database size={20} /><span className="mono">04 / SOURCE</span><strong>Sync Robinhood data</strong><p>MIHARI reads asset metadata, prices, multipliers and corporate actions.</p></div>
               <div><Eye size={20} /><span className="mono">05 / REVIEW</span><strong>Open an event</strong><p>The register shows only watched assets with a corporate-action record.</p></div>
@@ -117,7 +119,7 @@ export default function DocsPage() {
               <div>
                 <span className="mono">WATCHLIST · SELECTED ASSETS</span>
                 <h3>What MIHARI monitors</h3>
-                <p>One asset, a custom list or the full live catalog can be in your watchlist.</p>
+                <p>One asset or a custom list of up to 20 assets can be in your private watchlist.</p>
               </div>
               <ArrowRight size={22} />
               <div className="highlight">
@@ -162,6 +164,10 @@ export default function DocsPage() {
                 <strong>Personal position mapping</strong>
                 <p>Verified addresses are scanned for official Robinhood Stock Tokens and matched with corporate actions. MIHARI cannot move funds.</p>
               </div>
+              <div>
+                <strong>$MHR status</strong>
+                <p>The Wallets view checks the official $MHR contract and labels each verified address as Holder, Not Held or Unavailable.</p>
+              </div>
             </div>
             <p className="docs-note mono">MIHARI WILL NEVER ASK FOR A SEED PHRASE OR PRIVATE KEY.</p>
           </section>
@@ -177,8 +183,9 @@ export default function DocsPage() {
             </p>
             <div className="docs-result-grid">
               <div><span className="mono">OVERVIEW</span><strong>Personal control room</strong><p>Summarizes monitored assets, verified wallets, detected Stock Token positions and event matches.</p></div>
-              <div><span className="mono">ASSETS</span><strong>Watchlist and contract directory</strong><p>Search the live catalog, select a monitoring scope, copy official contracts and open them in Blockscout.</p></div>
-              <div><span className="mono">WALLETS</span><strong>Verified identities</strong><p>Link one or more EVM addresses through a free message signature. MIHARI receives no spending permission.</p></div>
+              <div><span className="mono">EVENTS</span><strong>Private Event Register</strong><p>Shows official events for the saved watchlist, refreshes every 60 seconds and opens an AI Incident File.</p></div>
+              <div><span className="mono">ASSETS</span><strong>Watchlist and contract directory</strong><p>Search the live catalog, select up to 20 monitored assets, copy official contracts and open them in Blockscout.</p></div>
+              <div><span className="mono">WALLETS</span><strong>Verified identities and $MHR</strong><p>Link EVM addresses, read $MHR status and add email access to a wallet-first profile.</p></div>
               <div><span className="mono">EXPOSURE</span><strong>Automatic wallet holdings</strong><p>Scans every verified wallet for all official Robinhood Stock Tokens, including tokens outside the watchlist.</p></div>
               <div><span className="mono">PROFILE</span><strong>Access methods</strong><p>Shows whether the account uses wallet or email access and lets the user add another access method.</p></div>
               <div><span className="mono">RESCAN</span><strong>Refresh personal data</strong><p>Reloads the profile, wallet balances, prices and corporate-action matching from the connected sources.</p></div>
@@ -190,6 +197,7 @@ export default function DocsPage() {
               <div><strong>Not monitored</strong><span className="status-pill next">Not selected</span><p>The asset remains in the live catalog but is not part of the saved watchlist.</p></div>
               <div><strong>Contract / Chain 4663</strong><span className="status-pill readonly">Source data</span><p>The official Robinhood Stock Token deployment used for wallet matching on Robinhood Chain.</p></div>
               <div><strong>Save scope</strong><span className="status-pill readonly">Profile action</span><p>Saves the current selection to this private MIHARI profile.</p></div>
+              <div><strong>20 asset limit</strong><span className="status-pill readonly">Current release</span><p>The server and interface both enforce a maximum of 20 monitored assets. Wallet holdings are still scanned across the full official catalog.</p></div>
             </div>
           </section>
 

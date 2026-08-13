@@ -188,7 +188,7 @@ export async function getMarketSnapshot(symbols?: string[]): Promise<MarketSnaps
       getAssetCatalog().then((assets) => ({ assets })),
       fetchJson<{ corpActions?: RobinhoodCorporateAction[] }>(
         `${baseUrl}/rhj/corporate-actions`,
-        3_600,
+        60,
       ),
     ]);
 

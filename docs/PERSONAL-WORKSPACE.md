@@ -8,7 +8,7 @@ MIHARI keeps two independent scopes:
 
 | Scope | Where it appears | Meaning |
 | --- | --- | --- |
-| Watchlist | Assets | Stock Tokens the user selected for ongoing corporate-action monitoring |
+| Watchlist | Assets and Events | Up to 20 Stock Tokens selected for ongoing corporate-action monitoring |
 | Wallet holdings | Exposure | Official Robinhood Stock Tokens automatically found at non-zero balances in verified wallets |
 
 Selecting an asset does not create a wallet position. Removing an asset from the watchlist does not hide a real wallet position. Exposure scans every verified wallet for every official Robinhood Stock Token contract in the live Robinhood asset catalog.
@@ -39,11 +39,36 @@ The private Asset Manager contains the complete live Robinhood Stock Token catal
 | Monitored | Saved in the user's watchlist |
 | Not monitored | Available in the catalog but not selected |
 | Contract / Chain 4663 | Official deployment used for Robinhood Chain matching |
-| Select all | Adds the entire current catalog to the pending selection |
+| Select 20 | Adds the first 20 assets in the current filtered catalog to the pending selection |
 | Clear all | Removes the entire pending selection |
 | Save scope | Persists the pending selection to the private profile |
 
 Each contract can be copied or opened in Robinhood Chain Blockscout. Contract data comes from Robinhood asset metadata and is not hardcoded in the interface.
+
+The 20-asset limit applies to the saved monitoring scope only. Automatic wallet scanning still checks every official Robinhood Stock Token contract in the live catalog.
+
+### Events
+
+The private Event Register reads the saved watchlist and refreshes official Robinhood corporate-action records every 60 seconds while the view is open. It shows only monitored assets that have a current matching event.
+
+| Label | Meaning |
+| --- | --- |
+| Held in wallet | The event symbol also appears among Stock Token positions found in a verified wallet |
+| Watchlist only | The asset is monitored but no current wallet position was found |
+| Incident File | Source status, risk, AI or rule-based analysis, confidence, affected systems and recommended response |
+| No current event matches | Monitoring is active but the current source response has no event for the saved scope |
+
+### $MHR status and profile access
+
+For every verified wallet, MIHARI checks the official `$MHR` contract `0x92150e06BAc43011cBe099b2830D947Ee3099809` through the same Blockscout balance response used for Stock Token discovery.
+
+| Status | Meaning |
+| --- | --- |
+| Holder | The verified address has a non-zero `$MHR` balance |
+| Not Held | The scan completed and found no non-zero `$MHR` balance |
+| Unavailable | Blockscout did not return a usable balance response, so MIHARI does not assume zero |
+
+A wallet-first profile shows **Link Email Access** in Wallets and Profile. Email access opens the same MIHARI workspace and does not replace or unlink the verified wallet.
 
 ### Wallets
 

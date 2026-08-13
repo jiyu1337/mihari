@@ -46,7 +46,7 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Step | User action | What MIHARI does |
 | :---: | --- | --- |
 | `01` | Enter public Observe mode or create a profile | Opens read-only monitoring, email access or wallet-native access |
-| `02` | Select one Stock Token or the full catalog | Creates the monitoring scope |
+| `02` | Select up to 20 Stock Tokens | Creates the private monitoring scope |
 | `03` | Start Observe mode | Syncs official asset, price, multiplier and corporate-action data |
 | `04` | Review the Event Register | Surfaces only watched assets with matching events |
 | `05` | Open an Incident File | Explains evidence, risk, affected systems and confidence |
@@ -56,14 +56,16 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 
 | Capability | Status | Description |
 | --- | :---: | --- |
-| Robinhood Stock Token catalog | `LIVE` | Full active catalog, search, custom watchlists and Select All |
+| Robinhood Stock Token catalog | `LIVE` | Full active catalog, search and private watchlists of up to 20 assets |
 | Corporate-action Event Register | `LIVE` | Official events filtered through the selected watchlist |
 | Price and multiplier context | `LIVE` | Robinhood market data attached to the monitored assets |
 | AI Incident Files | `LIVE` | Observation, Impact Map, risk, confidence and Bounded Response |
 | Incident memory | `LIVE` | Neon persistence and cached analysis to avoid duplicate AI cost |
 | Email and wallet profiles | `LIVE` | Passwordless email or EVM signature creates a secure personal workspace |
 | Personal Asset Manager | `LIVE` | Add, remove, search and save monitored Stock Tokens inside the private workspace |
+| Private Event Register | `LIVE` | Refreshes watchlist corporate actions every 60 seconds while the view is open and opens an Incident File |
 | Wallet verification | `LIVE` | Free message signature proves ownership without a transaction |
+| `$MHR` wallet status | `LIVE` | Checks the official token balance per verified wallet and reports Holder, Not Held or Unavailable |
 | Wallet Stock Token mapping | `LIVE` | Every verified address is scanned automatically for all official Robinhood Stock Tokens through Robinhood Chain Blockscout |
 | Personal exposure matching | `LIVE` | Corporate actions are matched to Stock Tokens found in linked wallets, independent of the watchlist |
 | Personal risk files | `LIVE` | Event matches open position context, AI or rule-based impact analysis and a bounded response |
