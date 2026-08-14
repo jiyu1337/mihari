@@ -11,7 +11,12 @@ import {
   ShieldCheck,
   Wallet,
 } from "lucide-react";
-import type { ProtocolExposureSnapshot, ProtocolPosition } from "@/lib/protocol-exposure";
+import type {
+  ProtocolDefinition,
+  ProtocolExposureSnapshot,
+  ProtocolPosition,
+  ProtocolScan,
+} from "@/lib/protocol-exposure";
 
 type ProtocolExposureResponse = ProtocolExposureSnapshot & {
   events: Array<{ id: string; asset: string; type: string; sourceStatus: string }>;
@@ -21,6 +26,7 @@ type ProtocolExposureResponse = ProtocolExposureSnapshot & {
     corporateActions: string;
     protocols: string[];
   };
+  protocolCatalog: ProtocolDefinition[];
 };
 
 type ProtocolExposureProps = {
@@ -46,6 +52,13 @@ function formatMoney(value: number) {
 
 function shortAddress(address: string) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
+}
+
+function scanLabel(scan: ProtocolScan | undefined, protocol: ProtocolDefinition, loading: boolean) {
+  if (protocol.stage === "planned") return "PLANNED";
+  if (loading) return "SCANNING";
+  if (!scan || scan.status === "not_scanned") return "WAITING";
+  return scan.status.toUpperCase();
 }
 
 export function ProtocolExposure({ walletCount, onOpenWallets }: ProtocolExposureProps) {
@@ -78,30 +91,39 @@ export function ProtocolExposure({ walletCount, onOpenWallets }: ProtocolExposur
     0,
   ) ?? 0, [snapshot]);
   const eventMatches = snapshot?.positions.filter((position) => position.hasCorporateAction).length ?? 0;
-  const morphoScan = snapshot?.scans.find((item) => item.protocol === "morpho");
+  const protocolById = useMemo(() => new Map(
+    snapshot?.protocolCatalog.map((protocol) => [protocol.id, protocol]) ?? [],
+  ), [snapshot]);
+  const activeProtocolIds = new Set(snapshot?.protocolCatalog
+    .filter((protocol) => protocol.stage !== "planned")
+    .map((protocol) => protocol.id) ?? []);
+  const activeScans = snapshot?.scans.filter((scan) => activeProtocolIds.has(scan.protocol)) ?? [];
+  const checkedProtocols = activeScans.filter((scan) => scan.status === "live" || scan.status === "partial").length;
+  const hasUnavailableSource = activeScans.some((scan) => scan.status === "unavailable");
+  const hasPartialSource = activeScans.some((scan) => scan.status === "partial");
   const sourceStatus = loading
     ? "SCANNING"
     : error
       ? "ERROR"
-      : morphoScan?.status === "live"
-        ? "LIVE"
-        : morphoScan?.status === "partial"
+      : !walletCount
+        ? "WAITING FOR WALLET"
+        : hasUnavailableSource || hasPartialSource
           ? "PARTIAL"
-          : morphoScan?.status === "unavailable"
-            ? "UNAVAILABLE"
-            : "WAITING FOR WALLET";
+          : checkedProtocols
+            ? "LIVE"
+            : "UNAVAILABLE";
 
   return (
     <section className="workspace-view protocol-view">
       <div className="workspace-title compact">
         <div><p className="mono">06 / DEFI EXPOSURE</p><h1>Beyond your wallet.</h1></div>
-        <p>MIHARI checks whether your Stock Tokens also sit inside supported vaults or lending markets, then matches those positions to official corporate actions.</p>
+        <p>MIHARI checks supported lending, vault and liquidity protocols, then maps every recognized Stock Token position to official corporate actions.</p>
       </div>
 
       <div className="protocol-source-bar mono">
-        <span><Landmark size={14} />PROTOCOL <strong>MORPHO</strong></span>
+        <span><Landmark size={14} />ENGINE <strong>MULTI-PROTOCOL</strong></span>
         <span><Database size={14} />SOURCE <strong>{sourceStatus}</strong></span>
-        <span>NETWORK <strong>ROBINHOOD CHAIN / 4663</strong></span>
+        <span>COVERAGE <strong>{checkedProtocols} CHECKED / {snapshot?.protocolCatalog.length ?? 7} MAPPED</strong></span>
         <button onClick={() => void scan()} disabled={loading}><RefreshCw className={loading ? "spin" : ""} size={14} />SCAN AGAIN</button>
       </div>
 
@@ -120,10 +142,36 @@ export function ProtocolExposure({ walletCount, onOpenWallets }: ProtocolExposur
         <article><ShieldCheck size={20} /><span><strong>Event match</strong><small>MIHARI checks whether an official corporate action touches the Stock Token inside that position.</small></span></article>
       </div>
 
+      {snapshot?.protocolCatalog.length ? (
+        <div className="protocol-coverage-grid">
+          {snapshot.protocolCatalog.map((protocol) => {
+            const protocolScan = snapshot.scans.find((item) => item.protocol === protocol.id);
+            const label = scanLabel(protocolScan, protocol, loading);
+            return (
+              <article className={`protocol-coverage-card ${protocol.stage}`} key={protocol.id}>
+                <header className="mono">
+                  <span>{protocol.category.toUpperCase()}</span>
+                  <strong>{label}</strong>
+                </header>
+                <h2>{protocol.name}</h2>
+                <p>{protocol.description}</p>
+                <div className="protocol-capabilities mono">
+                  {protocol.capabilities.map((capability) => <span key={capability}>{capability}</span>)}
+                </div>
+                <footer className="mono">
+                  <span>{protocolScan?.positionCount ?? 0} POSITIONS</span>
+                  <span>{protocol.stage.toUpperCase()}</span>
+                </footer>
+              </article>
+            );
+          })}
+        </div>
+      ) : null}
+
       {loading ? (
         <div className="workspace-empty protocol-empty"><LoaderCircle className="spin" size={30} /><h2>Scanning protocol positions.</h2><p>This is read-only. MIHARI never requests token approvals or transactions.</p></div>
       ) : error ? (
-        <div className="workspace-empty protocol-empty"><AlertTriangle size={30} /><h2>Protocol source unavailable.</h2><p>{error}</p><button onClick={() => void scan()}>TRY AGAIN</button></div>
+        <div className="workspace-empty protocol-empty"><AlertTriangle size={30} /><h2>Protocol engine unavailable.</h2><p>{error}</p><button onClick={() => void scan()}>TRY AGAIN</button></div>
       ) : !walletCount ? (
         <div className="workspace-empty protocol-empty"><Wallet size={30} /><h2>Link a wallet to start.</h2><p>MIHARI needs a verified address before it can look for personal protocol positions.</p><button onClick={onOpenWallets}>OPEN WALLETS</button></div>
       ) : snapshot?.positions.length ? (
@@ -131,20 +179,23 @@ export function ProtocolExposure({ walletCount, onOpenWallets }: ProtocolExposur
           <header className="mono"><span>PROTOCOL POSITION</span><span>STOCK TOKEN</span><span>AMOUNT / VALUE</span><span>EVENT STATUS</span></header>
           {snapshot.positions.map((position) => (
             <article className={position.hasCorporateAction ? "exposed" : ""} key={position.id}>
-              <span><strong>{position.marketName}</strong><small className="mono">MORPHO / {positionLabels[position.kind]}</small></span>
+              <span>
+                <strong>{position.marketName}</strong>
+                <small className="mono">{(protocolById.get(position.protocol)?.name ?? position.protocol).toUpperCase()} / {positionLabels[position.kind]}{position.positionReference ? ` / ${position.positionReference}` : ""}</small>
+              </span>
               <span><strong>{position.symbol}</strong><small className="mono">WALLET {shortAddress(position.wallet)}</small></span>
-              <span><strong>{Number(position.amount).toLocaleString(undefined, { maximumFractionDigits: 6 })}</strong><small>{position.valueUsd ? formatMoney(Number(position.valueUsd)) : "VALUE UNAVAILABLE"}</small></span>
+              <span><strong>{Number(position.amount).toLocaleString(undefined, { maximumFractionDigits: 6 })}</strong><small>{position.valueUsd ? formatMoney(Number(position.valueUsd)) : "VALUE UNAVAILABLE"}{position.positionStatus ? ` / ${position.positionStatus.replaceAll("_", " ").toUpperCase()}` : ""}</small></span>
               <span className="protocol-event-state"><strong className="mono">{position.hasCorporateAction ? "EVENT MATCH" : "NO EVENT MATCH"}</strong><small>{position.corporateAction ? `${position.corporateAction.type} / ${position.corporateAction.status}` : "MONITORING CONTINUES"}</small></span>
             </article>
           ))}
         </div>
       ) : (
-        <div className="workspace-empty protocol-empty"><Landmark size={30} /><h2>No supported Stock Token protocol position found.</h2><p>Morpho was checked successfully. This result does not mean the wallet has no DeFi activity elsewhere. More protocol adapters are coming.</p></div>
+        <div className="workspace-empty protocol-empty"><Landmark size={30} /><h2>No supported Stock Token protocol position found.</h2><p>The active adapters completed without finding a recognized Stock Token position. Planned sources are shown above and are not included in this result.</p></div>
       )}
 
       <div className="protocol-coverage-note">
-        <span className="mono">COVERAGE / RELEASE 01</span>
-        <p><strong>Morpho is the first live adapter.</strong> MIHARI currently detects Robinhood Stock Tokens used in Morpho lending markets and vaults. Additional Robinhood Chain protocols will be added as verified adapters.</p>
+        <span className="mono">COVERAGE / SOURCE TRUTH</span>
+        <p><strong>Morpho and Uniswap V3 are active adapters.</strong> Planned sources are visible so users can see exactly what is and is not included. A protocol is never counted as checked until MIHARI can verify its user-position data.</p>
         <span className="mono">READ-ONLY / NO APPROVALS / NO TRANSACTIONS</span>
       </div>
     </section>

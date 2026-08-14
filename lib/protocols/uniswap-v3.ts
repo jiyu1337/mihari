@@ -232,24 +232,27 @@ async function scanV3Wallet(wallet: string, assets: RobinhoodAsset[]) {
     })),
   });
   const stockTokens = stockTokensByAddress(assets);
-  const positions = pools.flatMap(({ position, poolAddress }, index) => {
+  const readablePools = pools.flatMap(({ position, poolAddress }, index) => {
     const slot0 = slot0Results[index];
     const liquidity = liquidityResults[index];
     if (slot0.status !== "success" || liquidity.status !== "success") return [];
-    return positionRows(
+    return [{ position, poolAddress, slot0: slot0.result, liquidity: liquidity.result }];
+  });
+  const positions = readablePools.flatMap(({ position, poolAddress, slot0, liquidity }) => (
+    positionRows(
       getAddress(wallet),
       position,
       poolAddress,
-      slot0.result[0],
-      slot0.result[1],
-      liquidity.result,
+      slot0[0],
+      slot0[1],
+      liquidity,
       stockTokens,
-    );
-  });
+    )
+  ));
 
-  const failedReads = positionResults.length - decoded.length
+  const failedReads = positionResults.filter((result) => result.status !== "success").length
     + poolResults.length - pools.length
-    + pools.length - positions.length;
+    + pools.length - readablePools.length;
   const truncated = allTokenIds.length > tokenIds.length;
   const partial = failedReads > 0 || truncated;
   const warning = truncated
