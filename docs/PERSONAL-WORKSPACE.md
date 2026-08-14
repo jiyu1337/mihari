@@ -155,6 +155,32 @@ One Uniswap LP NFT can create two position rows when both sides of the pool are 
 
 **No supported position found** means the active Morpho, Uniswap V3, Uniswap V4, Arcus and Lighter scans completed without finding an official Stock Token position. It does not mean that the wallet has no activity in unsupported protocols.
 
+### Unified Risk Graph
+
+Risk Graph combines direct Exposure and DeFi Exposure into one event path. It answers a narrower question than a portfolio dashboard: **which current official corporate action can reach a position MIHARI has actually mapped?**
+
+Each active path contains three verified layers:
+
+| Layer | Meaning |
+| --- | --- |
+| Official Event | A live Robinhood corporate-action record. Simulated fallback records are excluded |
+| Stock Token | The official identity shared by the event and the position |
+| Proven Exposure | A direct verified-wallet balance or a normalized position from an active protocol adapter |
+
+The graph uses deterministic matching. AI does not invent nodes or edges. Direct wallet paths require an official contract match. Arcus and Lighter paths require an exact official symbol match after a supported quote suffix is removed.
+
+| Graph label | Meaning |
+| --- | --- |
+| Current Events | Official corporate actions that match at least one mapped asset |
+| Mapped Assets | Unique Stock Token symbols found across direct and supported protocol positions |
+| Direct Paths | Verified wallet balance rows touched by current events |
+| Protocol Paths | Supported protocol position rows touched by current events |
+| Live | All active protocol requests completed successfully |
+| Partial | Direct paths remain usable, but at least one active protocol source is incomplete or unavailable |
+| No Active Path | No current official corporate action matches a mapped position. Monitoring continues |
+
+`No Active Path` is not a claim of zero market, smart-contract, liquidity or future corporate-action risk. It only describes the current official event window and the integrations MIHARI supports today.
+
 ## Exposure statuses
 
 ### No Event Match

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import {
+  AlertTriangle,
   ArrowRight,
   Bot,
   Check,
@@ -31,6 +32,7 @@ const statusRows = [
   ["Uniswap V4 liquidity discovery", "Beta", "Reads V4 LP NFTs, pool state and tick ranges to calculate Stock Token exposure."],
   ["Arcus perpetual discovery", "Beta", "Matches public Arcus perpetual positions to official Stock Token symbols and reports side, leverage, margin and PnL."],
   ["Lighter perpetual discovery", "Beta", "Reads public Lighter accounts and subaccounts for active Stock Token perpetual positions."],
+  ["Unified Risk Graph", "Beta", "Connects live Robinhood events to verified direct holdings and supported protocol positions."],
   ["Protocol coverage registry", "Live", "Separates active adapters from planned Robinhood Chain integrations."],
   ["Policy execution", "Next", "MIHARI does not pause protocols or move funds today."],
   ["Onchain proof", "Next", "No production receipt is written until contracts are audited and deployed."],
@@ -59,6 +61,7 @@ export default function DocsPage() {
             <a href="#map">MIHARI MAP</a>
             <a href="#map-pages">MAP pages</a>
             <a href="#exposure-statuses">Exposure statuses</a>
+            <a href="#risk-graph">Risk Graph</a>
             <a href="#defi-exposure">DeFi Exposure</a>
             <a href="#status">What works today</a>
             <a href="#terms">Key terms</a>
@@ -241,6 +244,7 @@ export default function DocsPage() {
               <div><span className="mono">ASSETS</span><strong>Watchlist and contract directory</strong><p>Search the live catalog, monitor up to 20 Stock Tokens, copy official contract addresses and verify each deployment in Blockscout.</p></div>
               <div><span className="mono">WALLETS</span><strong>Verified wallets and $MHR</strong><p>Link multiple EVM addresses, see their verification status and check whether each address holds the official $MHR token.</p></div>
               <div><span className="mono">EXPOSURE</span><strong>Stock Tokens found onchain</strong><p>MIHARI scans the full official catalog, not only the watchlist. It shows balances, indicative values and whether a current corporate action matches each holding.</p></div>
+              <div><span className="mono">RISK GRAPH</span><strong>Current paths from event to position</strong><p>Connects a live Robinhood event to the official Stock Token and every matching direct or supported protocol position MIHARI can prove.</p></div>
               <div><span className="mono">DEFI</span><strong>Stock Tokens inside supported protocols</strong><p>Scans verified wallets for Morpho lending, Uniswap liquidity and Arcus or Lighter perpetual positions, then matches recognized Stock Tokens with current corporate actions.</p></div>
               <div><span className="mono">PERSONAL RISK FILE</span><strong>Risk attached to a real holding</strong><p>If a wallet holding has an Event Match, View Risk adds the position balance to the event analysis so the user can review personal exposure.</p></div>
               <div><span className="mono">PROFILE</span><strong>Access and product mode</strong><p>See whether the profile started with wallet or email access, add the missing access method and confirm that the product remains in read-only Observe mode.</p></div>
@@ -308,8 +312,36 @@ export default function DocsPage() {
             </div>
           </section>
 
+          <section className="docs-section" id="risk-graph">
+            <p className="docs-kicker mono">10 / UNIFIED RISK GRAPH</p>
+            <h2>How to read an event-to-position path.</h2>
+            <p>
+              Risk Graph combines direct wallet holdings and supported protocol positions. It shows
+              where a current official corporate action can reach exposure that MIHARI has actually
+              mapped. It does not create hypothetical positions or use simulated fallback events.
+            </p>
+            <div className="docs-flow docs-workflow">
+              <div><AlertTriangle size={20} /><span className="mono">01 / EVENT</span><strong>Live Robinhood record</strong><p>The path starts only from an official corporate action returned in live mode.</p></div>
+              <div><ShieldCheck size={20} /><span className="mono">02 / ASSET</span><strong>Verified Stock Token identity</strong><p>Direct positions use an official contract match. Perpetual positions use an exact official symbol match.</p></div>
+              <div><Wallet size={20} /><span className="mono">03 / DIRECT</span><strong>Verified wallet balance</strong><p>Each direct path identifies the linked wallet, token amount and indicative value when available.</p></div>
+              <div><Landmark size={20} /><span className="mono">04 / PROTOCOL</span><strong>Supported protocol position</strong><p>Each protocol path identifies the adapter, position type, amount and available margin or PnL context.</p></div>
+            </div>
+            <div className="status-table docs-label-table">
+              <div><strong>Current Events</strong><span className="status-pill live">Official</span><p>Corporate actions that match at least one mapped Stock Token asset.</p></div>
+              <div><strong>Mapped Assets</strong><span className="status-pill readonly">Scope</span><p>Unique Stock Token symbols found across direct and supported protocol positions.</p></div>
+              <div><strong>Direct Paths</strong><span className="status-pill readonly">Wallet</span><p>Verified wallet balance rows touched by the current official events.</p></div>
+              <div><strong>Protocol Paths</strong><span className="status-pill beta">Adapter</span><p>Supported protocol position rows touched by the current official events.</p></div>
+              <div><strong>Partial</strong><span className="status-pill beta">Source</span><p>Usable direct paths remain visible while at least one protocol source is incomplete or unavailable.</p></div>
+              <div><strong>No Active Path</strong><span className="status-pill readonly">Monitoring</span><p>No current official event matches a mapped position. This is not a guarantee of zero risk.</p></div>
+            </div>
+            <div className="docs-callout">
+              <strong>Edges are deterministic.</strong>
+              <p>AI can explain a matched event in an Incident File, but it does not create Risk Graph nodes or relationships.</p>
+            </div>
+          </section>
+
           <section className="docs-section" id="defi-exposure">
-            <p className="docs-kicker mono">10 / DEFI EXPOSURE</p>
+            <p className="docs-kicker mono">11 / DEFI EXPOSURE</p>
             <h2>How MIHARI finds Stock Tokens beyond a direct wallet balance.</h2>
             <p>
               A Stock Token may leave the wallet balance after it is supplied to a lending market,
@@ -363,7 +395,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="status">
-            <p className="docs-kicker mono">11 / PRODUCT STATUS</p>
+            <p className="docs-kicker mono">12 / PRODUCT STATUS</p>
             <h2>What works today - and what does not.</h2>
             <div className="status-table">
               {statusRows.map(([feature, status, explanation]) => (
@@ -377,7 +409,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="terms">
-            <p className="docs-kicker mono">12 / KEY TERMS</p>
+            <p className="docs-kicker mono">13 / KEY TERMS</p>
             <h2>A short glossary.</h2>
             <dl className="docs-glossary">
               <div><dt>NAV</dt><dd>Net Asset Value: the calculated value of assets held by a vault or fund, minus its liabilities.</dd></div>

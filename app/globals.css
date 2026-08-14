@@ -1760,7 +1760,7 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .workspace-brand small { margin-left: 0.4rem; color: var(--heather-3); font-size: 0.43rem; font-weight: 500; letter-spacing: 0.08em; }
 .workspace-header nav { display: flex; border-left: 1px solid var(--ink); }
 .workspace-header nav button,
-.workspace-signout { min-width: 98px; display: flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0 0.9rem; border: 0; border-right: 1px solid var(--ink); background: transparent; color: var(--ink); font-size: 0.67rem; cursor: pointer; }
+.workspace-signout { min-width: 84px; display: flex; align-items: center; justify-content: center; gap: 0.45rem; padding: 0 0.75rem; border: 0; border-right: 1px solid var(--ink); background: transparent; color: var(--ink); font-size: 0.67rem; cursor: pointer; }
 .workspace-header nav button.active { background: var(--neon); font-weight: 750; }
 .workspace-signout { justify-self: end; border-right: 0; border-left: 1px solid var(--ink); }
 .workspace-main { min-width: 0; }

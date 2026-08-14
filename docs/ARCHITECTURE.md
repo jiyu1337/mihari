@@ -13,6 +13,9 @@ MAP adds a personal identity and exposure layer without giving MIHARI custody of
 7. Current corporate actions are matched to those personal positions.
 8. The protocol exposure layer queries supported DeFi adapters for the same verified addresses.
 9. Protocol assets are kept only when their contracts match the official Stock Token catalog.
+10. The Risk Graph groups live Robinhood events, direct positions and normalized protocol positions by verified Stock Token identity.
+
+The Risk Graph is deterministic relationship mapping. AI may explain an event in an Incident File, but AI does not create graph edges. A direct edge requires an official contract match. A perpetual edge requires an exact official symbol match after a supported quote suffix is removed.
 
 ### Protocol exposure adapters
 
@@ -68,6 +71,7 @@ MIHARI is a corporate-action protection system for tokenized stocks. It is inten
 - Robinhood Chain and Blockscout provide Uniswap V3 and V4 NFT ownership and contract state.
 - Arcus and Lighter provide read-only public perpetual-position data.
 - The MIHARI indexer normalizes those records and stores provenance in Postgres.
+- The Risk Graph connects only live official events to verified direct and supported protocol exposure.
 - AI produces a structured impact analysis and a bounded recommendation.
 - Deterministic policies decide whether an action is allowed.
 - Robinhood Chain stores policy configuration, attestations and execution receipts.

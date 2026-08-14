@@ -51,7 +51,8 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | `04` | Review the Event Register | Surfaces only watched assets with matching events |
 | `05` | Open an Incident File | Explains evidence, risk, affected systems and confidence |
 | `06` | Open DeFi Exposure | Checks supported lending, vault, DEX liquidity and perpetual positions for Stock Token exposure |
-| `07` | Review the Bounded Response | Recommends a safe next step while the operator remains in control |
+| `07` | Open Risk Graph | Connects a live event to the official Stock Token and every proven direct or supported protocol position |
+| `08` | Review the Bounded Response | Recommends a safe next step while the operator remains in control |
 
 ## What is live
 
@@ -75,6 +76,7 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Uniswap V4 liquidity discovery | `BETA` | Reads V4 LP NFTs, PoolKey data, liquidity and live pool state for Stock Token exposure |
 | Arcus perpetual discovery | `BETA` | Reads public Stock Token perpetual positions with side, leverage, margin mode and unrealized PnL |
 | Lighter perpetual discovery | `BETA` | Reads public Lighter accounts and subaccounts, then keeps positions matched to official Stock Token symbols |
+| Unified Risk Graph | `BETA` | Builds live event-to-asset-to-position paths across direct holdings and active protocol adapters |
 | Ecosystem coverage registry | `LIVE` | Shows which Robinhood Chain sources are checked today and which adapters remain planned |
 | Policy execution | `NEXT` | No automatic protocol action or fund movement today |
 | Onchain proofs | `NEXT` | Production attestations require audited contracts |
@@ -93,7 +95,9 @@ flowchart LR
     C --> E["Neon incident memory"]
     D --> E
     E --> F["Event Register & Incident File"]
+    E --> R["Unified Risk Graph"]
     F -. future .-> G["Policy execution"]
+    R -. future .-> G
     G -. future .-> H["Robinhood Chain proof"]
 ```
 
