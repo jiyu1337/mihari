@@ -29,6 +29,8 @@ const statusRows = [
   ["Morpho lending and vault discovery", "Beta", "Finds Stock Token supply, borrow, collateral and vault positions for verified wallets."],
   ["Uniswap V3 liquidity discovery", "Beta", "Finds Stock Tokens represented inside V3 LP NFTs and checks whether liquidity is in range."],
   ["Uniswap V4 liquidity discovery", "Beta", "Reads V4 LP NFTs, pool state and tick ranges to calculate Stock Token exposure."],
+  ["Arcus perpetual discovery", "Beta", "Matches public Arcus perpetual positions to official Stock Token symbols and reports side, leverage, margin and PnL."],
+  ["Lighter perpetual discovery", "Beta", "Reads public Lighter accounts and subaccounts for active Stock Token perpetual positions."],
   ["Protocol coverage registry", "Live", "Separates active adapters from planned Robinhood Chain integrations."],
   ["Policy execution", "Next", "MIHARI does not pause protocols or move funds today."],
   ["Onchain proof", "Next", "No production receipt is written until contracts are audited and deployed."],
@@ -173,12 +175,13 @@ export default function DocsPage() {
               <div><span className="mono">ROBINHOOD CHAIN BLOCKSCOUT</span><strong>Onchain wallet balances</strong><p>Provides ERC-20 balances for verified addresses. MIHARI matches contracts against Robinhood metadata and separately checks the official $MHR contract.</p></div>
               <div><span className="mono">MORPHO</span><strong>Lending and vault positions</strong><p>Provides read-only supply, borrow, collateral and vault positions for verified addresses. MIHARI keeps only positions involving official Stock Token contracts.</p></div>
               <div><span className="mono">UNISWAP V3 + V4</span><strong>Liquidity position discovery</strong><p>Blockscout identifies LP NFTs and read-only contract calls provide liquidity, token pairs, tick ranges and current pool state. MIHARI calculates the Stock Token amount represented inside each position.</p></div>
+              <div><span className="mono">ARCUS + LIGHTER</span><strong>Perpetual position discovery</strong><p>Public read-only APIs provide active position symbols, direction, value, margin context and unrealized PnL. MIHARI keeps only markets matched to the official Stock Token catalog.</p></div>
               <div><span className="mono">OPENAI</span><strong>Structured risk explanation</strong><p>The model receives an event only after the server verifies it against Robinhood. It returns analysis and recommendations, not source facts or transaction authority.</p></div>
               <div><span className="mono">NEON</span><strong>Profile and incident memory</strong><p>Stores private watchlists, linked wallet records and cached event analysis so repeated views do not create unnecessary AI calls.</p></div>
             </div>
             <div className="docs-callout">
               <strong>Current protocol coverage.</strong>
-              <p>Morpho, Uniswap V3 and Uniswap V4 are active read-only adapters. Rialto, Lighter, Arcus and Chainlink are shown as planned and are not counted as checked. MIHARI does not claim coverage of every protocol position on Robinhood Chain.</p>
+              <p>Morpho, Uniswap V3, Uniswap V4, Arcus and Lighter are active read-only adapters. Rialto and Chainlink remain planned and are not counted as checked. MIHARI does not claim coverage of every protocol position on Robinhood Chain.</p>
             </div>
             <div className="docs-callout docs-callout-muted">
               <strong>Fallback behavior.</strong>
@@ -238,7 +241,7 @@ export default function DocsPage() {
               <div><span className="mono">ASSETS</span><strong>Watchlist and contract directory</strong><p>Search the live catalog, monitor up to 20 Stock Tokens, copy official contract addresses and verify each deployment in Blockscout.</p></div>
               <div><span className="mono">WALLETS</span><strong>Verified wallets and $MHR</strong><p>Link multiple EVM addresses, see their verification status and check whether each address holds the official $MHR token.</p></div>
               <div><span className="mono">EXPOSURE</span><strong>Stock Tokens found onchain</strong><p>MIHARI scans the full official catalog, not only the watchlist. It shows balances, indicative values and whether a current corporate action matches each holding.</p></div>
-              <div><span className="mono">DEFI</span><strong>Stock Tokens inside supported protocols</strong><p>Scans verified wallets for Morpho lending and vault positions plus Uniswap V3 and V4 liquidity positions, then matches recognized Stock Tokens with current corporate actions.</p></div>
+              <div><span className="mono">DEFI</span><strong>Stock Tokens inside supported protocols</strong><p>Scans verified wallets for Morpho lending, Uniswap liquidity and Arcus or Lighter perpetual positions, then matches recognized Stock Tokens with current corporate actions.</p></div>
               <div><span className="mono">PERSONAL RISK FILE</span><strong>Risk attached to a real holding</strong><p>If a wallet holding has an Event Match, View Risk adds the position balance to the event analysis so the user can review personal exposure.</p></div>
               <div><span className="mono">PROFILE</span><strong>Access and product mode</strong><p>See whether the profile started with wallet or email access, add the missing access method and confirm that the product remains in read-only Observe mode.</p></div>
               <div><span className="mono">RESCAN</span><strong>Refresh wallet information</strong><p>Request fresh profile data, wallet balances, Stock Token positions, $MHR status, prices and event matching.</p></div>
@@ -310,14 +313,14 @@ export default function DocsPage() {
             <h2>How MIHARI finds Stock Tokens beyond a direct wallet balance.</h2>
             <p>
               A Stock Token may leave the wallet balance after it is supplied to a lending market,
-              posted as collateral, deposited in a vault or represented inside a liquidity position. DeFi Exposure checks supported
+              posted as collateral, deposited in a vault, represented inside liquidity or used for a perpetual position. DeFi Exposure checks supported
               protocols for those positions and then uses the official Robinhood contract catalog
               to decide whether a position contains a Stock Token.
             </p>
             <div className="docs-flow docs-workflow">
               <div><Wallet size={20} /><span className="mono">01 / IDENTITY</span><strong>Read verified addresses</strong><p>Only wallets already linked to the MIHARI profile are scanned.</p></div>
-              <div><Landmark size={20} /><span className="mono">02 / PROTOCOL</span><strong>Query active adapters</strong><p>MIHARI reads Morpho positions and Uniswap V3 and V4 LP NFTs on Robinhood Chain ID 4663.</p></div>
-              <div><Database size={20} /><span className="mono">03 / VERIFY</span><strong>Match official contracts</strong><p>Unknown assets are ignored. A position is kept only when its token contract matches Robinhood metadata.</p></div>
+              <div><Landmark size={20} /><span className="mono">02 / PROTOCOL</span><strong>Query active adapters</strong><p>MIHARI reads Morpho positions, Uniswap V3 and V4 LP NFTs, plus public Arcus and Lighter perpetual positions for verified addresses.</p></div>
+              <div><Database size={20} /><span className="mono">03 / VERIFY</span><strong>Match official assets</strong><p>Onchain positions must match official contracts. Perpetual markets must match exact symbols from Robinhood metadata. Unknown assets are ignored.</p></div>
               <div><ShieldCheck size={20} /><span className="mono">04 / MATCH</span><strong>Check corporate actions</strong><p>The Stock Token symbol is compared with the current official corporate-action response.</p></div>
             </div>
 
@@ -328,6 +331,7 @@ export default function DocsPage() {
               <div><span className="mono">BORROW</span><strong>Stock Token borrowed</strong><p>The position includes borrowed Stock Token debt in a supported Morpho market.</p></div>
               <div><span className="mono">VAULT DEPOSIT</span><strong>Stock Token inside a vault position</strong><p>The verified wallet holds a Morpho vault position whose underlying asset is an official Stock Token.</p></div>
               <div><span className="mono">DEX LIQUIDITY</span><strong>Stock Token inside a Uniswap LP</strong><p>The wallet owns a V3 or V4 position whose current principal contains an official Stock Token. MIHARI also reports the NFT reference and whether the position is active or out of range.</p></div>
+              <div><span className="mono">PERP POSITION</span><strong>Stock Token long or short exposure</strong><p>An Arcus or Lighter market symbol matches the official Stock Token catalog. MIHARI reports direction, notional value, margin mode, leverage when available and unrealized PnL.</p></div>
             </div>
 
             <h3 className="docs-subheading">Source and result statuses</h3>
@@ -348,6 +352,7 @@ export default function DocsPage() {
               <div><span className="mono">PROTOCOL POSITIONS</span><strong>Recognized position rows</strong><p>Each row represents one Stock Token side of a supported protocol position. One LP NFT can create more than one row if both currencies are official Stock Tokens.</p></div>
               <div><span className="mono">AMOUNT / VALUE</span><strong>Calculated Stock Token exposure</strong><p>Amount is the token quantity represented by the protocol position. Value uses the Robinhood bid and ask midpoint when available and remains indicative.</p></div>
               <div><span className="mono">ACTIVE / OUT OF RANGE</span><strong>Liquidity range status</strong><p>Active means the current Uniswap tick is inside the LP range. Out of Range means it is outside. This is a position state, not a corporate-action risk rating.</p></div>
+              <div><span className="mono">LONG / SHORT / UPNL</span><strong>Perpetual position context</strong><p>Direction, margin mode and unrealized PnL come from the protocol source. Lighter leverage is derived from its reported initial margin fraction. These values are informational and do not include every liquidation parameter.</p></div>
               <div><span className="mono">EVENT MATCH</span><strong>Corporate action found</strong><p>The Stock Token inside the protocol position has a current official Robinhood corporate-action record.</p></div>
               <div><span className="mono">NO EVENT MATCH</span><strong>Monitoring continues</strong><p>No current corporate-action record matched this position. It does not mean that all DeFi or market risk is absent.</p></div>
             </div>
@@ -382,7 +387,7 @@ export default function DocsPage() {
               <div><dt>Watchlist</dt><dd>The Stock Tokens a profile asks MIHARI to monitor. It is separate from assets actually held in linked wallets.</dd></div>
               <div><dt>Exposure</dt><dd>A recognized Robinhood Stock Token balance found automatically in a verified wallet and matched with current event data.</dd></div>
               <div><dt>Event match</dt><dd>A corporate-action record from Robinhood that has the same symbol as a Stock Token position found in the wallet.</dd></div>
-              <div><dt>Protocol exposure</dt><dd>A Stock Token position discovered inside supported lending, vault or DEX liquidity infrastructure rather than only as a direct wallet balance.</dd></div>
+              <div><dt>Protocol exposure</dt><dd>A Stock Token position discovered inside supported lending, vault, DEX liquidity or perpetual infrastructure rather than only as a direct wallet balance.</dd></div>
             </dl>
           </section>
         </article>

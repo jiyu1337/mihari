@@ -21,8 +21,12 @@ The protocol layer uses a shared adapter interface. Every adapter receives one v
 - Morpho reads user market and vault positions. It normalizes lending supply, collateral, borrow and vault deposit exposure.
 - Uniswap V3 finds Position Manager NFTs through Robinhood Chain Blockscout. It reads position liquidity, pool state and unclaimed token amounts onchain.
 - Uniswap V4 finds Position Manager NFTs, reads PoolKey and packed tick data, then uses the official StateView contract to calculate the token amounts represented by the position.
+- Arcus reads its public account-position API and matches RWA perpetual market names to official Stock Token symbols.
+- Lighter reads public accounts and subaccounts through the Robinhood Chain Lighter API. It keeps active perpetual positions whose symbols match the official Stock Token catalog.
 
 Uniswap adapters keep only the side of an LP position whose contract matches official Robinhood metadata. They also report whether concentrated liquidity is active or outside its configured tick range. Unknown assets are excluded.
+
+Perpetual adapters do not assume that a market is a Stock Token from its category or display name alone. Arcus and Lighter rows are kept only when the normalized market symbol matches an exact symbol in the current official Robinhood catalog.
 
 A corporate-action match is attached only when the Robinhood response is live. Simulated fallback events are never treated as personal protocol evidence. A failed adapter is reported as partial or unavailable and is never interpreted as zero exposure.
 
@@ -34,8 +38,8 @@ A corporate-action match is attached only when the Robinhood response is live. S
 | Uniswap V3 | DEX | Beta adapter | Position Manager NFT, pool slot0 and liquidity |
 | Uniswap V4 | DEX | Beta adapter | Position Manager NFT, PoolKey, StateView slot0 and liquidity |
 | Rialto | DEX | Planned | No user-position scan yet |
-| Lighter | Perpetuals | Planned | No user-position scan yet |
-| Arcus | Perpetuals | Planned | No user-position scan yet |
+| Lighter | Perpetuals | Beta adapter | Public accounts, active positions, side, margin and PnL |
+| Arcus | Perpetuals | Beta adapter | Public positions, side, leverage, margin and PnL |
 | Chainlink | Oracle | Planned | No dependency graph scan yet |
 
 The UI shows the whole registry but counts only adapters that actually ran as checked. This prevents roadmap coverage from being mistaken for verified wallet coverage.
@@ -62,6 +66,7 @@ MIHARI is a corporate-action protection system for tokenized stocks. It is inten
 - Robinhood Chain Blockscout provides direct wallet token balances.
 - Morpho provides read-only vault and lending positions.
 - Robinhood Chain and Blockscout provide Uniswap V3 and V4 NFT ownership and contract state.
+- Arcus and Lighter provide read-only public perpetual-position data.
 - The MIHARI indexer normalizes those records and stores provenance in Postgres.
 - AI produces a structured impact analysis and a bounded recommendation.
 - Deterministic policies decide whether an action is allowed.
@@ -85,7 +90,7 @@ This means the accurate public description is: **AI corporate-action protection 
 | Database | Drizzle schema | Neon Postgres |
 | AI | Vercel AI SDK with deterministic fallback | AI Gateway with model routing |
 | Market data | Robinhood API adapter with demo fallback | Official Stock Token APIs |
-| Protocol positions | Morpho, Uniswap V3 and Uniswap V4 read-only adapters | Additional verified Robinhood Chain adapters |
+| Protocol positions | Morpho, Uniswap V3, Uniswap V4, Arcus and Lighter read-only adapters | Additional verified Robinhood Chain adapters |
 | Chain | viem Robinhood testnet config | Testnet, then audited mainnet deployment |
 | Contracts | Solidity + OpenZeppelin | Verified deployments on chain 46630/4663 |
 | Monitoring | Health endpoint | Vercel Observability + Sentry/PostHog later |

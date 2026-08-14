@@ -50,7 +50,7 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | `03` | Start Observe mode | Syncs official asset, price, multiplier and corporate-action data |
 | `04` | Review the Event Register | Surfaces only watched assets with matching events |
 | `05` | Open an Incident File | Explains evidence, risk, affected systems and confidence |
-| `06` | Open DeFi Exposure | Checks supported lending, vault and DEX liquidity positions for Stock Token exposure |
+| `06` | Open DeFi Exposure | Checks supported lending, vault, DEX liquidity and perpetual positions for Stock Token exposure |
 | `07` | Review the Bounded Response | Recommends a safe next step while the operator remains in control |
 
 ## What is live
@@ -73,6 +73,8 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Morpho vault and lending discovery | `BETA` | Scans verified wallets for Stock Token supply, borrow, collateral and vault positions |
 | Uniswap V3 liquidity discovery | `BETA` | Reads LP NFTs, calculates the Stock Token amount inside each position and reports range status |
 | Uniswap V4 liquidity discovery | `BETA` | Reads V4 LP NFTs, PoolKey data, liquidity and live pool state for Stock Token exposure |
+| Arcus perpetual discovery | `BETA` | Reads public Stock Token perpetual positions with side, leverage, margin mode and unrealized PnL |
+| Lighter perpetual discovery | `BETA` | Reads public Lighter accounts and subaccounts, then keeps positions matched to official Stock Token symbols |
 | Ecosystem coverage registry | `LIVE` | Shows which Robinhood Chain sources are checked today and which adapters remain planned |
 | Policy execution | `NEXT` | No automatic protocol action or fund movement today |
 | Onchain proofs | `NEXT` | Production attestations require audited contracts |
@@ -84,6 +86,7 @@ flowchart LR
     A["Robinhood Stock Token APIs"] --> B["Normalization & evidence checks"]
     M["Morpho positions"] --> B
     U["Uniswap V3 and V4 positions"] --> B
+    P["Arcus and Lighter perp positions"] --> B
     W["Blockscout wallet balances"] --> B
     B --> C["AI analysis"]
     B --> D["Deterministic fallback"]
@@ -121,7 +124,7 @@ Planned utility is designed around product use:
 | Phase | Status | Focus |
 | --- | :---: | --- |
 | **01 · Observe** | `LIVE` | Official data, watchlists, Event Register, AI Incident Files and read-only identity |
-| **02 · Map** | `IN PROGRESS` | Profiles, direct holdings and read-only Morpho, Uniswap V3 and Uniswap V4 exposure mapping are implemented in `feature/defi-exposure` |
+| **02 · Map** | `IN PROGRESS` | Profiles, direct holdings and read-only Morpho, Uniswap V3, Uniswap V4, Arcus and Lighter exposure mapping are implemented in `feature/defi-exposure` |
 | **03 · Guard** | `PLANNED` | Deterministic policies, operator approval, transaction previews and bounded actions |
 | **04 · Prove** | `PLANNED` | Audited contracts, onchain receipts, independent operators and verifiable monitoring |
 
