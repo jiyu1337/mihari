@@ -219,7 +219,7 @@ export function ProtocolExposure({ walletCount, onOpenWallets }: ProtocolExposur
 
       <div className="protocol-coverage-note">
         <span className="mono">COVERAGE / SOURCE TRUTH</span>
-        <p><strong>Morpho, Uniswap V3, Uniswap V4 and Arcus are active adapters.</strong> Planned sources are visible so users can see exactly what is and is not included. A protocol is never counted as checked until MIHARI can verify its user-position data.</p>
+        <p><strong>Morpho, Uniswap V3, Uniswap V4, Arcus and Lighter are active adapters.</strong> Planned sources are visible so users can see exactly what is and is not included. A protocol is never counted as checked until MIHARI can verify its user-position data.</p>
         <span className="mono">READ-ONLY / NO APPROVALS / NO TRANSACTIONS</span>
       </div>
     </section>

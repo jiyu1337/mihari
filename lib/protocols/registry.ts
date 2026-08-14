@@ -7,6 +7,7 @@ import { morphoAdapter } from "@/lib/protocols/morpho";
 import { uniswapV3Adapter } from "@/lib/protocols/uniswap-v3";
 import { uniswapV4Adapter } from "@/lib/protocols/uniswap-v4";
 import { arcusAdapter } from "@/lib/protocols/arcus";
+import { lighterAdapter } from "@/lib/protocols/lighter";
 
 export const protocolCatalog: ProtocolDefinition[] = [
   {
@@ -45,9 +46,9 @@ export const protocolCatalog: ProtocolDefinition[] = [
     id: "lighter",
     name: "Lighter",
     category: "perps",
-    stage: "planned",
-    description: "Perpetual positions, margin and Stock Token collateral exposure.",
-    capabilities: ["PERPS", "MARGIN", "COLLATERAL"],
+    stage: "beta",
+    description: "Public Stock Token perpetual positions across Lighter accounts and subaccounts.",
+    capabilities: ["PERPS", "LONG / SHORT", "MARGIN", "PNL"],
   },
   {
     id: "arcus",
@@ -72,6 +73,7 @@ export const protocolAdapters: ProtocolExposureAdapter[] = [
   uniswapV3Adapter,
   uniswapV4Adapter,
   arcusAdapter,
+  lighterAdapter,
 ];
 
 export function protocolScansWithCoverage(scans: ProtocolScan[], hasWallets: boolean) {
