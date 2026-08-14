@@ -18,6 +18,7 @@ Selecting an asset does not create a wallet position. Removing an asset from the
 - Robinhood APIs provide the official asset catalog, prices, multipliers and corporate actions.
 - Robinhood Chain Blockscout provides onchain token balances for verified wallets.
 - Morpho provides read-only lending market and vault positions for verified wallets on chain ID 4663.
+- Robinhood Chain Blockscout and read-only contract calls provide Uniswap V3 and V4 LP NFT exposure.
 - OpenAI analyzes only events that the MIHARI server verifies against Robinhood.
 - Neon stores accounts, watchlists, wallet links and cached incident analysis.
 
@@ -99,9 +100,9 @@ The indicative value is informational. It is not an executable quote and does no
 
 ### DeFi Exposure
 
-DeFi Exposure is separate from direct wallet Exposure. It checks supported protocols for Stock Tokens that may be supplied, borrowed, posted as collateral or deposited into a vault.
+DeFi Exposure is separate from direct wallet Exposure. It checks supported protocols for Stock Tokens that may be supplied, borrowed, posted as collateral, deposited into a vault or held inside a liquidity position.
 
-The first adapter covers Morpho on Robinhood Chain:
+Three read-only adapters are active on Robinhood Chain:
 
 | Position | Meaning |
 | --- | --- |
@@ -109,6 +110,9 @@ The first adapter covers Morpho on Robinhood Chain:
 | Collateral | A Stock Token secures a Morpho borrowing position |
 | Borrow | A Stock Token is borrowed in a Morpho market |
 | Vault Deposit | A Morpho vault position uses an official Stock Token as its underlying asset |
+| DEX Liquidity | An official Stock Token is represented inside a Uniswap V3 or V4 LP NFT |
+
+For a Uniswap position, MIHARI reads its tick range, liquidity and current pool state. It calculates the principal Stock Token amount represented by the position. V3 also includes tokens already reported as owed by the Position Manager. The result is labelled **Active** when the current tick is inside the position range and **Out of Range** when the current tick is outside it.
 
 Every result must match an official Robinhood Stock Token contract. Unknown protocol assets are excluded from MIHARI Stock Token exposure.
 
@@ -119,7 +123,31 @@ Every result must match an official Robinhood Stock Token contract. Unknown prot
 | Unavailable | No usable protocol result was returned, so MIHARI does not assume zero exposure |
 | Waiting for Wallet | The profile has no verified address to scan |
 
-**No supported position found** means the Morpho scan completed without finding an official Stock Token position. It does not mean that the wallet has no DeFi activity in unsupported protocols.
+The coverage cards use separate integration stages:
+
+| Integration stage | Meaning |
+| --- | --- |
+| Live | The adapter is considered stable enough for normal read-only scanning |
+| Beta | The adapter is active, but coverage limits and source availability are still being validated |
+| Planned | The protocol belongs to the coverage roadmap, but MIHARI is not scanning it yet |
+
+### Reading the DeFi dashboard
+
+| Label | Meaning |
+| --- | --- |
+| Checked | Active adapters that returned a live or partial scan result |
+| Mapped | Every ecosystem source listed in the coverage registry, including planned adapters |
+| Protocol Positions | Normalized Stock Token position rows found by active adapters |
+| Amount | Stock Token quantity represented by the protocol position |
+| Indicative Value | Amount multiplied by the Robinhood bid and ask midpoint when available |
+| Active | The current Uniswap tick is inside the LP position range |
+| Out of Range | The current Uniswap tick is outside the LP range; this is not a corporate-action rating |
+| Event Match | A current official Robinhood corporate action matches the Stock Token inside the position |
+| No Event Match | No matching record exists in the current response; monitoring continues |
+
+One Uniswap LP NFT can create two position rows when both sides of the pool are official Robinhood Stock Tokens. MIHARI limits each Uniswap adapter to the first 24 LP NFTs per wallet in the current beta. If the limit is reached or a contract read fails, the adapter reports **Partial** instead of silently treating the missing data as zero.
+
+**No supported position found** means the active Morpho, Uniswap V3 and Uniswap V4 scans completed without finding an official Stock Token position. It does not mean that the wallet has no DeFi activity in unsupported protocols.
 
 ## Exposure statuses
 
@@ -182,6 +210,6 @@ An official Robinhood corporate-action record has the same symbol as a Stock Tok
 
 ## Current boundary
 
-MIHARI maps direct wallet-held Stock Tokens and Morpho positions involving Stock Tokens. It does not yet claim coverage of every Robinhood Chain vault, lending market, DEX LP or agent-managed position. Affected Systems may still describe categories beyond the adapters currently supported.
+MIHARI maps direct wallet-held Stock Tokens plus supported Morpho, Uniswap V3 and Uniswap V4 positions involving Stock Tokens. Rialto, Lighter, Arcus and Chainlink dependency mapping are visible in the coverage roadmap but are not scanned yet. MIHARI does not claim coverage of every Robinhood Chain vault, lending market, DEX LP, perpetual position or agent-managed position. Affected Systems may still describe categories beyond the adapters currently supported.
 
 MIHARI operates in Observe mode. It analyzes and recommends but does not move funds or execute a response.

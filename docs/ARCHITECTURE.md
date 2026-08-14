@@ -14,11 +14,43 @@ MAP adds a personal identity and exposure layer without giving MIHARI custody of
 8. The protocol exposure layer queries supported DeFi adapters for the same verified addresses.
 9. Protocol assets are kept only when their contracts match the official Stock Token catalog.
 
-### Protocol exposure adapter
+### Protocol exposure adapters
 
-The first adapter is Morpho on Robinhood Chain ID 4663. It queries read-only user market and vault positions and normalizes four position types: lending supply, lending collateral, lending borrow and vault deposit.
+The protocol layer uses a shared adapter interface. Every adapter receives one verified wallet and the current official Robinhood Stock Token catalog, then returns normalized positions and an explicit scan status.
 
-The adapter does not infer protocol balances from wallet transfers. It uses the protocol position API, then verifies asset contracts against Robinhood metadata. A corporate-action match is attached only when the Robinhood response is live. Simulated fallback events are never treated as personal protocol evidence.
+- Morpho reads user market and vault positions. It normalizes lending supply, collateral, borrow and vault deposit exposure.
+- Uniswap V3 finds Position Manager NFTs through Robinhood Chain Blockscout. It reads position liquidity, pool state and unclaimed token amounts onchain.
+- Uniswap V4 finds Position Manager NFTs, reads PoolKey and packed tick data, then uses the official StateView contract to calculate the token amounts represented by the position.
+
+Uniswap adapters keep only the side of an LP position whose contract matches official Robinhood metadata. They also report whether concentrated liquidity is active or outside its configured tick range. Unknown assets are excluded.
+
+A corporate-action match is attached only when the Robinhood response is live. Simulated fallback events are never treated as personal protocol evidence. A failed adapter is reported as partial or unavailable and is never interpreted as zero exposure.
+
+### Protocol registry
+
+| Source | Category | Current stage | Position data used |
+| --- | --- | --- | --- |
+| Morpho | Lending | Live adapter | User markets and vault positions |
+| Uniswap V3 | DEX | Beta adapter | Position Manager NFT, pool slot0 and liquidity |
+| Uniswap V4 | DEX | Beta adapter | Position Manager NFT, PoolKey, StateView slot0 and liquidity |
+| Rialto | DEX | Planned | No user-position scan yet |
+| Lighter | Perpetuals | Planned | No user-position scan yet |
+| Arcus | Perpetuals | Planned | No user-position scan yet |
+| Chainlink | Oracle | Planned | No dependency graph scan yet |
+
+The UI shows the whole registry but counts only adapters that actually ran as checked. This prevents roadmap coverage from being mistaken for verified wallet coverage.
+
+### Verified Uniswap contracts on Robinhood Chain
+
+| Contract | Address |
+| --- | --- |
+| Uniswap V3 Factory | `0x1f7d7550b1b028f7571e69a784071f0205fd2efa` |
+| Uniswap V3 Nonfungible Position Manager | `0x73991a25c818bf1f1128deaab1492d45638de0d3` |
+| Uniswap V4 Pool Manager | `0x8366a39cc670b4001a1121b8f6a443a643e40951` |
+| Uniswap V4 Position Manager | `0x58daec3116aae6d93017baaea7749052e8a04fa7` |
+| Uniswap V4 StateView | `0xf3334192d15450cdd385c8b70e03f9a6bd9e673b` |
+
+These addresses are read-only dependencies. MIHARI does not ask a user to approve either Position Manager.
 
 The signature is not a transaction, costs no gas and grants no spending permission. MIHARI never receives a private key or seed phrase.
 
@@ -28,7 +60,8 @@ MIHARI is a corporate-action protection system for tokenized stocks. It is inten
 
 - Robinhood Stock Token APIs provide read-only asset metadata, corporate actions and prices.
 - Robinhood Chain Blockscout provides direct wallet token balances.
-- Morpho provides read-only vault and lending positions for the first protocol adapter.
+- Morpho provides read-only vault and lending positions.
+- Robinhood Chain and Blockscout provide Uniswap V3 and V4 NFT ownership and contract state.
 - The MIHARI indexer normalizes those records and stores provenance in Postgres.
 - AI produces a structured impact analysis and a bounded recommendation.
 - Deterministic policies decide whether an action is allowed.
@@ -52,7 +85,7 @@ This means the accurate public description is: **AI corporate-action protection 
 | Database | Drizzle schema | Neon Postgres |
 | AI | Vercel AI SDK with deterministic fallback | AI Gateway with model routing |
 | Market data | Robinhood API adapter with demo fallback | Official Stock Token APIs |
-| Protocol positions | Morpho read-only API adapter | Multiple verified Robinhood Chain adapters |
+| Protocol positions | Morpho, Uniswap V3 and Uniswap V4 read-only adapters | Additional verified Robinhood Chain adapters |
 | Chain | viem Robinhood testnet config | Testnet, then audited mainnet deployment |
 | Contracts | Solidity + OpenZeppelin | Verified deployments on chain 46630/4663 |
 | Monitoring | Health endpoint | Vercel Observability + Sentry/PostHog later |

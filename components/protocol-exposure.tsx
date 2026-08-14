@@ -94,9 +94,12 @@ export function ProtocolExposure({ walletCount, onOpenWallets }: ProtocolExposur
   const protocolById = useMemo(() => new Map(
     snapshot?.protocolCatalog.map((protocol) => [protocol.id, protocol]) ?? [],
   ), [snapshot]);
-  const activeProtocolIds = new Set(snapshot?.protocolCatalog
+  const scanByProtocol = useMemo(() => new Map(
+    snapshot?.scans.map((scan) => [scan.protocol, scan]) ?? [],
+  ), [snapshot]);
+  const activeProtocolIds = useMemo(() => new Set(snapshot?.protocolCatalog
     .filter((protocol) => protocol.stage !== "planned")
-    .map((protocol) => protocol.id) ?? []);
+    .map((protocol) => protocol.id) ?? []), [snapshot]);
   const activeScans = snapshot?.scans.filter((scan) => activeProtocolIds.has(scan.protocol)) ?? [];
   const checkedProtocols = activeScans.filter((scan) => scan.status === "live" || scan.status === "partial").length;
   const hasUnavailableSource = activeScans.some((scan) => scan.status === "unavailable");
@@ -145,7 +148,7 @@ export function ProtocolExposure({ walletCount, onOpenWallets }: ProtocolExposur
       {snapshot?.protocolCatalog.length ? (
         <div className="protocol-coverage-grid">
           {snapshot.protocolCatalog.map((protocol) => {
-            const protocolScan = snapshot.scans.find((item) => item.protocol === protocol.id);
+            const protocolScan = scanByProtocol.get(protocol.id);
             const label = scanLabel(protocolScan, protocol, loading);
             return (
               <article className={`protocol-coverage-card ${protocol.stage}`} key={protocol.id}>
@@ -195,7 +198,7 @@ export function ProtocolExposure({ walletCount, onOpenWallets }: ProtocolExposur
 
       <div className="protocol-coverage-note">
         <span className="mono">COVERAGE / SOURCE TRUTH</span>
-        <p><strong>Morpho and Uniswap V3 are active adapters.</strong> Planned sources are visible so users can see exactly what is and is not included. A protocol is never counted as checked until MIHARI can verify its user-position data.</p>
+        <p><strong>Morpho, Uniswap V3 and Uniswap V4 are active adapters.</strong> Planned sources are visible so users can see exactly what is and is not included. A protocol is never counted as checked until MIHARI can verify its user-position data.</p>
         <span className="mono">READ-ONLY / NO APPROVALS / NO TRANSACTIONS</span>
       </div>
     </section>
