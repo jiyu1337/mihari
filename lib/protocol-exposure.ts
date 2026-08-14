@@ -31,7 +31,7 @@ export type ProtocolPosition = {
 
 export type ProtocolScan = {
   protocol: string;
-  status: "live" | "unavailable" | "not_scanned";
+  status: "live" | "partial" | "unavailable" | "not_scanned";
   positionCount: number;
   warning?: string;
 };
@@ -75,19 +75,24 @@ export async function scanProtocolExposure(
     const positions = walletResults.flatMap((result) => (
       result.status === "fulfilled" ? result.value : []
     ));
-    const rejected = walletResults.find((result) => result.status === "rejected");
-    return { adapter, positions, rejected };
+    const rejected = walletResults.filter((result) => result.status === "rejected");
+    const fulfilledCount = walletResults.length - rejected.length;
+    return { adapter, positions, rejected, fulfilledCount };
   }));
 
   const positions = results.flatMap((result) => result.positions);
 
-  const scans = results.map(({ adapter, positions: adapterPositions, rejected }) => {
+  const scans = results.map(({ adapter, positions: adapterPositions, rejected, fulfilledCount }) => {
     return {
       protocol: adapter.id,
-      status: rejected ? "unavailable" as const : "live" as const,
+      status: rejected.length
+        ? (fulfilledCount ? "partial" as const : "unavailable" as const)
+        : "live" as const,
       positionCount: adapterPositions.length,
-      warning: rejected
-        ? (rejected.reason instanceof Error ? rejected.reason.message : "Protocol data unavailable")
+      warning: rejected.length
+        ? [...new Set(rejected.map((result) => (
+            result.reason instanceof Error ? result.reason.message : "Protocol data unavailable"
+          )))].join("; ")
         : undefined,
     };
   });
