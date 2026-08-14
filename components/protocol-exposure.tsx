@@ -129,7 +129,7 @@ export function ProtocolExposure({ walletCount, onOpenWallets }: ProtocolExposur
   return (
     <section className="workspace-view protocol-view">
       <div className="workspace-title compact">
-        <div><p className="mono">06 / DEFI EXPOSURE</p><h1>Beyond your wallet.</h1></div>
+        <div><p className="mono">07 / DEFI EXPOSURE</p><h1>Beyond your wallet.</h1></div>
         <p>MIHARI checks supported lending, vault and liquidity protocols, then maps every recognized Stock Token position to official corporate actions.</p>
       </div>
 

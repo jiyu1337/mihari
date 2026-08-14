@@ -16,6 +16,7 @@ import {
   Link2,
   ListFilter,
   LoaderCircle,
+  Network,
   Orbit,
   RefreshCw,
   Search,
@@ -29,6 +30,7 @@ import { BrandMark } from "@/components/brand-mark";
 import { ProfileEvents } from "@/components/profile-events";
 import { ProfileSignOut } from "@/components/profile-sign-out";
 import { ProtocolExposure } from "@/components/protocol-exposure";
+import { RiskGraph } from "@/components/risk-graph";
 import type { AnalysisResponse } from "@/lib/analysis";
 import type { MappedPosition, MhrHolding } from "@/lib/map-data";
 import { MAX_WATCHLIST_ASSETS } from "@/lib/product-limits";
@@ -47,7 +49,7 @@ type ProfileResponse = {
   exposure: { positions: MappedPosition[]; events: CorporateEvent[]; scannedAt: string };
 };
 
-type WorkspaceView = "overview" | "events" | "assets" | "wallets" | "exposure" | "defi" | "settings";
+type WorkspaceView = "overview" | "events" | "assets" | "wallets" | "exposure" | "risk" | "defi" | "settings";
 type MapConsoleProps = { authUnavailable?: boolean };
 
 const CHAIN_ID_HEX = "0x1237";
@@ -57,6 +59,7 @@ const workspaceNavigation = [
   { id: "assets", label: "Assets", icon: ListFilter },
   { id: "wallets", label: "Wallets", icon: Wallet },
   { id: "exposure", label: "Exposure", icon: ShieldCheck },
+  { id: "risk", label: "Graph", icon: Network },
   { id: "defi", label: "DeFi", icon: Landmark },
   { id: "settings", label: "Profile", icon: Settings2 },
 ] as const;
@@ -379,7 +382,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
               </article>
             </div>
             <div className="workspace-impact-summary">
-              <header><div><p className="mono">AI AGENT / EVENT MATCHING</p><h2>Personal impact queue</h2></div><button onClick={() => setView("exposure")}>OPEN EXPOSURE <ArrowRight size={14} /></button></header>
+              <header><div><p className="mono">AI AGENT / EVENT MATCHING</p><h2>Personal impact queue</h2></div><button onClick={() => setView("risk")}>OPEN RISK GRAPH <ArrowRight size={14} /></button></header>
               {exposedPositions.length ? exposedPositions.map((position) => (
                 <div className="impact-row" key={position.contractAddress}><span className="mono">{position.symbol}</span><strong>Corporate action matched to your position</strong><span>{position.balance} tokens</span><Link href="/app">Open Incident File</Link></div>
               )) : <div className="impact-clear"><ShieldCheck size={22} /><span><strong>No active event touches a mapped position.</strong><small>Your monitored assets remain active in the background.</small></span></div>}
@@ -522,7 +525,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
 
         {view === "settings" ? (
           <section className="workspace-view">
-            <div className="workspace-title compact"><div><p className="mono">07 / PROFILE CONTROL</p><h1>Your profile.</h1></div><p>Manage the identities that open this workspace. Add email to a wallet-native profile or link wallets to an email profile.</p></div>
+            <div className="workspace-title compact"><div><p className="mono">08 / PROFILE CONTROL</p><h1>Your profile.</h1></div><p>Manage the identities that open this workspace. Add email to a wallet-native profile or link wallets to an email profile.</p></div>
             <div className="workspace-profile-grid">
               <article><CircleUserRound size={25} /><span className="mono">PRIMARY ACCESS</span><h2>{profile?.account.primaryMethod === "wallet" ? "Wallet signature" : "Email and password"}</h2><p>{profile?.account.email ?? profile?.wallets[0]?.address ?? "MIHARI profile"}</p></article>
               <article><Activity size={25} /><span className="mono">ADD ACCESS METHOD</span><h2>{profile?.account.email ? "Email connected" : "Add recovery email"}</h2><p>{profile?.account.email ? "You can access this profile by email and linked wallet." : "Connect email access without losing this wallet profile."}</p>{profile?.account.email ? <button onClick={() => setView("wallets")}>MANAGE WALLETS</button> : <Link href="/sign-in?redirect_url=/map">ADD EMAIL ACCESS <ArrowRight size={14} /></Link>}</article>
@@ -533,6 +536,20 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
 
         {view === "defi" ? (
           <ProtocolExposure walletCount={profile?.wallets.length ?? 0} onOpenWallets={() => setView("wallets")} />
+        ) : null}
+
+        {view === "risk" ? (
+          <RiskGraph
+            directPositions={profile?.exposure.positions ?? []}
+            directEvents={profile?.exposure.events ?? []}
+            walletCount={profile?.wallets.length ?? 0}
+            onOpenWallets={() => setView("wallets")}
+            onOpenDirectRisk={(position) => {
+              setView("exposure");
+              void openPositionRisk(position);
+            }}
+            onOpenProtocolExposure={() => setView("defi")}
+          />
         ) : null}
       </main>
     </div>
