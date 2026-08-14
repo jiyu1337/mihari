@@ -1,4 +1,5 @@
 import type { RobinhoodAsset } from "@/lib/robinhood";
+import type { EventSeverity } from "@/lib/product-data";
 
 export type ProtocolPositionKind =
   | "lending_supply"
@@ -20,11 +21,17 @@ export type ProtocolPosition = {
   counterpartySymbol: string | null;
   healthFactor: string | null;
   hasCorporateAction: boolean;
+  corporateAction: {
+    id: string;
+    type: string;
+    status: string;
+    severity: EventSeverity;
+  } | null;
 };
 
 export type ProtocolScan = {
   protocol: string;
-  status: "live" | "unavailable";
+  status: "live" | "unavailable" | "not_scanned";
   positionCount: number;
   warning?: string;
 };

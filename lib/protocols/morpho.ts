@@ -155,6 +155,7 @@ function marketPosition(
     counterpartySymbol,
     healthFactor: healthFactor(market),
     hasCorporateAction: false,
+    corporateAction: null,
   };
 }
 
@@ -180,6 +181,7 @@ function vaultPosition(
     counterpartySymbol: null,
     healthFactor: null,
     hasCorporateAction: false,
+    corporateAction: null,
   };
 }
 
