@@ -3,7 +3,7 @@
 
   <br />
 
-  [![Production Beta](https://img.shields.io/badge/status-production_beta-CCFF00?style=flat-square&labelColor=0B0B09&color=CCFF00)](https://mihari-eight.vercel.app)
+  [![Production Beta](https://img.shields.io/badge/status-production_beta-CCFF00?style=flat-square&labelColor=0B0B09&color=CCFF00)](https://mihari.pro)
   [![Robinhood Chain](https://img.shields.io/badge/Robinhood_Chain-4663-CCFF00?style=flat-square&labelColor=0B0B09)](https://robinhoodchain.blockscout.com)
   [![Next.js](https://img.shields.io/badge/Next.js-16-ffffff?style=flat-square&logo=nextdotjs&logoColor=white&labelColor=0B0B09)](https://nextjs.org)
   [![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square&logo=typescript&logoColor=white&labelColor=0B0B09)](https://www.typescriptlang.org)
@@ -17,11 +17,11 @@
   </p>
 
   <p>
-    <a href="https://mihari-eight.vercel.app"><strong>Live product</strong></a>
+    <a href="https://mihari.pro"><strong>Live product</strong></a>
     ·
-    <a href="https://mihari-eight.vercel.app/launch"><strong>Launch app</strong></a>
+    <a href="https://mihari.pro/launch"><strong>Launch app</strong></a>
     ·
-    <a href="https://mihari-eight.vercel.app/docs"><strong>Documentation</strong></a>
+    <a href="https://mihari.pro/docs"><strong>Documentation</strong></a>
     ·
     <a href="#quick-start"><strong>Quick start</strong></a>
   </p>
@@ -50,7 +50,8 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | `03` | Start Observe mode | Syncs official asset, price, multiplier and corporate-action data |
 | `04` | Review the Event Register | Surfaces only watched assets with matching events |
 | `05` | Open an Incident File | Explains evidence, risk, affected systems and confidence |
-| `06` | Review the Bounded Response | Recommends a safe next step while the operator remains in control |
+| `06` | Open DeFi Exposure | Checks supported vault and lending positions for Stock Token exposure |
+| `07` | Review the Bounded Response | Recommends a safe next step while the operator remains in control |
 
 ## What is live
 
@@ -69,7 +70,7 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Wallet Stock Token mapping | `LIVE` | Every verified address is scanned automatically for all official Robinhood Stock Tokens through Robinhood Chain Blockscout |
 | Personal exposure matching | `LIVE` | Corporate actions are matched to Stock Tokens found in linked wallets, independent of the watchlist |
 | Personal risk files | `LIVE` | Event matches open position context, AI or rule-based impact analysis and a bounded response |
-| Vault and lending discovery | `NEXT` | Protocol-level positions are not indexed yet |
+| Morpho vault and lending discovery | `IN DEVELOPMENT` | Scans verified wallets for Stock Token supply, borrow, collateral and vault positions on Robinhood Chain |
 | Policy execution | `NEXT` | No automatic protocol action or fund movement today |
 | Onchain proofs | `NEXT` | Production attestations require audited contracts |
 
@@ -78,6 +79,8 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 ```mermaid
 flowchart LR
     A["Robinhood Stock Token APIs"] --> B["Normalization & evidence checks"]
+    M["Morpho API / Robinhood Chain 4663"] --> B
+    W["Blockscout wallet balances"] --> B
     B --> C["AI analysis"]
     B --> D["Deterministic fallback"]
     C --> E["Neon incident memory"]
@@ -114,7 +117,7 @@ Planned utility is designed around product use:
 | Phase | Status | Focus |
 | --- | :---: | --- |
 | **01 · Observe** | `LIVE` | Official data, watchlists, Event Register, AI Incident Files and read-only identity |
-| **02 · Map** | `IN PROGRESS` | Email or wallet profiles, personal Asset Manager, wallet Stock Token positions and event exposure are live. Vaults, lending markets and agents come next |
+| **02 · Map** | `IN PROGRESS` | Profiles, watchlists and direct wallet exposure are live. Morpho vault and lending discovery is being built in `feature/defi-exposure` |
 | **03 · Guard** | `PLANNED` | Deterministic policies, operator approval, transaction previews and bounded actions |
 | **04 · Prove** | `PLANNED` | Audited contracts, onchain receipts, independent operators and verifiable monitoring |
 
@@ -199,7 +202,7 @@ scripts/              Database and maintenance scripts
 
 ## Documentation
 
-- [Public product documentation](https://mihari-eight.vercel.app/docs)
+- [Public product documentation](https://mihari.pro/docs)
 - [Technical and trust architecture](./docs/ARCHITECTURE.md)
 - [Product-owner setup](./docs/OWNER-GUIDE.md)
 - [Personal workspace and exposure statuses](./docs/PERSONAL-WORKSPACE.md)

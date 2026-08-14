@@ -1,6 +1,6 @@
 # MIHARI personal workspace
 
-This document explains the private profile, automatic wallet scanning, the Asset Manager, Exposure and every user-facing position status.
+This document explains the private profile, automatic wallet scanning, the Asset Manager, direct Exposure, DeFi Exposure and every user-facing position status.
 
 ## Watchlist and wallet holdings are different
 
@@ -17,6 +17,7 @@ Selecting an asset does not create a wallet position. Removing an asset from the
 
 - Robinhood APIs provide the official asset catalog, prices, multipliers and corporate actions.
 - Robinhood Chain Blockscout provides onchain token balances for verified wallets.
+- Morpho provides read-only lending market and vault positions for verified wallets on chain ID 4663.
 - OpenAI analyzes only events that the MIHARI server verifies against Robinhood.
 - Neon stores accounts, watchlists, wallet links and cached incident analysis.
 
@@ -96,6 +97,30 @@ Exposure is an automatic inventory of recognized Stock Tokens found in all verif
 
 The indicative value is informational. It is not an executable quote and does not include slippage, fees, liquidity or every multiplier-related interpretation.
 
+### DeFi Exposure
+
+DeFi Exposure is separate from direct wallet Exposure. It checks supported protocols for Stock Tokens that may be supplied, borrowed, posted as collateral or deposited into a vault.
+
+The first adapter covers Morpho on Robinhood Chain:
+
+| Position | Meaning |
+| --- | --- |
+| Lending Supply | A Stock Token is supplied as the loan asset in a Morpho market |
+| Collateral | A Stock Token secures a Morpho borrowing position |
+| Borrow | A Stock Token is borrowed in a Morpho market |
+| Vault Deposit | A Morpho vault position uses an official Stock Token as its underlying asset |
+
+Every result must match an official Robinhood Stock Token contract. Unknown protocol assets are excluded from MIHARI Stock Token exposure.
+
+| Scan status | Meaning |
+| --- | --- |
+| Live | Every verified wallet request completed successfully |
+| Partial | At least one wallet completed while another protocol request failed |
+| Unavailable | No usable protocol result was returned, so MIHARI does not assume zero exposure |
+| Waiting for Wallet | The profile has no verified address to scan |
+
+**No supported position found** means the Morpho scan completed without finding an official Stock Token position. It does not mean that the wallet has no DeFi activity in unsupported protocols.
+
 ## Exposure statuses
 
 ### No Event Match
@@ -157,6 +182,6 @@ An official Robinhood corporate-action record has the same symbol as a Stock Tok
 
 ## Current boundary
 
-MIHARI currently maps wallet-held Stock Tokens and their corporate-action matches. It does not yet discover the user's vault shares, lending collateral, borrowed positions or agent-managed positions. Affected Systems describes where an event could propagate, not confirmed personal protocol exposure. Protocol-level discovery is the next Map phase.
+MIHARI maps direct wallet-held Stock Tokens and Morpho positions involving Stock Tokens. It does not yet claim coverage of every Robinhood Chain vault, lending market, DEX LP or agent-managed position. Affected Systems may still describe categories beyond the adapters currently supported.
 
 MIHARI operates in Observe mode. It analyzes and recommends but does not move funds or execute a response.

@@ -1627,6 +1627,7 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .docs-label-table { margin-top: 1rem; }
 .status-pill { justify-self: start; padding: 0.3rem 0.45rem; border: 1px solid var(--ink); font: 0.5rem/1 var(--font-mono), monospace; text-transform: uppercase; }
 .status-pill.live { background: var(--neon); }
+.status-pill.beta { background: #ffd33d; }
 .status-pill.readonly { background: var(--white); }
 .status-pill.next { color: var(--heather-3); border-color: var(--heather-3); }
 .docs-glossary { margin: 2rem 0 0; }

@@ -7,6 +7,7 @@ import {
   Database,
   ExternalLink,
   Eye,
+  Landmark,
   ListChecks,
   ShieldCheck,
   Wallet,
@@ -25,7 +26,7 @@ const statusRows = [
   ["Private Event Register", "Live", "Refreshes official events for up to 20 monitored assets while the view is open."],
   ["$MHR wallet status", "Live", "Checks the official $MHR contract balance for every verified wallet."],
   ["Personal risk files", "Live", "Explains corporate actions matched to Stock Tokens found in verified wallets."],
-  ["Vault and lending discovery", "Next", "Protocol positions are not indexed yet."],
+  ["Morpho vault and lending discovery", "Beta", "Finds Stock Token supply, borrow, collateral and vault positions for verified wallets."],
   ["Policy execution", "Next", "MIHARI does not pause protocols or move funds today."],
   ["Onchain proof", "Next", "No production receipt is written until contracts are audited and deployed."],
 ];
@@ -53,6 +54,7 @@ export default function DocsPage() {
             <a href="#map">MIHARI MAP</a>
             <a href="#map-pages">MAP pages</a>
             <a href="#exposure-statuses">Exposure statuses</a>
+            <a href="#defi-exposure">DeFi Exposure</a>
             <a href="#status">What works today</a>
             <a href="#terms">Key terms</a>
           </nav>
@@ -166,12 +168,13 @@ export default function DocsPage() {
               <div><span className="mono">ROBINHOOD PRICE API</span><strong>Live market context</strong><p>Provides bid and ask data used to calculate the indicative value shown in Exposure. The displayed value is informational, not an executable quote.</p></div>
               <div><span className="mono">ROBINHOOD CORPORATE ACTIONS</span><strong>Official event records</strong><p>Provides dividends, splits, event status and available event details. The private Event Register checks only the saved watchlist.</p></div>
               <div><span className="mono">ROBINHOOD CHAIN BLOCKSCOUT</span><strong>Onchain wallet balances</strong><p>Provides ERC-20 balances for verified addresses. MIHARI matches contracts against Robinhood metadata and separately checks the official $MHR contract.</p></div>
+              <div><span className="mono">MORPHO API</span><strong>Protocol position discovery</strong><p>Provides read-only lending and vault positions for verified addresses on Robinhood Chain. MIHARI keeps only positions involving contracts from the official Stock Token catalog.</p></div>
               <div><span className="mono">OPENAI</span><strong>Structured risk explanation</strong><p>The model receives an event only after the server verifies it against Robinhood. It returns analysis and recommendations, not source facts or transaction authority.</p></div>
               <div><span className="mono">NEON</span><strong>Profile and incident memory</strong><p>Stores private watchlists, linked wallet records and cached event analysis so repeated views do not create unnecessary AI calls.</p></div>
             </div>
             <div className="docs-callout">
-              <strong>What is not live yet.</strong>
-              <p>MIHARI does not yet index personal vault shares, lending collateral, borrowed positions or agent-managed positions. It can explain how an event may affect those systems, but it does not claim to have found a specific protocol position.</p>
+              <strong>Current protocol coverage.</strong>
+              <p>Morpho is the first protocol adapter. MIHARI does not yet claim coverage of every vault, lending market, DEX LP or agent-managed position on Robinhood Chain.</p>
             </div>
             <div className="docs-callout docs-callout-muted">
               <strong>Fallback behavior.</strong>
@@ -231,6 +234,7 @@ export default function DocsPage() {
               <div><span className="mono">ASSETS</span><strong>Watchlist and contract directory</strong><p>Search the live catalog, monitor up to 20 Stock Tokens, copy official contract addresses and verify each deployment in Blockscout.</p></div>
               <div><span className="mono">WALLETS</span><strong>Verified wallets and $MHR</strong><p>Link multiple EVM addresses, see their verification status and check whether each address holds the official $MHR token.</p></div>
               <div><span className="mono">EXPOSURE</span><strong>Stock Tokens found onchain</strong><p>MIHARI scans the full official catalog, not only the watchlist. It shows balances, indicative values and whether a current corporate action matches each holding.</p></div>
+              <div><span className="mono">DEFI</span><strong>Stock Tokens inside supported protocols</strong><p>Scans verified wallets for Morpho lending and vault positions involving official Robinhood Stock Token contracts, then matches those positions with current corporate actions.</p></div>
               <div><span className="mono">PERSONAL RISK FILE</span><strong>Risk attached to a real holding</strong><p>If a wallet holding has an Event Match, View Risk adds the position balance to the event analysis so the user can review personal exposure.</p></div>
               <div><span className="mono">PROFILE</span><strong>Access and product mode</strong><p>See whether the profile started with wallet or email access, add the missing access method and confirm that the product remains in read-only Observe mode.</p></div>
               <div><span className="mono">RESCAN</span><strong>Refresh wallet information</strong><p>Request fresh profile data, wallet balances, Stock Token positions, $MHR status, prices and event matching.</p></div>
@@ -297,8 +301,48 @@ export default function DocsPage() {
             </div>
           </section>
 
+          <section className="docs-section" id="defi-exposure">
+            <p className="docs-kicker mono">10 / DEFI EXPOSURE</p>
+            <h2>How MIHARI finds Stock Tokens beyond a direct wallet balance.</h2>
+            <p>
+              A Stock Token may leave the wallet balance after it is supplied to a lending market,
+              posted as collateral or deposited in a vault. DeFi Exposure checks supported
+              protocols for those positions and then uses the official Robinhood contract catalog
+              to decide whether a position contains a Stock Token.
+            </p>
+            <div className="docs-flow docs-workflow">
+              <div><Wallet size={20} /><span className="mono">01 / IDENTITY</span><strong>Read verified addresses</strong><p>Only wallets already linked to the MIHARI profile are scanned.</p></div>
+              <div><Landmark size={20} /><span className="mono">02 / PROTOCOL</span><strong>Query Morpho</strong><p>MIHARI requests read-only market and vault positions for Robinhood Chain ID 4663.</p></div>
+              <div><Database size={20} /><span className="mono">03 / VERIFY</span><strong>Match official contracts</strong><p>Unknown assets are ignored. A position is kept only when its token contract matches Robinhood metadata.</p></div>
+              <div><ShieldCheck size={20} /><span className="mono">04 / MATCH</span><strong>Check corporate actions</strong><p>The Stock Token symbol is compared with the current official corporate-action response.</p></div>
+            </div>
+
+            <h3 className="docs-subheading">Positions detected in the first adapter</h3>
+            <div className="docs-result-grid">
+              <div><span className="mono">LENDING SUPPLY</span><strong>Stock Token supplied</strong><p>The verified wallet has supplied the Stock Token as the loan asset in a Morpho market.</p></div>
+              <div><span className="mono">COLLATERAL</span><strong>Stock Token securing a loan</strong><p>The Stock Token is posted as collateral and may be exposed to valuation and liquidation rules.</p></div>
+              <div><span className="mono">BORROW</span><strong>Stock Token borrowed</strong><p>The position includes borrowed Stock Token debt in a supported Morpho market.</p></div>
+              <div><span className="mono">VAULT DEPOSIT</span><strong>Stock Token inside a vault position</strong><p>The verified wallet holds a Morpho vault position whose underlying asset is an official Stock Token.</p></div>
+            </div>
+
+            <h3 className="docs-subheading">Source and result statuses</h3>
+            <div className="status-table docs-label-table">
+              <div><strong>Live</strong><span className="status-pill live">Source</span><p>All verified wallet requests completed and the displayed positions came from the current Morpho response.</p></div>
+              <div><strong>Partial</strong><span className="status-pill beta">Source</span><p>At least one verified wallet was scanned successfully while another request failed. Successful results remain visible.</p></div>
+              <div><strong>Unavailable</strong><span className="status-pill next">Source</span><p>The protocol source did not return a usable result. MIHARI does not assume that the wallet has no position.</p></div>
+              <div><strong>Waiting for wallet</strong><span className="status-pill readonly">Setup</span><p>No verified address exists in the profile, so a personal protocol scan cannot start.</p></div>
+              <div><strong>No supported position found</strong><span className="status-pill readonly">Result</span><p>Morpho was checked but no position involving an official Stock Token contract was found. This does not describe unsupported protocols.</p></div>
+              <div><strong>Event Match</strong><span className="status-pill live">Review</span><p>An official corporate-action record matches the Stock Token inside the protocol position.</p></div>
+              <div><strong>No Event Match</strong><span className="status-pill readonly">Monitoring</span><p>No matching corporate action appears in the current live source response. This is not a guarantee of zero risk.</p></div>
+            </div>
+            <div className="docs-callout">
+              <strong>Read-only by design.</strong>
+              <p>DeFi Exposure does not request a token approval, submit a transaction, move funds or change a Morpho position.</p>
+            </div>
+          </section>
+
           <section className="docs-section" id="status">
-            <p className="docs-kicker mono">10 / PRODUCT STATUS</p>
+            <p className="docs-kicker mono">11 / PRODUCT STATUS</p>
             <h2>What works today - and what does not.</h2>
             <div className="status-table">
               {statusRows.map(([feature, status, explanation]) => (
@@ -312,7 +356,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="terms">
-            <p className="docs-kicker mono">11 / KEY TERMS</p>
+            <p className="docs-kicker mono">12 / KEY TERMS</p>
             <h2>A short glossary.</h2>
             <dl className="docs-glossary">
               <div><dt>NAV</dt><dd>Net Asset Value: the calculated value of assets held by a vault or fund, minus its liabilities.</dd></div>
@@ -322,6 +366,7 @@ export default function DocsPage() {
               <div><dt>Watchlist</dt><dd>The Stock Tokens a profile asks MIHARI to monitor. It is separate from assets actually held in linked wallets.</dd></div>
               <div><dt>Exposure</dt><dd>A recognized Robinhood Stock Token balance found automatically in a verified wallet and matched with current event data.</dd></div>
               <div><dt>Event match</dt><dd>A corporate-action record from Robinhood that has the same symbol as a Stock Token position found in the wallet.</dd></div>
+              <div><dt>Protocol exposure</dt><dd>A Stock Token position discovered inside a supported vault or lending market rather than only as a direct wallet balance.</dd></div>
             </dl>
           </section>
         </article>
