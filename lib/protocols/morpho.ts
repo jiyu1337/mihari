@@ -213,7 +213,7 @@ export const morphoAdapter: ProtocolExposureAdapter = {
   async scan({ wallet, assets }) {
     const stockTokens = stockTokenSymbolsByAddress(assets);
     const user = (await fetchMorphoPositions(wallet)).data?.userByAddress;
-    if (!user) return [];
+    if (!user) return { positions: [] };
 
     const marketPositions = (user.marketPositions ?? []).flatMap((position) => {
       const rows: ProtocolPosition[] = [];
@@ -280,6 +280,6 @@ export const morphoAdapter: ProtocolExposureAdapter = {
       return [vaultPosition(wallet, "V2", position.vault, symbol, position.assets, position.assetsUsd)];
     });
 
-    return [...marketPositions, ...vaultPositions, ...vaultV2Positions];
+    return { positions: [...marketPositions, ...vaultPositions, ...vaultV2Positions] };
   },
 };

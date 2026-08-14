@@ -6,7 +6,11 @@ import {
   scanProtocolExposure,
   type ProtocolExposureSnapshot,
 } from "@/lib/protocol-exposure";
-import { morphoAdapter } from "@/lib/protocols/morpho";
+import {
+  protocolAdapters,
+  protocolCatalog,
+  protocolScansWithCoverage,
+} from "@/lib/protocols/registry";
 import { getAssetCatalog, getMarketSnapshot } from "@/lib/robinhood";
 
 export const runtime = "nodejs";
@@ -15,7 +19,7 @@ export const dynamic = "force-dynamic";
 function emptySnapshot(): ProtocolExposureSnapshot {
   return {
     positions: [],
-    scans: [{ protocol: morphoAdapter.id, status: "not_scanned", positionCount: 0 }],
+    scans: protocolScansWithCoverage([], false),
     scannedAt: new Date().toISOString(),
   };
 }
@@ -39,23 +43,33 @@ export async function GET() {
       source: {
         chainId: 4663,
         assetCatalog: "robinhood",
-        corporateActions: "not_scanned",
-        protocols: [morphoAdapter.id],
+       corporateActions: "not_scanned",
+        protocols: protocolCatalog.map((protocol) => protocol.id),
       },
+      protocolCatalog,
     }, { headers: { "Cache-Control": "private, no-store" } });
   }
 
   try {
     const assets = await getAssetCatalog();
-    const exposure = await scanProtocolExposure(verifiedAddresses, assets, [morphoAdapter]);
+    const exposure = await scanProtocolExposure(verifiedAddresses, assets, protocolAdapters);
     const symbols = [...new Set(exposure.positions.map((position) => position.symbol.toUpperCase()))];
     const market = symbols.length ? await getMarketSnapshot(symbols) : null;
     const liveEvents = market?.mode === "live" ? market.events : [];
     const eventBySymbol = new Map(liveEvents.map((event) => [event.asset.toUpperCase(), event]));
+    const priceBySymbol = new Map((market?.mode === "live" ? market.prices : []).map((price) => [
+      price.tokenSymbol.toUpperCase(),
+      (Number(price.bid) + Number(price.ask)) / 2,
+    ]));
     const positions = exposure.positions.map((position) => {
       const event = eventBySymbol.get(position.symbol.toUpperCase());
+      const price = priceBySymbol.get(position.symbol.toUpperCase());
+      const calculatedValue = position.valueUsd === null && Number.isFinite(price)
+        ? Number(position.amount) * Number(price)
+        : null;
       return {
         ...position,
+        valueUsd: position.valueUsd ?? (calculatedValue === null ? null : calculatedValue.toFixed(2)),
         hasCorporateAction: Boolean(event),
         corporateAction: event ? {
           id: event.id,
@@ -69,13 +83,15 @@ export async function GET() {
     return Response.json({
       ...exposure,
       positions,
+      scans: protocolScansWithCoverage(exposure.scans, true),
       events: liveEvents,
       source: {
         chainId: 4663,
         assetCatalog: "robinhood",
         corporateActions: market?.mode ?? "not_scanned",
-        protocols: [morphoAdapter.id],
+        protocols: protocolCatalog.map((protocol) => protocol.id),
       },
+      protocolCatalog,
     }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     return Response.json({

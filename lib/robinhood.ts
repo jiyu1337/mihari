@@ -17,6 +17,7 @@ export type RobinhoodAsset = {
   pendingMultiplier: string;
   pendingMultiplierEffectiveTime?: string;
   status: string;
+  tokenDecimals?: number;
 };
 
 export type RobinhoodCorporateAction = {

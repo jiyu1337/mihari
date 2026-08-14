@@ -5,7 +5,21 @@ export type ProtocolPositionKind =
   | "lending_supply"
   | "lending_collateral"
   | "lending_borrow"
-  | "vault_deposit";
+  | "vault_deposit"
+  | "dex_liquidity";
+
+export type ProtocolIntegrationStage = "live" | "beta" | "planned";
+
+export type ProtocolCategory = "lending" | "dex" | "perps" | "oracle";
+
+export type ProtocolDefinition = {
+  id: string;
+  name: string;
+  category: ProtocolCategory;
+  stage: ProtocolIntegrationStage;
+  description: string;
+  capabilities: string[];
+};
 
 export type ProtocolPosition = {
   id: string;
@@ -20,6 +34,8 @@ export type ProtocolPosition = {
   valueUsd: string | null;
   counterpartySymbol: string | null;
   healthFactor: string | null;
+  positionReference?: string | null;
+  positionStatus?: "active" | "out_of_range" | null;
   hasCorporateAction: boolean;
   corporateAction: {
     id: string;
@@ -47,9 +63,15 @@ export type ProtocolAdapterContext = {
   assets: RobinhoodAsset[];
 };
 
+export type ProtocolAdapterResult = {
+  positions: ProtocolPosition[];
+  partial?: boolean;
+  warning?: string;
+};
+
 export interface ProtocolExposureAdapter {
   readonly id: string;
-  scan(context: ProtocolAdapterContext): Promise<ProtocolPosition[]>;
+  scan(context: ProtocolAdapterContext): Promise<ProtocolAdapterResult>;
 }
 
 export function stockTokenSymbolsByAddress(assets: RobinhoodAsset[]) {
@@ -73,26 +95,35 @@ export async function scanProtocolExposure(
       wallets.map((wallet) => adapter.scan({ wallet, assets })),
     );
     const positions = walletResults.flatMap((result) => (
-      result.status === "fulfilled" ? result.value : []
+      result.status === "fulfilled" ? result.value.positions : []
     ));
     const rejected = walletResults.filter((result) => result.status === "rejected");
     const fulfilledCount = walletResults.length - rejected.length;
-    return { adapter, positions, rejected, fulfilledCount };
+    const partialResults = walletResults.filter((result) => (
+      result.status === "fulfilled" && result.value.partial
+    ));
+    return { adapter, positions, rejected, fulfilledCount, partialResults };
   }));
 
   const positions = results.flatMap((result) => result.positions);
 
-  const scans = results.map(({ adapter, positions: adapterPositions, rejected, fulfilledCount }) => {
+  const scans = results.map(({ adapter, positions: adapterPositions, rejected, fulfilledCount, partialResults }) => {
+    const warnings = [
+      ...rejected.map((result) => (
+        result.reason instanceof Error ? result.reason.message : "Protocol data unavailable"
+      )),
+      ...partialResults.flatMap((result) => (
+        result.status === "fulfilled" && result.value.warning ? [result.value.warning] : []
+      )),
+    ];
     return {
       protocol: adapter.id,
-      status: rejected.length
+      status: rejected.length || partialResults.length
         ? (fulfilledCount ? "partial" as const : "unavailable" as const)
         : "live" as const,
       positionCount: adapterPositions.length,
-      warning: rejected.length
-        ? [...new Set(rejected.map((result) => (
-            result.reason instanceof Error ? result.reason.message : "Protocol data unavailable"
-          )))].join("; ")
+      warning: warnings.length
+        ? [...new Set(warnings)].join("; ")
         : undefined,
     };
   });

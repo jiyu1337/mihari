@@ -33,6 +33,7 @@ const positionLabels: Record<ProtocolPosition["kind"], string> = {
   lending_collateral: "COLLATERAL",
   lending_borrow: "BORROW",
   vault_deposit: "VAULT DEPOSIT",
+  dex_liquidity: "DEX LIQUIDITY",
 };
 
 function formatMoney(value: number) {
