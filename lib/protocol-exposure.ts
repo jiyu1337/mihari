@@ -6,7 +6,8 @@ export type ProtocolPositionKind =
   | "lending_collateral"
   | "lending_borrow"
   | "vault_deposit"
-  | "dex_liquidity";
+  | "dex_liquidity"
+  | "perp_position";
 
 export type ProtocolIntegrationStage = "live" | "beta" | "planned";
 
@@ -36,6 +37,10 @@ export type ProtocolPosition = {
   healthFactor: string | null;
   positionReference?: string | null;
   positionStatus?: "active" | "out_of_range" | null;
+  side?: "long" | "short" | null;
+  leverage?: string | null;
+  marginMode?: "cross" | "isolated" | null;
+  unrealizedPnlUsd?: string | null;
   hasCorporateAction: boolean;
   corporateAction: {
     id: string;

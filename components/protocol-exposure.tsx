@@ -40,7 +40,28 @@ const positionLabels: Record<ProtocolPosition["kind"], string> = {
   lending_borrow: "BORROW",
   vault_deposit: "VAULT DEPOSIT",
   dex_liquidity: "DEX LIQUIDITY",
+  perp_position: "PERP POSITION",
 };
+
+function positionMeta(position: ProtocolPosition) {
+  const values = [
+    position.side?.toUpperCase(),
+    position.leverage ? `${position.leverage}X` : null,
+    position.marginMode?.toUpperCase(),
+  ].filter(Boolean);
+  return values.length ? ` / ${values.join(" / ")}` : "";
+}
+
+function valueMeta(position: ProtocolPosition) {
+  const values = [
+    position.valueUsd ? formatMoney(Number(position.valueUsd)) : "VALUE UNAVAILABLE",
+    position.positionStatus?.replaceAll("_", " ").toUpperCase(),
+    position.unrealizedPnlUsd
+      ? `UPNL ${formatMoney(Number(position.unrealizedPnlUsd))}`
+      : null,
+  ].filter(Boolean);
+  return values.join(" / ");
+}
 
 function formatMoney(value: number) {
   return new Intl.NumberFormat("en-US", {
@@ -184,10 +205,10 @@ export function ProtocolExposure({ walletCount, onOpenWallets }: ProtocolExposur
             <article className={position.hasCorporateAction ? "exposed" : ""} key={position.id}>
               <span>
                 <strong>{position.marketName}</strong>
-                <small className="mono">{(protocolById.get(position.protocol)?.name ?? position.protocol).toUpperCase()} / {positionLabels[position.kind]}{position.positionReference ? ` / ${position.positionReference}` : ""}</small>
+                <small className="mono">{(protocolById.get(position.protocol)?.name ?? position.protocol).toUpperCase()} / {positionLabels[position.kind]}{positionMeta(position)}{position.positionReference ? ` / ${position.positionReference}` : ""}</small>
               </span>
               <span><strong>{position.symbol}</strong><small className="mono">WALLET {shortAddress(position.wallet)}</small></span>
-              <span><strong>{Number(position.amount).toLocaleString(undefined, { maximumFractionDigits: 6 })}</strong><small>{position.valueUsd ? formatMoney(Number(position.valueUsd)) : "VALUE UNAVAILABLE"}{position.positionStatus ? ` / ${position.positionStatus.replaceAll("_", " ").toUpperCase()}` : ""}</small></span>
+              <span><strong>{Number(position.amount).toLocaleString(undefined, { maximumFractionDigits: 6 })}</strong><small>{valueMeta(position)}</small></span>
               <span className="protocol-event-state"><strong className="mono">{position.hasCorporateAction ? "EVENT MATCH" : "NO EVENT MATCH"}</strong><small>{position.corporateAction ? `${position.corporateAction.type} / ${position.corporateAction.status}` : "MONITORING CONTINUES"}</small></span>
             </article>
           ))}
@@ -198,7 +219,7 @@ export function ProtocolExposure({ walletCount, onOpenWallets }: ProtocolExposur
 
       <div className="protocol-coverage-note">
         <span className="mono">COVERAGE / SOURCE TRUTH</span>
-        <p><strong>Morpho, Uniswap V3 and Uniswap V4 are active adapters.</strong> Planned sources are visible so users can see exactly what is and is not included. A protocol is never counted as checked until MIHARI can verify its user-position data.</p>
+        <p><strong>Morpho, Uniswap V3, Uniswap V4 and Arcus are active adapters.</strong> Planned sources are visible so users can see exactly what is and is not included. A protocol is never counted as checked until MIHARI can verify its user-position data.</p>
         <span className="mono">READ-ONLY / NO APPROVALS / NO TRANSACTIONS</span>
       </div>
     </section>

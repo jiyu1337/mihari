@@ -6,6 +6,7 @@ import type {
 import { morphoAdapter } from "@/lib/protocols/morpho";
 import { uniswapV3Adapter } from "@/lib/protocols/uniswap-v3";
 import { uniswapV4Adapter } from "@/lib/protocols/uniswap-v4";
+import { arcusAdapter } from "@/lib/protocols/arcus";
 
 export const protocolCatalog: ProtocolDefinition[] = [
   {
@@ -52,9 +53,9 @@ export const protocolCatalog: ProtocolDefinition[] = [
     id: "arcus",
     name: "Arcus",
     category: "perps",
-    stage: "planned",
-    description: "Perpetual positions and collateral dependencies.",
-    capabilities: ["PERPS", "MARGIN", "COLLATERAL"],
+    stage: "beta",
+    description: "Public perpetual positions matched to official Stock Token symbols.",
+    capabilities: ["PERPS", "LONG / SHORT", "MARGIN", "PNL"],
   },
   {
     id: "chainlink",
@@ -70,6 +71,7 @@ export const protocolAdapters: ProtocolExposureAdapter[] = [
   morphoAdapter,
   uniswapV3Adapter,
   uniswapV4Adapter,
+  arcusAdapter,
 ];
 
 export function protocolScansWithCoverage(scans: ProtocolScan[], hasWallets: boolean) {
