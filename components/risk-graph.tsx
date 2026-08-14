@@ -7,6 +7,7 @@ import {
   Database,
   Landmark,
   LoaderCircle,
+  LockKeyhole,
   Network,
   RefreshCw,
   ShieldCheck,
@@ -23,6 +24,8 @@ type RiskGraphProps = {
   directPositions: MappedPosition[];
   directEvents: CorporateEvent[];
   walletCount: number;
+  fullGraph: boolean;
+  holderThreshold: string;
   onOpenWallets: () => void;
   onOpenDirectRisk: (position: MappedPosition) => void;
   onOpenProtocolExposure: () => void;
@@ -70,15 +73,21 @@ export function RiskGraph({
   directPositions,
   directEvents,
   walletCount,
+  fullGraph,
+  holderThreshold,
   onOpenWallets,
   onOpenDirectRisk,
   onOpenProtocolExposure,
 }: RiskGraphProps) {
   const [snapshot, setSnapshot] = useState<ProtocolExposureResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(fullGraph);
   const [error, setError] = useState("");
 
   const scan = useCallback(async () => {
+    if (!fullGraph) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError("");
     try {
@@ -91,12 +100,13 @@ export function RiskGraph({
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fullGraph]);
 
   useEffect(() => {
+    if (!fullGraph) return;
     const timer = window.setTimeout(() => void scan(), 0);
     return () => window.clearTimeout(timer);
-  }, [scan]);
+  }, [fullGraph, scan]);
 
   const protocolById = useMemo(() => new Map(
     snapshot?.protocolCatalog.map((protocol) => [protocol.id, protocol.name]) ?? [],
@@ -134,7 +144,9 @@ export function RiskGraph({
   const incompleteProtocols = activeScans.filter((scanResult) => (
     scanResult.status === "partial" || scanResult.status === "unavailable"
   ));
-  const sourceStatus = loading
+  const sourceStatus = !fullGraph
+    ? "DIRECT ONLY"
+    : loading
     ? "SCANNING"
     : error
       ? directPositions.length
@@ -156,15 +168,17 @@ export function RiskGraph({
       <div className="risk-graph-source mono">
         <span><Database size={14} />EVENT SOURCE <strong>ROBINHOOD</strong></span>
         <span><Network size={14} />GRAPH STATE <strong>{sourceStatus}</strong></span>
-        <span>PROTOCOLS <strong>{checkedProtocols} CHECKED</strong></span>
-        <button type="button" onClick={() => void scan()} disabled={loading}><RefreshCw className={loading ? "spin" : ""} size={14} />REBUILD GRAPH</button>
+        <span>PROTOCOLS <strong>{fullGraph ? `${checkedProtocols} CHECKED` : "LOCKED"}</strong></span>
+        {fullGraph
+          ? <button type="button" onClick={() => void scan()} disabled={loading}><RefreshCw className={loading ? "spin" : ""} size={14} />REBUILD GRAPH</button>
+          : <button type="button" onClick={onOpenWallets}><LockKeyhole size={14} />UNLOCK FULL GRAPH</button>}
       </div>
 
       <div className="workspace-metrics risk-graph-metrics mono">
         <div><span>CURRENT EVENTS</span><strong>{activeRiskNodes.length}</strong></div>
         <div><span>MAPPED ASSETS</span><strong>{graphNodes.length}</strong></div>
         <div><span>DIRECT PATHS</span><strong>{directRiskPaths}</strong></div>
-        <div className={protocolRiskPaths ? "alert" : ""}><span>PROTOCOL PATHS</span><strong>{protocolRiskPaths}</strong></div>
+        <div className={protocolRiskPaths ? "alert" : ""}><span>PROTOCOL PATHS</span><strong>{fullGraph ? protocolRiskPaths : "LOCKED"}</strong></div>
       </div>
 
       <div className="risk-graph-legend">
@@ -174,6 +188,14 @@ export function RiskGraph({
         <ArrowRight size={18} />
         <article><Landmark size={20} /><span><strong>Proven exposure</strong><small>A direct wallet balance or a position returned by an active protocol adapter.</small></span></article>
       </div>
+
+      {!fullGraph ? (
+        <div className="workspace-inline-help risk-graph-access-help">
+          <LockKeyhole size={20} />
+          <p><strong>Your direct risk graph is active.</strong> MIHARI matches official events to Stock Tokens held in your verified wallets. Hold at least {holderThreshold} MHR to add supported lending, vault and liquidity positions to the same graph.</p>
+          <button type="button" onClick={onOpenWallets}>CHECK MHR STATUS</button>
+        </div>
+      ) : null}
 
       {error && directPositions.length ? (
         <div className="risk-graph-warning mono"><AlertTriangle size={15} />PROTOCOL SOURCES ARE UNAVAILABLE. DIRECT WALLET PATHS REMAIN VISIBLE.</div>
@@ -221,9 +243,9 @@ export function RiskGraph({
                         </div>
                       )) : <p>NO DIRECT WALLET BALANCE</p>}
                     </div>
-                    <div className="risk-exposure-lane protocol">
-                      <header><Landmark size={16} /><span className="mono">PROTOCOL / {node.protocolPositions.length}</span></header>
-                      {node.protocolPositions.length ? node.protocolPositions.map((position) => (
+                    <div className={`risk-exposure-lane protocol ${!fullGraph ? "locked" : ""}`}>
+                      <header>{fullGraph ? <Landmark size={16} /> : <LockKeyhole size={16} />}<span className="mono">PROTOCOL / {fullGraph ? node.protocolPositions.length : "LOCKED"}</span></header>
+                      {!fullGraph ? <p>VERIFY AN MHR HOLDER WALLET TO MAP DEFI POSITIONS</p> : node.protocolPositions.length ? node.protocolPositions.map((position) => (
                         <div key={position.id}>
                           <span><strong>{protocolById.get(position.protocol) ?? position.protocol}</strong><small className="mono">{protocolMeta(position)}</small></span>
                           <span><strong>{Number(position.amount).toLocaleString(undefined, { maximumFractionDigits: 6 })} {position.symbol}</strong><small>{formatMoney(position.valueUsd)}</small></span>

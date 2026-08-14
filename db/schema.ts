@@ -81,6 +81,7 @@ export const corporateActions = pgTable("corporate_actions", {
 
 export const analyses = pgTable("analyses", {
   id: uuid("id").defaultRandom().primaryKey(),
+  accountId: uuid("account_id").references(() => accounts.id, { onDelete: "set null" }),
   corporateActionId: uuid("corporate_action_id").references(() => corporateActions.id, { onDelete: "cascade" }).notNull(),
   model: text("model").notNull(),
   promptVersion: text("prompt_version").notNull(),

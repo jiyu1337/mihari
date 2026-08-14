@@ -24,7 +24,7 @@ const statusRows = [
   ["Email and wallet profiles", "Live", "Creates a private workspace with email and password or an EVM wallet signature."],
   ["Wallet Stock Token mapping", "Live", "Indexes verified wallet balances on Robinhood Chain through Blockscout."],
   ["Personal Asset Manager", "Live", "Saves a private monitoring scope directly inside the profile."],
-  ["Private Event Register", "Live", "Refreshes official events for up to 20 monitored assets while the view is open."],
+  ["Private Event Register", "Live", "Refreshes official events for the assets allowed by the profile's access level."],
   ["$MHR wallet status", "Live", "Checks the official $MHR contract balance for every verified wallet."],
   ["Personal risk files", "Live", "Explains corporate actions matched to Stock Tokens found in verified wallets."],
   ["Morpho lending and vault discovery", "Beta", "Finds Stock Token supply, borrow, collateral and vault positions for verified wallets."],
@@ -33,6 +33,7 @@ const statusRows = [
   ["Arcus perpetual discovery", "Beta", "Matches public Arcus perpetual positions to official Stock Token symbols and reports side, leverage, margin and PnL."],
   ["Lighter perpetual discovery", "Beta", "Reads public Lighter accounts and subaccounts for active Stock Token perpetual positions."],
   ["Unified Risk Graph", "Beta", "Connects live Robinhood events to verified direct holdings and supported protocol positions."],
+  ["MHR Holder access", "Beta", "Unlocks larger limits, DeFi position mapping and the full Risk Graph after an onchain balance check."],
   ["Protocol coverage registry", "Live", "Separates active adapters from planned Robinhood Chain integrations."],
   ["Policy execution", "Next", "MIHARI does not pause protocols or move funds today."],
   ["Onchain proof", "Next", "No production receipt is written until contracts are audited and deployed."],
@@ -58,6 +59,7 @@ export default function DocsPage() {
             <a href="#ai">AI analysis</a>
             <a href="#data-sources">Live data</a>
             <a href="#wallet">Wallet connection</a>
+            <a href="#access">Product access</a>
             <a href="#map">MIHARI MAP</a>
             <a href="#map-pages">MAP pages</a>
             <a href="#exposure-statuses">Exposure statuses</a>
@@ -96,7 +98,7 @@ export default function DocsPage() {
             <h2>What a user can do in MIHARI today.</h2>
             <div className="docs-flow docs-workflow">
               <div><Wallet size={20} /><span className="mono">01 / ENTER</span><strong>Choose how to enter</strong><p>Open public Observe mode, use email and password, or create a wallet-first profile with a message signature.</p></div>
-              <div><ListChecks size={20} /><span className="mono">02 / SELECT</span><strong>Build a watchlist</strong><p>Choose up to 20 Stock Tokens, search the catalog or clear the selection.</p></div>
+              <div><ListChecks size={20} /><span className="mono">02 / SELECT</span><strong>Build a watchlist</strong><p>Choose up to 5 assets with Observer access or 20 with MHR Holder access.</p></div>
               <div><ShieldCheck size={20} /><span className="mono">03 / OBSERVE</span><strong>Start monitoring</strong><p>Observe mode reads and explains risk. It cannot execute a transaction.</p></div>
               <div><Database size={20} /><span className="mono">04 / SOURCE</span><strong>Read official data</strong><p>MIHARI checks Robinhood asset metadata, prices, multipliers and corporate actions.</p></div>
               <div><Eye size={20} /><span className="mono">05 / REVIEW</span><strong>Open a matching event</strong><p>The Event Register shows watched assets that currently have an official corporate-action record.</p></div>
@@ -217,8 +219,35 @@ export default function DocsPage() {
             <p className="docs-note mono">MIHARI WILL NEVER ASK FOR A SEED PHRASE OR PRIVATE KEY.</p>
           </section>
 
+          <section className="docs-section" id="access">
+            <p className="docs-kicker mono">07 / PRODUCT ACCESS</p>
+            <h2>Clear limits, checked onchain.</h2>
+            <p>
+              Every profile starts with useful Observer access. MIHARI adds the MHR balances across
+              verified wallets. A combined balance of at least 1 MHR unlocks Holder access in the
+              current beta. The balance check is read-only and cannot move tokens.
+            </p>
+            <div className="docs-compare">
+              <div>
+                <span className="mono">OBSERVER</span>
+                <h3>Direct monitoring</h3>
+                <p>Monitor 5 assets, verify 1 wallet, request 1 new AI analysis per 24 hours and map direct Stock Token holdings.</p>
+              </div>
+              <ArrowRight size={22} />
+              <div className="highlight">
+                <span className="mono">MHR HOLDER</span>
+                <h3>Complete position map</h3>
+                <p>Monitor 20 assets, verify 5 wallets, request 10 new AI analyses and add supported DeFi positions to the Risk Graph.</p>
+              </div>
+            </div>
+            <div className="docs-callout">
+              <strong>Monitoring does not stop when an AI limit is reached.</strong>
+              <p>Cached AI results are reused. MIHARI shows a rule-based explanation if a new model request is unavailable.</p>
+            </div>
+          </section>
+
           <section className="docs-section" id="map">
-            <p className="docs-kicker mono">07 / MIHARI MAP</p>
+            <p className="docs-kicker mono">08 / MIHARI MAP</p>
             <h2>Your private monitoring and exposure workspace.</h2>
             <p>
               MIHARI MAP connects a personal watchlist with verified Robinhood Chain wallets. It
@@ -228,20 +257,20 @@ export default function DocsPage() {
               non-zero balance of the official Robinhood contract in a verified wallet.
             </p>
             <div className="docs-compare">
-              <div><span className="mono">WATCHLIST</span><h3>What you want to monitor</h3><p>Up to 20 Stock Tokens selected manually, including assets you may be researching before buying.</p></div>
+              <div><span className="mono">WATCHLIST</span><h3>What you want to monitor</h3><p>Up to 5 assets with Observer access or 20 with MHR Holder access, including assets you may be researching before buying.</p></div>
               <ArrowRight size={22} />
               <div className="highlight"><span className="mono">EXPOSURE</span><h3>What the wallet actually holds</h3><p>Non-zero official Stock Token balances discovered automatically across every verified wallet.</p></div>
             </div>
           </section>
 
           <section className="docs-section" id="map-pages">
-            <p className="docs-kicker mono">08 / MIHARI MAP PAGES</p>
+            <p className="docs-kicker mono">09 / MIHARI MAP PAGES</p>
             <h2>What each page does.</h2>
             <div className="docs-result-grid">
               <div><span className="mono">OVERVIEW</span><strong>Your profile at a glance</strong><p>See the number of monitored assets, verified wallets, detected Stock Token positions and holdings with matching events. Use the links in each panel to open the relevant page.</p></div>
               <div><span className="mono">EVENTS</span><strong>Events for your watchlist</strong><p>See current Robinhood corporate actions for saved assets. The page refreshes every 60 seconds while open and labels each event as Held in Wallet or Watchlist Only.</p></div>
               <div><span className="mono">INCIDENT FILE</span><strong>AI explanation for an event</strong><p>Open an event to read what happened, possible effects on NAV, quotes, vaults or lending, the confidence score and the recommended response.</p></div>
-              <div><span className="mono">ASSETS</span><strong>Watchlist and contract directory</strong><p>Search the live catalog, monitor up to 20 Stock Tokens, copy official contract addresses and verify each deployment in Blockscout.</p></div>
+              <div><span className="mono">ASSETS</span><strong>Watchlist and contract directory</strong><p>Search the live catalog, use the limit shown for your profile, copy official contract addresses and verify deployments in Blockscout.</p></div>
               <div><span className="mono">WALLETS</span><strong>Verified wallets and $MHR</strong><p>Link multiple EVM addresses, see their verification status and check whether each address holds the official $MHR token.</p></div>
               <div><span className="mono">EXPOSURE</span><strong>Stock Tokens found onchain</strong><p>MIHARI scans the full official catalog, not only the watchlist. It shows balances, indicative values and whether a current corporate action matches each holding.</p></div>
               <div><span className="mono">RISK GRAPH</span><strong>Current paths from event to position</strong><p>Connects a live Robinhood event to the official Stock Token and every matching direct or supported protocol position MIHARI can prove.</p></div>
@@ -259,7 +288,7 @@ export default function DocsPage() {
               <div><strong>Watchlist only</strong><span className="status-pill readonly">Monitoring</span><p>The asset is monitored, but MIHARI did not find that Stock Token in the linked wallets.</p></div>
               <div><strong>Contract / Chain 4663</strong><span className="status-pill readonly">Source data</span><p>The official Robinhood Stock Token deployment used for wallet matching on Robinhood Chain.</p></div>
               <div><strong>Save scope</strong><span className="status-pill readonly">Profile action</span><p>Saves the current selection to this private MIHARI profile.</p></div>
-              <div><strong>20 asset limit</strong><span className="status-pill readonly">Current release</span><p>The server and interface both enforce a maximum of 20 monitored assets. Wallet holdings are still scanned across the full official catalog.</p></div>
+              <div><strong>Watchlist limit</strong><span className="status-pill readonly">Server enforced</span><p>Observer access supports 5 assets and MHR Holder access supports 20. Wallet holdings are still scanned across the full official catalog.</p></div>
               <div><strong>$MHR Holder</strong><span className="status-pill live">Onchain</span><p>The verified address has a non-zero balance of the official $MHR contract.</p></div>
               <div><strong>$MHR Not Held</strong><span className="status-pill readonly">Onchain</span><p>The balance scan completed and no non-zero $MHR balance was found.</p></div>
               <div><strong>$MHR Unavailable</strong><span className="status-pill next">Source issue</span><p>The balance source did not return a usable response, so MIHARI does not assume the balance is zero.</p></div>
@@ -267,7 +296,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="exposure-statuses">
-            <p className="docs-kicker mono">09 / EXPOSURE AND RISK</p>
+            <p className="docs-kicker mono">10 / EXPOSURE AND RISK</p>
             <h2>How to read a position and its risk status.</h2>
             <p>
               MIHARI reads token balances from Robinhood Chain Blockscout, recognizes only
@@ -313,7 +342,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="risk-graph">
-            <p className="docs-kicker mono">10 / UNIFIED RISK GRAPH</p>
+            <p className="docs-kicker mono">11 / UNIFIED RISK GRAPH</p>
             <h2>How to read an event-to-position path.</h2>
             <p>
               Risk Graph combines direct wallet holdings and supported protocol positions. It shows
@@ -341,7 +370,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="defi-exposure">
-            <p className="docs-kicker mono">11 / DEFI EXPOSURE</p>
+            <p className="docs-kicker mono">12 / DEFI EXPOSURE</p>
             <h2>How MIHARI finds Stock Tokens beyond a direct wallet balance.</h2>
             <p>
               A Stock Token may leave the wallet balance after it is supplied to a lending market,
@@ -395,7 +424,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="status">
-            <p className="docs-kicker mono">12 / PRODUCT STATUS</p>
+            <p className="docs-kicker mono">13 / PRODUCT STATUS</p>
             <h2>What works today - and what does not.</h2>
             <div className="status-table">
               {statusRows.map(([feature, status, explanation]) => (
@@ -409,7 +438,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="terms">
-            <p className="docs-kicker mono">13 / KEY TERMS</p>
+            <p className="docs-kicker mono">14 / KEY TERMS</p>
             <h2>A short glossary.</h2>
             <dl className="docs-glossary">
               <div><dt>NAV</dt><dd>Net Asset Value: the calculated value of assets held by a vault or fund, minus its liabilities.</dd></div>

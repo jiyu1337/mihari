@@ -4,6 +4,8 @@ import { z } from "zod";
 import { getDatabase } from "@/db/client";
 import { walletChallenges, wallets } from "@/db/schema";
 import { getAuthenticatedAccount } from "@/lib/account";
+import { entitlementsFromHoldings } from "@/lib/entitlements";
+import { getMhrHoldings } from "@/lib/map-data";
 
 export const runtime = "nodejs";
 
@@ -52,6 +54,27 @@ export async function POST(request: Request) {
   )).limit(1);
   if (owner && owner.accountId !== account.id) {
     return Response.json({ error: "This wallet is already linked to another MIHARI profile" }, { status: 409 });
+  }
+
+  if (!owner) {
+    const currentWallets = await database
+      .select({ address: wallets.address, verified: wallets.verified })
+      .from(wallets)
+      .where(eq(wallets.accountId, account.id));
+    const addresses = [
+      ...currentWallets.filter((wallet) => wallet.verified).map((wallet) => wallet.address),
+      address,
+    ];
+    const candidateEntitlements = entitlementsFromHoldings(await getMhrHoldings(addresses));
+    if (currentWallets.length >= candidateEntitlements.limits.linkedWallets) {
+      return Response.json({
+        error: candidateEntitlements.tier === "holder"
+          ? `Your Holder access supports up to ${candidateEntitlements.limits.linkedWallets} linked wallets.`
+          : `Observer profiles support one wallet. Connect a wallet holding at least ${candidateEntitlements.holderThreshold} MHR to unlock five wallets.`,
+        code: "WALLET_LIMIT",
+        entitlements: candidateEntitlements,
+      }, { status: 403 });
+    }
   }
 
   await database.update(walletChallenges)

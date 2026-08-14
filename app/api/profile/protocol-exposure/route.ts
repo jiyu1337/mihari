@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
 import { wallets } from "@/db/schema";
 import { getAuthenticatedAccount } from "@/lib/account";
+import { getAccountEntitlements, mhrRequiredResponse } from "@/lib/entitlements";
 import {
   scanProtocolExposure,
   type ProtocolExposureSnapshot,
@@ -28,6 +29,9 @@ export async function GET() {
   const account = await getAuthenticatedAccount();
   if (!account) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
+  const entitlements = await getAccountEntitlements(account.id);
+  if (!entitlements.features.protocolExposure) return mhrRequiredResponse(entitlements);
+
   const linkedWallets = await getDatabase()
     .select({ address: wallets.address, verified: wallets.verified })
     .from(wallets)
@@ -43,10 +47,11 @@ export async function GET() {
       source: {
         chainId: 4663,
         assetCatalog: "robinhood",
-       corporateActions: "not_scanned",
+        corporateActions: "not_scanned",
         protocols: protocolCatalog.map((protocol) => protocol.id),
       },
       protocolCatalog,
+      entitlements,
     }, { headers: { "Cache-Control": "private, no-store" } });
   }
 
@@ -92,6 +97,7 @@ export async function GET() {
         protocols: protocolCatalog.map((protocol) => protocol.id),
       },
       protocolCatalog,
+      entitlements,
     }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     return Response.json({

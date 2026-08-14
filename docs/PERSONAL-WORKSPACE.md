@@ -8,7 +8,7 @@ MIHARI keeps two independent scopes:
 
 | Scope | Where it appears | Meaning |
 | --- | --- | --- |
-| Watchlist | Assets and Events | Up to 20 Stock Tokens selected for ongoing corporate-action monitoring |
+| Watchlist | Assets and Events | Up to 5 assets with Observer access or 20 with MHR Holder access |
 | Wallet holdings | Exposure | Official Robinhood Stock Tokens automatically found at non-zero balances in verified wallets |
 
 Selecting an asset does not create a wallet position. Removing an asset from the watchlist does not hide a real wallet position. Exposure scans every verified wallet for every official Robinhood Stock Token contract in the live Robinhood asset catalog.
@@ -51,13 +51,13 @@ The private Asset Manager contains the complete live Robinhood Stock Token catal
 | Monitored | Saved in the user's watchlist |
 | Not monitored | Available in the catalog but not selected |
 | Contract / Chain 4663 | Official deployment used for Robinhood Chain matching |
-| Select 20 | Adds the first 20 assets in the current filtered catalog to the pending selection |
+| Select 5 or Select 20 | Adds assets from the current filtered catalog up to the profile's access limit |
 | Clear all | Removes the entire pending selection |
 | Save scope | Persists the pending selection to the private profile |
 
 Each contract can be copied or opened in Robinhood Chain Blockscout. Contract data comes from Robinhood asset metadata and is not hardcoded in the interface.
 
-The 20-asset limit applies to the saved monitoring scope only. Automatic wallet scanning still checks every official Robinhood Stock Token contract in the live catalog.
+The access limit applies to the saved monitoring scope only. Automatic wallet scanning still checks every official Robinhood Stock Token contract in the live catalog.
 
 ### Events
 
@@ -80,6 +80,17 @@ For every verified wallet, MIHARI checks the official `$MHR` contract `0x92150e0
 | Not Held | The scan completed and found no non-zero `$MHR` balance |
 | Unavailable | Blockscout did not return a usable balance response, so MIHARI does not assume zero |
 
+MIHARI adds the `$MHR` balances across verified wallets. The initial beta threshold is 1 MHR and can be changed through the server environment without changing the token contract. Access is calculated by the server from current onchain balances.
+
+| Access | Watchlist | Verified wallets | New AI analyses per 24 hours | Position mapping |
+| --- | ---: | ---: | ---: | --- |
+| Observer | 5 | 1 | 1 | Direct wallet Stock Tokens and official events |
+| MHR Holder | 20 | 5 | 10 | Direct holdings, supported DeFi positions and the full Risk Graph |
+
+Cached AI results do not consume another analysis because MIHARI reuses the existing verified result. If an AI limit is reached, the product still returns a rule-based explanation and monitoring continues.
+
+The interface explains locked features before asking the user to do anything. Verifying holder access is read-only and does not request a token approval or transaction.
+
 A wallet-first profile shows **Link Email Access** in Wallets and Profile. Email access opens the same MIHARI workspace and does not replace or unlink the verified wallet.
 
 ### Wallets
@@ -101,7 +112,7 @@ The indicative value is informational. It is not an executable quote and does no
 
 ### DeFi Exposure
 
-DeFi Exposure is separate from direct wallet Exposure. It checks supported protocols for Stock Tokens that may be supplied, borrowed, posted as collateral, deposited into a vault, represented inside liquidity or used as the market for a perpetual position.
+DeFi Exposure is an MHR Holder feature and is separate from direct wallet Exposure. Observer users keep direct wallet monitoring. Holder access checks supported protocols for Stock Tokens that may be supplied, borrowed, posted as collateral, deposited into a vault, represented inside liquidity or used as the market for a perpetual position.
 
 Five read-only adapters are active for Robinhood Chain exposure:
 
@@ -157,7 +168,7 @@ One Uniswap LP NFT can create two position rows when both sides of the pool are 
 
 ### Unified Risk Graph
 
-Risk Graph combines direct Exposure and DeFi Exposure into one event path. It answers a narrower question than a portfolio dashboard: **which current official corporate action can reach a position MIHARI has actually mapped?**
+Risk Graph always shows direct wallet paths. MHR Holder access adds DeFi Exposure to the same graph. It answers a narrower question than a portfolio dashboard: **which current official corporate action can reach a position MIHARI has actually mapped?**
 
 Each active path contains three verified layers:
 

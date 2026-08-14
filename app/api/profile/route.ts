@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getDatabase } from "@/db/client";
 import { wallets, watchlists } from "@/db/schema";
 import { getAuthenticatedAccount } from "@/lib/account";
+import { entitlementsFromHoldings, getAccountEntitlements } from "@/lib/entitlements";
 import { mapWalletPositions } from "@/lib/map-data";
 import { MAX_WATCHLIST_ASSETS } from "@/lib/product-limits";
 
@@ -26,9 +27,14 @@ export async function GET() {
   const exposure = await mapWalletPositions(verifiedAddresses).catch(() => ({
     positions: [],
     events: [],
-    mhrHoldings: [],
+    mhrHoldings: verifiedAddresses.map((wallet) => ({
+      wallet,
+      balance: null,
+      status: "unavailable" as const,
+    })),
     scannedAt: new Date().toISOString(),
   }));
+  const entitlements = entitlementsFromHoldings(exposure.mhrHoldings);
 
   const mhrByWallet = new Map(
     exposure.mhrHoldings.map((holding) => [holding.wallet.toLowerCase(), holding]),
@@ -41,7 +47,11 @@ export async function GET() {
       primaryMethod: account.authProviderId.startsWith("wallet:") ? "wallet" : "email",
     },
     watchlist: savedWatchlist[0]
-      ? { ...savedWatchlist[0], symbols: savedWatchlist[0].symbols.slice(0, MAX_WATCHLIST_ASSETS) }
+      ? {
+          ...savedWatchlist[0],
+          symbols: savedWatchlist[0].symbols.slice(0, entitlements.limits.watchlistAssets),
+          storedCount: savedWatchlist[0].symbols.length,
+        }
       : null,
     wallets: savedWallets.map((wallet) => ({
       ...wallet,
@@ -56,6 +66,7 @@ export async function GET() {
       events: exposure.events,
       scannedAt: exposure.scannedAt,
     },
+    entitlements,
   }, { headers: { "Cache-Control": "private, no-store" } });
 }
 
@@ -71,6 +82,16 @@ export async function PATCH(request: Request) {
   }
 
   const symbols = [...new Set(parsed.data.symbols.map((symbol) => symbol.toUpperCase()))];
+  const entitlements = await getAccountEntitlements(account.id);
+  if (symbols.length > entitlements.limits.watchlistAssets) {
+    return Response.json({
+      error: entitlements.tier === "holder"
+        ? `Your Holder access supports up to ${entitlements.limits.watchlistAssets} monitored assets.`
+        : `Observer profiles can monitor up to ${entitlements.limits.watchlistAssets} assets. Hold at least ${entitlements.holderThreshold} MHR in a verified wallet to unlock 20.`,
+      code: "WATCHLIST_LIMIT",
+      entitlements,
+    }, { status: 403 });
+  }
   const database = getDatabase();
   const [existing] = await database
     .select({ id: watchlists.id })

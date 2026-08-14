@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
 import { watchlists } from "@/db/schema";
 import { getAuthenticatedAccount } from "@/lib/account";
-import { MAX_WATCHLIST_ASSETS } from "@/lib/product-limits";
+import { getAccountEntitlements } from "@/lib/entitlements";
 import { getMarketSnapshot } from "@/lib/robinhood";
 
 export const runtime = "nodejs";
@@ -13,15 +13,18 @@ export async function GET() {
   if (!account) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const database = getDatabase();
-  const [watchlist] = await database
-    .select({ symbols: watchlists.symbols })
-    .from(watchlists)
-    .where(eq(watchlists.accountId, account.id))
-    .limit(1);
-  const symbols = (watchlist?.symbols ?? []).slice(0, MAX_WATCHLIST_ASSETS);
+  const [[watchlist], entitlements] = await Promise.all([
+    database
+      .select({ symbols: watchlists.symbols })
+      .from(watchlists)
+      .where(eq(watchlists.accountId, account.id))
+      .limit(1),
+    getAccountEntitlements(account.id),
+  ]);
+  const symbols = (watchlist?.symbols ?? []).slice(0, entitlements.limits.watchlistAssets);
 
   if (!symbols.length) {
-    return Response.json({ mode: "live", events: [], watchedCount: 0, fetchedAt: new Date().toISOString() }, {
+    return Response.json({ mode: "live", events: [], watchedCount: 0, fetchedAt: new Date().toISOString(), entitlements }, {
       headers: { "Cache-Control": "private, no-store" },
     });
   }
@@ -34,5 +37,6 @@ export async function GET() {
     watchedCount: symbols.length,
     fetchedAt: snapshot.fetchedAt,
     warning: snapshot.warning,
+    entitlements,
   }, { headers: { "Cache-Control": "private, no-store" } });
 }

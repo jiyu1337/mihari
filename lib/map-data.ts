@@ -15,6 +15,11 @@ type BlockscoutBalance = {
   };
 };
 
+type WalletBalanceResult = {
+  wallet: string;
+  balances: BlockscoutBalance[];
+};
+
 export type MappedPosition = {
   wallet: string;
   symbol: string;
@@ -40,13 +45,13 @@ function stockTokenByAddress(assets: RobinhoodAsset[]) {
   );
 }
 
-export async function mapWalletPositions(addresses: string[]) {
-  const validAddresses = addresses.filter((address) => isAddress(address)).map(getAddress);
-  if (!validAddresses.length) return { positions: [], events: [], mhrHoldings: [], scannedAt: new Date().toISOString() };
+function validWalletAddresses(addresses: string[]) {
+  return addresses.filter((address) => isAddress(address)).map(getAddress);
+}
 
-  const assets = await getAssetCatalog().catch(() => []);
-  const assetsByAddress = stockTokenByAddress(assets);
-  const balanceResponses = await Promise.allSettled(validAddresses.map(async (wallet) => {
+async function fetchWalletBalances(addresses: string[]) {
+  const validAddresses = validWalletAddresses(addresses);
+  const responses = await Promise.allSettled(validAddresses.map(async (wallet): Promise<WalletBalanceResult> => {
     const response = await fetch(`${BLOCKSCOUT_API}/addresses/${wallet}/token-balances`, {
       headers: { Accept: "application/json" },
       cache: "no-store",
@@ -55,6 +60,44 @@ export async function mapWalletPositions(addresses: string[]) {
     if (!response.ok) throw new Error(`Blockscout responded ${response.status}`);
     return { wallet, balances: await response.json() as BlockscoutBalance[] };
   }));
+  return { validAddresses, responses };
+}
+
+function mhrHoldingsFromResponses(
+  validAddresses: string[],
+  responses: PromiseSettledResult<WalletBalanceResult>[],
+): MhrHolding[] {
+  return responses.map((result, index) => {
+    const wallet = validAddresses[index]!;
+    if (result.status !== "fulfilled") return { wallet, balance: null, status: "unavailable" };
+
+    const holding = result.value.balances.find(
+      (balance) => balance.token.address_hash.toLowerCase() === MHR_CONTRACT_ADDRESS.toLowerCase(),
+    );
+    if (!holding || BigInt(holding.value) === BigInt(0)) {
+      return { wallet, balance: "0", status: "not_held" };
+    }
+
+    return {
+      wallet,
+      balance: formatUnits(BigInt(holding.value), Number(holding.token.decimals ?? 18)),
+      status: "holder",
+    };
+  });
+}
+
+export async function getMhrHoldings(addresses: string[]) {
+  const { validAddresses, responses } = await fetchWalletBalances(addresses);
+  return mhrHoldingsFromResponses(validAddresses, responses);
+}
+
+export async function mapWalletPositions(addresses: string[]) {
+  const validAddresses = validWalletAddresses(addresses);
+  if (!validAddresses.length) return { positions: [], events: [], mhrHoldings: [], scannedAt: new Date().toISOString() };
+
+  const assets = await getAssetCatalog().catch(() => []);
+  const assetsByAddress = stockTokenByAddress(assets);
+  const { responses: balanceResponses } = await fetchWalletBalances(validAddresses);
 
   const rawPositions = balanceResponses.flatMap((result) => {
     if (result.status !== "fulfilled") return [];
@@ -71,23 +114,7 @@ export async function mapWalletPositions(addresses: string[]) {
     });
   });
 
-  const mhrHoldings: MhrHolding[] = balanceResponses.map((result, index) => {
-    const wallet = validAddresses[index];
-    if (result.status !== "fulfilled") return { wallet, balance: null, status: "unavailable" };
-
-    const holding = result.value.balances.find(
-      (balance) => balance.token.address_hash.toLowerCase() === MHR_CONTRACT_ADDRESS.toLowerCase(),
-    );
-    if (!holding || BigInt(holding.value) === BigInt(0)) {
-      return { wallet, balance: "0", status: "not_held" };
-    }
-
-    return {
-      wallet,
-      balance: formatUnits(BigInt(holding.value), Number(holding.token.decimals ?? 18)),
-      status: "holder",
-    };
-  });
+  const mhrHoldings = mhrHoldingsFromResponses(validAddresses, balanceResponses);
 
   const symbols = [...new Set(rawPositions.map((position) => position.asset.tokenSymbol))];
   const snapshot = symbols.length ? await getMarketSnapshot(symbols) : null;

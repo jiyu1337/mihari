@@ -29,6 +29,13 @@
       "when": 1786655873272,
       "tag": "0003_left_sabra",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786744702197,
+      "tag": "0004_bitter_monster_badoon",
+      "breakpoints": true
     }
   ]
 }

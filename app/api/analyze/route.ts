@@ -6,7 +6,9 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getDatabase, getDatabaseUrl } from "@/db/client";
 import { analyses, corporateActions } from "@/db/schema";
+import { getAuthenticatedAccount } from "@/lib/account";
 import { analysisSchema, type AnalysisResponse } from "@/lib/analysis";
+import { getAccountEntitlements } from "@/lib/entitlements";
 import type { CorporateEvent } from "@/lib/product-data";
 import { getMarketSnapshot } from "@/lib/robinhood";
 
@@ -132,14 +134,36 @@ export async function POST(request: Request) {
       return json({ ...output, mode: "ai", cached: true, model: cached.model } satisfies AnalysisResponse);
     }
 
-    const rollingWindowStart = new Date(Date.now() - 24 * 60 * 60 * 1_000);
-    const [usage] = await db
-      .select({ total: count() })
-      .from(analyses)
-      .where(gte(analyses.createdAt, rollingWindowStart));
+    const account = await getAuthenticatedAccount();
+    if (!account) {
+      return json(deterministicFallback(event, "Sign in to request a new AI analysis"));
+    }
 
-    if (Number(usage?.total ?? 0) >= DAILY_AI_LIMIT) {
+    const entitlements = await getAccountEntitlements(account.id);
+
+    const rollingWindowStart = new Date(Date.now() - 24 * 60 * 60 * 1_000);
+    const [globalUsage, accountUsage] = await Promise.all([
+      db
+        .select({ total: count() })
+        .from(analyses)
+        .where(gte(analyses.createdAt, rollingWindowStart)),
+      db
+        .select({ total: count() })
+        .from(analyses)
+        .where(and(
+          eq(analyses.accountId, account.id),
+          gte(analyses.createdAt, rollingWindowStart),
+        )),
+    ]);
+
+    if (Number(globalUsage[0]?.total ?? 0) >= DAILY_AI_LIMIT) {
       return json(deterministicFallback(event, "Daily AI safety limit reached; rule-based analysis shown"));
+    }
+    if (Number(accountUsage[0]?.total ?? 0) >= entitlements.limits.aiAnalysesPerDay) {
+      return json(deterministicFallback(
+        event,
+        `${entitlements.tier === "holder" ? "Holder" : "Observer"} AI limit reached. Rule-based analysis shown`,
+      ));
     }
 
     const [storedEvent] = await db
@@ -192,6 +216,7 @@ export async function POST(request: Request) {
     await db
       .insert(analyses)
       .values({
+        accountId: account.id,
         corporateActionId: storedEvent.id,
         model: MODEL,
         promptVersion: PROMPT_VERSION,

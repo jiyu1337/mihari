@@ -9,12 +9,14 @@ import {
   BellRing,
   Check,
   CircleUserRound,
+  CircleHelp,
   Copy,
   ExternalLink,
   FileCheck2,
   Landmark,
   Link2,
   ListFilter,
+  LockKeyhole,
   LoaderCircle,
   Network,
   Orbit,
@@ -32,8 +34,8 @@ import { ProfileSignOut } from "@/components/profile-sign-out";
 import { ProtocolExposure } from "@/components/protocol-exposure";
 import { RiskGraph } from "@/components/risk-graph";
 import type { AnalysisResponse } from "@/lib/analysis";
+import type { ProductEntitlements } from "@/lib/entitlements";
 import type { MappedPosition, MhrHolding } from "@/lib/map-data";
-import { MAX_WATCHLIST_ASSETS } from "@/lib/product-limits";
 import { MHR_CONTRACT_ADDRESS } from "@/lib/token";
 import type { CorporateEvent } from "@/lib/product-data";
 import type { RobinhoodAsset } from "@/lib/robinhood";
@@ -47,6 +49,7 @@ type ProfileResponse = {
   watchlist: { symbols: string[]; mode: string } | null;
   wallets: Array<{ id: string; address: string; chainId: number; verified: boolean; mhr: MhrHolding }>;
   exposure: { positions: MappedPosition[]; events: CorporateEvent[]; scannedAt: string };
+  entitlements: ProductEntitlements;
 };
 
 type WorkspaceView = "overview" | "events" | "assets" | "wallets" | "exposure" | "risk" | "defi" | "settings";
@@ -122,7 +125,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
       if (!profileResponse.ok) throw new Error(`Profile unavailable (${profileResponse.status})`);
       const nextProfile = await profileResponse.json() as ProfileResponse;
       setProfile(nextProfile);
-      setSelectedSymbols((nextProfile.watchlist?.symbols ?? []).slice(0, MAX_WATCHLIST_ASSETS));
+      setSelectedSymbols((nextProfile.watchlist?.symbols ?? []).slice(0, nextProfile.entitlements.limits.watchlistAssets));
       if (assetResponse.ok) {
         const assetPayload = await assetResponse.json() as { assets: RobinhoodAsset[] };
         setAssets(assetPayload.assets);
@@ -164,7 +167,13 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
   ) ?? null;
   const openRiskEvent = openRiskPosition ? eventsBySymbol.get(openRiskPosition.symbol.toUpperCase()) ?? null : null;
   const openRiskAnalysis = openRiskEvent ? positionAnalyses[openRiskEvent.id] : undefined;
-  const selectionFull = selectedSymbols.length >= Math.min(MAX_WATCHLIST_ASSETS, assets.length);
+  const entitlements = profile?.entitlements;
+  const isHolder = entitlements?.tier === "holder";
+  const holderCheckUnavailable = entitlements?.verification === "unavailable";
+  const accessLabel = isHolder ? "$MHR HOLDER" : holderCheckUnavailable ? "CHECK UNAVAILABLE" : "OBSERVER";
+  const watchlistLimit = entitlements?.limits.watchlistAssets ?? 5;
+  const walletLimit = entitlements?.limits.linkedWallets ?? 1;
+  const selectionFull = selectedSymbols.length >= Math.min(watchlistLimit, assets.length);
 
   async function saveAssets() {
     setSaving(true);
@@ -195,8 +204,10 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
   function toggleAsset(symbol: string) {
     setSelectedSymbols((current) => {
       if (current.includes(symbol)) return current.filter((item) => item !== symbol);
-      if (current.length >= MAX_WATCHLIST_ASSETS) {
-        setError(`This release supports up to ${MAX_WATCHLIST_ASSETS} monitored assets. Remove one before adding another.`);
+      if (current.length >= watchlistLimit) {
+        setError(isHolder
+          ? `Your Holder access supports up to ${watchlistLimit} monitored assets.`
+          : `Observer access supports ${watchlistLimit} monitored assets. Hold at least ${entitlements?.holderThreshold ?? "1"} MHR in a verified wallet to unlock 20.`);
         return current;
       }
       setError("");
@@ -204,12 +215,12 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
     });
   }
 
-  function selectTwentyVisibleAssets() {
+  function selectVisibleAssets() {
     if (selectionFull) {
       setSelectedSymbols([]);
       return;
     }
-    setSelectedSymbols(visibleAssets.slice(0, MAX_WATCHLIST_ASSETS).map((asset) => asset.tokenSymbol));
+    setSelectedSymbols(visibleAssets.slice(0, watchlistLimit).map((asset) => asset.tokenSymbol));
     setError("");
   }
 
@@ -334,9 +345,10 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
         <nav aria-label="Personal workspace navigation">
           {workspaceNavigation.map((item) => {
             const Icon = item.icon;
+            const locked = item.id === "defi" && !isHolder;
             return (
-              <button className={view === item.id ? "active" : ""} key={item.id} onClick={() => setView(item.id)}>
-                <Icon size={15} />{item.label}
+              <button className={`${view === item.id ? "active" : ""} ${locked ? "locked" : ""}`} key={item.id} onClick={() => setView(item.id)} title={locked ? "Hold MHR to unlock full DeFi Exposure" : item.label}>
+                <Icon size={15} />{item.label}{locked ? <LockKeyhole size={12} /> : null}
               </button>
             );
           })}
@@ -348,7 +360,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
         <section className="workspace-identity-bar mono">
           <span>PROFILE <strong>{profile?.account.primaryMethod === "wallet" ? "WALLET-NATIVE" : "EMAIL"}</strong></span>
           <span>NETWORK <strong>ROBINHOOD CHAIN / 4663</strong></span>
-          <span>LAST SCAN <strong>{profile?.exposure.scannedAt ? new Date(profile.exposure.scannedAt).toLocaleTimeString() : "PENDING"}</strong></span>
+          <span>ACCESS <strong>{accessLabel}</strong></span>
           <button onClick={() => void loadWorkspace()} disabled={loading}><RefreshCw className={loading ? "spin" : ""} size={14} />RESCAN</button>
         </section>
 
@@ -367,6 +379,31 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
               <div><span>STOCK TOKEN POSITIONS</span><strong>{profile?.exposure.positions.length ?? 0}</strong></div>
               <div className={exposedPositions.length ? "alert" : ""}><span>ACTIVE EXPOSURES</span><strong>{exposedPositions.length}</strong></div>
             </div>
+            <section className={`workspace-access-panel ${isHolder ? "holder" : "observer"}`}>
+              <div className="workspace-access-summary">
+                <span className="workspace-access-icon">{isHolder ? <ShieldCheck size={25} /> : <LockKeyhole size={25} />}</span>
+                <div>
+                  <p className="mono">CURRENT ACCESS</p>
+                  <h2>{isHolder ? "$MHR Holder" : holderCheckUnavailable ? "Verification unavailable" : "Observer"}</h2>
+                  <p>{isHolder
+                    ? "Full DeFi Exposure and the complete Risk Graph are active for this profile."
+                    : holderCheckUnavailable
+                      ? "Direct monitoring remains active. MIHARI could not verify the current MHR balance, so Holder features stay locked until the balance source responds."
+                      : "Direct holdings and official events are active. Hold MHR in a verified wallet to unlock protocol positions and the complete Risk Graph."}</p>
+                </div>
+              </div>
+              <div className="workspace-access-limits">
+                <span><strong>{watchlistLimit}</strong><small>watchlist assets</small></span>
+                <span><strong>{walletLimit}</strong><small>linked wallets</small></span>
+                <span><strong>{entitlements?.limits.aiAnalysesPerDay ?? 1}</strong><small>new AI analyses per 24 hours</small></span>
+                <span><strong>{isHolder ? "FULL" : "DIRECT"}</strong><small>risk mapping</small></span>
+              </div>
+              <details className="workspace-access-help">
+                <summary><CircleHelp size={18} />How access works</summary>
+                <p>MIHARI adds the $MHR balances across your verified wallets. Holder access starts at {entitlements?.holderThreshold ?? "1"} MHR. The check is read-only and cannot move tokens.</p>
+                {!isHolder ? <button type="button" onClick={() => setView("wallets")}>VERIFY A HOLDER WALLET <ArrowRight size={14} /></button> : null}
+              </details>
+            </section>
             <div className="workspace-overview-grid">
               <article>
                 <header><span className="mono">MONITORING SCOPE</span><button onClick={() => setView("assets")}>MANAGE <ArrowRight size={13} /></button></header>
@@ -393,19 +430,21 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
         {view === "events" ? (
           <ProfileEvents
             heldSymbols={profile?.exposure.positions.map((position) => position.symbol) ?? []}
+            watchlistLimit={watchlistLimit}
             onOpenExposure={() => setView("exposure")}
           />
         ) : null}
 
         {view === "assets" ? (
           <section className="workspace-view">
-            <div className="workspace-title compact"><div><p className="mono">03 / ASSET MANAGER</p><h1>Assets and contracts.</h1></div><p>Select up to 20 Stock Tokens your profile should watch and verify every official Robinhood Chain contract from the same live catalog.</p></div>
+            <div className="workspace-title compact"><div><p className="mono">03 / ASSET MANAGER</p><h1>Assets and contracts.</h1></div><p>Select up to {watchlistLimit} Stock Tokens for ongoing monitoring. Holder access increases this limit to 20.</p></div>
             <div className="workspace-asset-toolbar">
               <label><Search size={17} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search symbol or company" /></label>
-              <span className="mono">{selectedSymbols.length} / {MAX_WATCHLIST_ASSETS} SELECTED · {assets.length} LIVE</span>
-              <button onClick={selectTwentyVisibleAssets}>{selectionFull ? "CLEAR ALL" : `SELECT ${Math.min(MAX_WATCHLIST_ASSETS, visibleAssets.length)}`}</button>
+              <span className="mono">{selectedSymbols.length} / {watchlistLimit} SELECTED · {assets.length} LIVE</span>
+              <button onClick={selectVisibleAssets}>{selectionFull ? "CLEAR ALL" : `SELECT ${Math.min(watchlistLimit, visibleAssets.length)}`}</button>
               <button className="save" onClick={() => void saveAssets()} disabled={saving}>{saving ? "SAVING" : "SAVE SCOPE"}</button>
             </div>
+            {!isHolder ? <div className="workspace-inline-help"><CircleHelp size={18} /><p><strong>Why is the limit {watchlistLimit}?</strong> Observer profiles can monitor five assets. A verified wallet with at least {entitlements?.holderThreshold ?? "1"} MHR unlocks 20 without changing your existing profile.</p><button type="button" onClick={() => setView("wallets")}>UNLOCK WITH MHR</button></div> : null}
             <div className="workspace-asset-grid">
               {visibleAssets.map((asset) => {
                 const selected = selectedSet.has(asset.tokenSymbol);
@@ -448,7 +487,10 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
                 <Link href="/sign-in?redirect_url=/map">LINK EMAIL ACCESS <ArrowRight size={14} /></Link>
               </div>
             ) : null}
-            <div className="workspace-action-row"><button onClick={() => void linkWallet()} disabled={linking}>{linking ? <LoaderCircle className="spin" size={16} /> : <Link2 size={16} />}{linking ? "VERIFYING" : "LINK ANOTHER WALLET"}</button></div>
+            <div className="workspace-wallet-access">
+              <div><span className="mono">WALLET ACCESS</span><strong>{profile?.wallets.length ?? 0} of {walletLimit} linked</strong><p>{isHolder ? "Holder access supports up to five verified wallets." : "Observer access supports one wallet. If your MHR is held elsewhere, verify that holder wallet to unlock the higher limit."}</p></div>
+              <button onClick={() => void linkWallet()} disabled={linking}>{linking ? <LoaderCircle className="spin" size={16} /> : <Link2 size={16} />}{linking ? "VERIFYING" : profile?.wallets.length ? "VERIFY ANOTHER WALLET" : "VERIFY WALLET"}</button>
+            </div>
             <div className="workspace-wallet-grid">
               {profile?.wallets.length ? profile.wallets.map((wallet) => (
                 <article key={wallet.id}>
@@ -529,13 +571,18 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
             <div className="workspace-profile-grid">
               <article><CircleUserRound size={25} /><span className="mono">PRIMARY ACCESS</span><h2>{profile?.account.primaryMethod === "wallet" ? "Wallet signature" : "Email and password"}</h2><p>{profile?.account.email ?? profile?.wallets[0]?.address ?? "MIHARI profile"}</p></article>
               <article><Activity size={25} /><span className="mono">ADD ACCESS METHOD</span><h2>{profile?.account.email ? "Email connected" : "Add recovery email"}</h2><p>{profile?.account.email ? "You can access this profile by email and linked wallet." : "Connect email access without losing this wallet profile."}</p>{profile?.account.email ? <button onClick={() => setView("wallets")}>MANAGE WALLETS</button> : <Link href="/sign-in?redirect_url=/map">ADD EMAIL ACCESS <ArrowRight size={14} /></Link>}</article>
-              <article><FileCheck2 size={25} /><span className="mono">POLICY MODE</span><h2>Observe</h2><p>MIHARI analyzes and recommends. It cannot execute transactions from your account.</p></article>
+              <article><FileCheck2 size={25} /><span className="mono">PRODUCT ACCESS</span><h2>{isHolder ? "$MHR Holder" : "Observer"}</h2><p>{isHolder ? "Full protocol mapping and the complete Risk Graph are unlocked." : `Direct monitoring is active. Hold ${entitlements?.holderThreshold ?? "1"} MHR in a verified wallet to unlock protocol mapping.`}</p></article>
             </div>
           </section>
         ) : null}
 
         {view === "defi" ? (
-          <ProtocolExposure walletCount={profile?.wallets.length ?? 0} onOpenWallets={() => setView("wallets")} />
+          <ProtocolExposure
+            walletCount={profile?.wallets.length ?? 0}
+            unlocked={Boolean(entitlements?.features.protocolExposure)}
+            holderThreshold={entitlements?.holderThreshold ?? "1"}
+            onOpenWallets={() => setView("wallets")}
+          />
         ) : null}
 
         {view === "risk" ? (
@@ -543,6 +590,8 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
             directPositions={profile?.exposure.positions ?? []}
             directEvents={profile?.exposure.events ?? []}
             walletCount={profile?.wallets.length ?? 0}
+            fullGraph={Boolean(entitlements?.features.fullRiskGraph)}
+            holderThreshold={entitlements?.holderThreshold ?? "1"}
             onOpenWallets={() => setView("wallets")}
             onOpenDirectRisk={(position) => {
               setView("exposure");

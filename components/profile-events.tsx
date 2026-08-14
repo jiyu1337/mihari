@@ -15,6 +15,7 @@ type EventFeedResponse = {
 
 type ProfileEventsProps = {
   heldSymbols: string[];
+  watchlistLimit: number;
   onOpenExposure: () => void;
 };
 
@@ -25,7 +26,7 @@ function riskLabel(event: CorporateEvent, analysis?: AnalysisResponse) {
   return "LOW";
 }
 
-export function ProfileEvents({ heldSymbols, onOpenExposure }: ProfileEventsProps) {
+export function ProfileEvents({ heldSymbols, watchlistLimit, onOpenExposure }: ProfileEventsProps) {
   const [feed, setFeed] = useState<EventFeedResponse | null>(null);
   const [selectedId, setSelectedId] = useState("");
   const [analyses, setAnalyses] = useState<Record<string, AnalysisResponse>>({});
@@ -98,7 +99,7 @@ export function ProfileEvents({ heldSymbols, onOpenExposure }: ProfileEventsProp
         <p>MIHARI refreshes official corporate actions every minute while this view is open. Events are shown only for your saved monitoring scope.</p>
       </div>
       <div className="workspace-event-status mono">
-        <span>WATCHING <strong>{feed?.watchedCount ?? 0} / 20</strong></span>
+        <span>WATCHING <strong>{feed?.watchedCount ?? 0} / {watchlistLimit}</strong></span>
         <span>SOURCE <strong>{feed?.mode === "fallback" ? "FALLBACK" : "ROBINHOOD LIVE"}</strong></span>
         <span>LAST SYNC <strong>{feed?.fetchedAt ? new Date(feed.fetchedAt).toLocaleTimeString() : "PENDING"}</strong></span>
         <button type="button" onClick={() => void syncEvents()} disabled={loading}><RefreshCw className={loading ? "spin" : ""} size={14} />SYNC NOW</button>
