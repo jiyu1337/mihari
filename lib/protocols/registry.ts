@@ -5,6 +5,7 @@ import type {
 } from "@/lib/protocol-exposure";
 import { morphoAdapter } from "@/lib/protocols/morpho";
 import { uniswapV3Adapter } from "@/lib/protocols/uniswap-v3";
+import { uniswapV4Adapter } from "@/lib/protocols/uniswap-v4";
 
 export const protocolCatalog: ProtocolDefinition[] = [
   {
@@ -27,9 +28,9 @@ export const protocolCatalog: ProtocolDefinition[] = [
     id: "uniswap-v4",
     name: "Uniswap V4",
     category: "dex",
-    stage: "planned",
-    description: "V4 liquidity positions and hook-aware Stock Token exposure.",
-    capabilities: ["LP POSITIONS", "HOOKS", "TOKEN EXPOSURE"],
+    stage: "beta",
+    description: "V4 liquidity positions containing official Stock Tokens.",
+    capabilities: ["LP POSITIONS", "RANGE STATUS", "TOKEN EXPOSURE"],
   },
   {
     id: "rialto",
@@ -65,7 +66,11 @@ export const protocolCatalog: ProtocolDefinition[] = [
   },
 ];
 
-export const protocolAdapters: ProtocolExposureAdapter[] = [morphoAdapter, uniswapV3Adapter];
+export const protocolAdapters: ProtocolExposureAdapter[] = [
+  morphoAdapter,
+  uniswapV3Adapter,
+  uniswapV4Adapter,
+];
 
 export function protocolScansWithCoverage(scans: ProtocolScan[], hasWallets: boolean) {
   const scanByProtocol = new Map(scans.map((scan) => [scan.protocol, scan]));
