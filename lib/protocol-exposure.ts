@@ -1,5 +1,5 @@
 import type { RobinhoodAsset } from "@/lib/robinhood";
-import type { EventSeverity } from "@/lib/product-data";
+import type { CorporateEvent, EventSeverity } from "@/lib/product-data";
 
 export type ProtocolPositionKind =
   | "lending_supply"
@@ -61,6 +61,17 @@ export type ProtocolExposureSnapshot = {
   positions: ProtocolPosition[];
   scans: ProtocolScan[];
   scannedAt: string;
+};
+
+export type ProtocolExposureResponse = ProtocolExposureSnapshot & {
+  events: CorporateEvent[];
+  source: {
+    chainId: number;
+    assetCatalog: string;
+    corporateActions: string;
+    protocols: string[];
+  };
+  protocolCatalog: ProtocolDefinition[];
 };
 
 export type ProtocolAdapterContext = {

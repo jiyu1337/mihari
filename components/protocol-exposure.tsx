@@ -13,21 +13,10 @@ import {
 } from "lucide-react";
 import type {
   ProtocolDefinition,
-  ProtocolExposureSnapshot,
+  ProtocolExposureResponse,
   ProtocolPosition,
   ProtocolScan,
 } from "@/lib/protocol-exposure";
-
-type ProtocolExposureResponse = ProtocolExposureSnapshot & {
-  events: Array<{ id: string; asset: string; type: string; sourceStatus: string }>;
-  source: {
-    chainId: number;
-    assetCatalog: string;
-    corporateActions: string;
-    protocols: string[];
-  };
-  protocolCatalog: ProtocolDefinition[];
-};
 
 type ProtocolExposureProps = {
   walletCount: number;

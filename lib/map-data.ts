@@ -91,8 +91,9 @@ export async function mapWalletPositions(addresses: string[]) {
 
   const symbols = [...new Set(rawPositions.map((position) => position.asset.tokenSymbol))];
   const snapshot = symbols.length ? await getMarketSnapshot(symbols) : null;
-  const prices = new Map(snapshot?.prices.map((price) => [price.tokenSymbol.toUpperCase(), price]) ?? []);
-  const eventSymbols = new Set(snapshot?.events.map((event) => event.asset.toUpperCase()) ?? []);
+  const liveSnapshot = snapshot?.mode === "live" ? snapshot : null;
+  const prices = new Map(liveSnapshot?.prices.map((price) => [price.tokenSymbol.toUpperCase(), price]) ?? []);
+  const eventSymbols = new Set(liveSnapshot?.events.map((event) => event.asset.toUpperCase()) ?? []);
 
   const positions: MappedPosition[] = rawPositions.map((position) => {
     const quote = prices.get(position.asset.tokenSymbol.toUpperCase());
@@ -112,7 +113,7 @@ export async function mapWalletPositions(addresses: string[]) {
 
   return {
     positions,
-    events: snapshot?.events ?? [],
+    events: liveSnapshot?.events ?? [],
     mhrHoldings,
     scannedAt: new Date().toISOString(),
   };
