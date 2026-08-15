@@ -23,12 +23,14 @@ import type { CorporateEvent } from "@/lib/product-data";
 type RiskGraphProps = {
   directPositions: MappedPosition[];
   directEvents: CorporateEvent[];
+  watchlistSymbols: string[];
   walletCount: number;
   fullGraph: boolean;
   holderThreshold: string;
   onOpenWallets: () => void;
   onOpenDirectRisk: (position: MappedPosition) => void;
   onOpenProtocolExposure: () => void;
+  onOpenEvents: () => void;
 };
 
 type RiskNode = {
@@ -36,6 +38,12 @@ type RiskNode = {
   event: CorporateEvent | null;
   directPositions: MappedPosition[];
   protocolPositions: ProtocolPosition[];
+  watchlisted: boolean;
+};
+
+type WatchlistEventResponse = {
+  mode: "live" | "fallback";
+  events: CorporateEvent[];
 };
 
 const positionLabels: Record<ProtocolPosition["kind"], string> = {
@@ -69,19 +77,27 @@ function protocolMeta(position: ProtocolPosition) {
   ].filter(Boolean).join(" / ");
 }
 
+function formatTokenAmount(value: string) {
+  return Number(value).toLocaleString("en-US", { maximumFractionDigits: 0 });
+}
+
 export function RiskGraph({
   directPositions,
   directEvents,
+  watchlistSymbols,
   walletCount,
   fullGraph,
   holderThreshold,
   onOpenWallets,
   onOpenDirectRisk,
   onOpenProtocolExposure,
+  onOpenEvents,
 }: RiskGraphProps) {
   const [snapshot, setSnapshot] = useState<ProtocolExposureResponse | null>(null);
   const [loading, setLoading] = useState(fullGraph);
   const [error, setError] = useState("");
+  const [watchlistEvents, setWatchlistEvents] = useState<CorporateEvent[]>([]);
+  const [watchlistLoading, setWatchlistLoading] = useState(true);
 
   const scan = useCallback(async () => {
     if (!fullGraph) {
@@ -108,30 +124,53 @@ export function RiskGraph({
     return () => window.clearTimeout(timer);
   }, [fullGraph, scan]);
 
+  useEffect(() => {
+    const controller = new AbortController();
+    async function loadWatchlistEvents() {
+      setWatchlistLoading(true);
+      try {
+        const response = await fetch("/api/profile/events", { cache: "no-store", signal: controller.signal });
+        if (!response.ok) return;
+        const payload = await response.json() as WatchlistEventResponse;
+        setWatchlistEvents(payload.mode === "live" ? payload.events : []);
+      } finally {
+        if (!controller.signal.aborted) setWatchlistLoading(false);
+      }
+    }
+    void loadWatchlistEvents();
+    return () => controller.abort();
+  }, [watchlistSymbols]);
+
   const protocolById = useMemo(() => new Map(
     snapshot?.protocolCatalog.map((protocol) => [protocol.id, protocol.name]) ?? [],
   ), [snapshot]);
   const graphNodes = useMemo(() => {
     const eventBySymbol = new Map<string, CorporateEvent>();
-    for (const event of [...directEvents, ...(snapshot?.events ?? [])]) {
+    for (const event of [...directEvents, ...watchlistEvents, ...(snapshot?.events ?? [])]) {
       if (event.source === "robinhood") eventBySymbol.set(event.asset.toUpperCase(), event);
     }
     const symbols = new Set([
       ...directPositions.map((position) => position.symbol.toUpperCase()),
       ...(snapshot?.positions ?? []).map((position) => position.symbol.toUpperCase()),
+      ...watchlistSymbols.map((symbol) => symbol.toUpperCase()),
     ]);
     return [...symbols].map((symbol): RiskNode => ({
       symbol,
       event: eventBySymbol.get(symbol) ?? null,
       directPositions: directPositions.filter((position) => position.symbol.toUpperCase() === symbol),
       protocolPositions: (snapshot?.positions ?? []).filter((position) => position.symbol.toUpperCase() === symbol),
+      watchlisted: watchlistSymbols.some((item) => item.toUpperCase() === symbol),
     })).sort((left, right) => {
+      const leftPriority = left.directPositions.length ? 0 : left.protocolPositions.length ? 1 : 2;
+      const rightPriority = right.directPositions.length ? 0 : right.protocolPositions.length ? 1 : 2;
+      if (leftPriority !== rightPriority) return leftPriority - rightPriority;
       if (Boolean(left.event) !== Boolean(right.event)) return left.event ? -1 : 1;
       return left.symbol.localeCompare(right.symbol);
     });
-  }, [directEvents, directPositions, snapshot]);
+  }, [directEvents, directPositions, snapshot, watchlistEvents, watchlistSymbols]);
 
-  const activeRiskNodes = graphNodes.filter((node) => node.event);
+  const activeRiskNodes = graphNodes.filter((node) => node.event && (node.directPositions.length || node.protocolPositions.length));
+  const watchlistSignalNodes = graphNodes.filter((node) => node.event && !node.directPositions.length && !node.protocolPositions.length && node.watchlisted);
   const monitoredNodes = graphNodes.filter((node) => !node.event);
   const directRiskPaths = activeRiskNodes.reduce((total, node) => total + node.directPositions.length, 0);
   const protocolRiskPaths = activeRiskNodes.reduce((total, node) => total + node.protocolPositions.length, 0);
@@ -145,7 +184,7 @@ export function RiskGraph({
     scanResult.status === "partial" || scanResult.status === "unavailable"
   ));
   const sourceStatus = !fullGraph
-    ? "DIRECT ONLY"
+    ? "DIRECT + WATCHLIST"
     : loading
     ? "SCANNING"
     : error
@@ -157,6 +196,7 @@ export function RiskGraph({
         : incompleteProtocols.length
           ? "PARTIAL"
           : "LIVE";
+  const graphLoading = loading || watchlistLoading;
 
   return (
     <section className="workspace-view risk-graph-view">
@@ -175,8 +215,8 @@ export function RiskGraph({
       </div>
 
       <div className="workspace-metrics risk-graph-metrics mono">
-        <div><span>CURRENT EVENTS</span><strong>{activeRiskNodes.length}</strong></div>
-        <div><span>MAPPED ASSETS</span><strong>{graphNodes.length}</strong></div>
+        <div><span>ACTIVE SIGNALS</span><strong>{activeRiskNodes.length + watchlistSignalNodes.length}</strong></div>
+        <div><span>TRACKED ASSETS</span><strong>{graphNodes.length}</strong></div>
         <div><span>DIRECT PATHS</span><strong>{directRiskPaths}</strong></div>
         <div className={protocolRiskPaths ? "alert" : ""}><span>PROTOCOL PATHS</span><strong>{fullGraph ? protocolRiskPaths : "LOCKED"}</strong></div>
       </div>
@@ -192,21 +232,19 @@ export function RiskGraph({
       {!fullGraph ? (
         <div className="workspace-inline-help risk-graph-access-help">
           <LockKeyhole size={20} />
-          <p><strong>Your direct risk graph is active.</strong> DeFi Exposure remains available on its own page for one verified wallet. Hold at least {holderThreshold} MHR to combine direct, lending, vault and liquidity positions in this unified graph.</p>
+          <p><strong>Your direct and watchlist graph is active.</strong> Holdings are prioritized, while watchlist-only assets appear as research signals. Hold at least {formatTokenAmount(holderThreshold)} MHR to add proven lending, vault, liquidity and perpetual positions.</p>
           <button type="button" onClick={onOpenWallets}>CHECK MHR STATUS</button>
         </div>
       ) : null}
 
-      {error && directPositions.length ? (
+      {error && (directPositions.length || watchlistSymbols.length) ? (
         <div className="risk-graph-warning mono"><AlertTriangle size={15} />PROTOCOL SOURCES ARE UNAVAILABLE. DIRECT WALLET PATHS REMAIN VISIBLE.</div>
       ) : null}
 
-      {loading ? (
-        <div className="workspace-empty risk-graph-empty"><LoaderCircle className="spin" size={30} /><h2>Building the current risk paths.</h2><p>Wallet and protocol sources are being read in parallel.</p></div>
-      ) : error && !directPositions.length ? (
+      {graphLoading ? (
+        <div className="workspace-empty risk-graph-empty"><LoaderCircle className="spin" size={30} /><h2>Building the current risk paths.</h2><p>MIHARI is matching holdings and watchlist assets with official events{fullGraph ? " and supported protocol positions" : ""}.</p></div>
+      ) : error && !directPositions.length && !watchlistSymbols.length ? (
         <div className="workspace-empty risk-graph-empty"><AlertTriangle size={30} /><h2>The complete graph is unavailable.</h2><p>{error}</p><button type="button" onClick={() => void scan()}>TRY AGAIN</button></div>
-      ) : !walletCount ? (
-        <div className="workspace-empty risk-graph-empty"><Wallet size={30} /><h2>Link a wallet to create your graph.</h2><p>Risk paths are personal, so MIHARI needs at least one verified address.</p><button type="button" onClick={onOpenWallets}>OPEN WALLETS</button></div>
       ) : activeRiskNodes.length ? (
         <div className="risk-graph-paths">
           {activeRiskNodes.map((node, index) => {
@@ -245,7 +283,7 @@ export function RiskGraph({
                     </div>
                     <div className={`risk-exposure-lane protocol ${!fullGraph ? "locked" : ""}`}>
                       <header>{fullGraph ? <Landmark size={16} /> : <LockKeyhole size={16} />}<span className="mono">PROTOCOL / {fullGraph ? node.protocolPositions.length : "LOCKED"}</span></header>
-                      {!fullGraph ? <p>OPEN DEFI EXPOSURE FOR THE BASIC SCAN. HOLDER ACCESS ADDS IT TO THIS GRAPH.</p> : node.protocolPositions.length ? node.protocolPositions.map((position) => (
+                      {!fullGraph ? <p>HOLDER ACCESS IS REQUIRED TO SCAN PERSONAL PROTOCOL POSITIONS.</p> : node.protocolPositions.length ? node.protocolPositions.map((position) => (
                         <div key={position.id}>
                           <span><strong>{protocolById.get(position.protocol) ?? position.protocol}</strong><small className="mono">{protocolMeta(position)}</small></span>
                           <span><strong>{Number(position.amount).toLocaleString(undefined, { maximumFractionDigits: 6 })} {position.symbol}</strong><small>{formatMoney(position.valueUsd)}</small></span>
@@ -266,17 +304,34 @@ export function RiskGraph({
           })}
         </div>
       ) : (
-        <div className="workspace-empty risk-graph-empty clear"><ShieldCheck size={30} /><h2>No active corporate action reaches a mapped position.</h2><p>The graph was built successfully. Holdings and supported protocol positions remain monitored against future official events.</p></div>
+        <div className="workspace-empty risk-graph-empty clear"><ShieldCheck size={30} /><h2>No active corporate action reaches a proven position.</h2><p>The graph was built successfully. Holdings and watchlist assets remain monitored against future official events.</p>{!walletCount ? <button type="button" onClick={onOpenWallets}>LINK A WALLET FOR HOLDINGS</button> : null}</div>
       )}
 
-      {!loading && !error && monitoredNodes.length ? (
+      {!graphLoading && watchlistSignalNodes.length ? (
+        <section className="risk-watchlist-signals">
+          <header><div><p className="mono">WATCHLIST SIGNALS / RESEARCH</p><h2>Events to review before you buy.</h2></div><span className="mono">{watchlistSignalNodes.length} SIGNALS</span></header>
+          <div>
+            {watchlistSignalNodes.map((node) => (
+              <article className={node.event?.severity ?? "watch"} key={`${node.symbol}-${node.event?.id}`}>
+                <span className="mono">WATCHLIST / NOT A HOLDING</span>
+                <h3>{node.symbol}</h3>
+                <strong>{node.event?.type}</strong>
+                <p>{node.event?.summary}</p>
+                <button type="button" onClick={onOpenEvents}>OPEN EVENT ANALYSIS <ArrowRight size={13} /></button>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+
+      {!graphLoading && !error && monitoredNodes.length ? (
         <section className="risk-monitored-nodes">
           <header><div><p className="mono">MONITORED NODES / NO CURRENT EVENT</p><h2>Present, but no active path.</h2></div><span className="mono">{monitoredNodes.length} ASSETS</span></header>
           <div>
             {monitoredNodes.map((node) => (
               <article key={node.symbol}>
                 <strong>{node.symbol}</strong>
-                <span className="mono">{node.directPositions.length} DIRECT / {node.protocolPositions.length} PROTOCOL</span>
+                <span className="mono">{node.directPositions.length ? "HOLDING" : node.protocolPositions.length ? "DEFI POSITION" : "WATCHLIST"}</span>
                 <small>NO OFFICIAL EVENT MATCH</small>
               </article>
             ))}

@@ -85,6 +85,10 @@ function formatTokenBalance(value: string | null) {
   return Number(value).toLocaleString(undefined, { maximumFractionDigits: 6 });
 }
 
+function formatTokenThreshold(value: string | undefined) {
+  return Number(value ?? "1000000").toLocaleString("en-US", { maximumFractionDigits: 0 });
+}
+
 function eventRiskLabel(event: CorporateEvent) {
   if (event.severity === "critical") return "CRITICAL";
   if (event.severity === "watch") return "HIGH";
@@ -204,7 +208,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
       if (current.length >= watchlistLimit) {
         setError(isHolder
           ? `Your Holder access supports up to ${watchlistLimit} monitored assets.`
-          : `Observer access supports ${watchlistLimit} monitored assets. Hold at least ${entitlements?.holderThreshold ?? "1"} MHR in a verified wallet to unlock 30.`);
+          : `Observer access supports ${watchlistLimit} monitored assets. Hold at least ${formatTokenThreshold(entitlements?.holderThreshold)} MHR in a verified wallet to unlock 30.`);
         return current;
       }
       setError("");
@@ -373,17 +377,17 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
                   <p className="mono">CURRENT ACCESS</p>
                   <h2>{isHolder ? "$MHR Holder" : holderCheckUnavailable ? "Verification unavailable" : "Observer"}</h2>
                   <p>{isHolder
-                    ? "DeFi Exposure across up to five verified wallets and the complete Risk Graph are active."
+                    ? "Personal DeFi scanning across up to five verified wallets and protocol paths in the Risk Graph are active."
                     : holderCheckUnavailable
-                      ? "Direct monitoring and basic DeFi Exposure remain active. MIHARI could not verify the current MHR balance, so higher Holder limits stay locked until the balance source responds."
-                      : `Direct holdings, official events and DeFi Exposure for one verified wallet are active. Hold ${entitlements?.holderThreshold ?? "1"} MHR to unlock higher limits and the complete Risk Graph.`}</p>
+                      ? "Direct holdings, official events and watchlist research remain active. MIHARI could not verify the current MHR balance, so personal DeFi scanning stays locked until the balance source responds."
+                      : `Direct holdings, official events and watchlist research are active. Hold ${formatTokenThreshold(entitlements?.holderThreshold)} MHR to unlock personal DeFi scans and higher limits.`}</p>
                 </div>
               </div>
               <div className="workspace-access-limits">
                 <span><strong>{watchlistLimit}</strong><small>watchlist assets</small></span>
                 <span><strong>{walletLimit}</strong><small>linked wallets</small></span>
                 <span><strong>{entitlements?.limits.aiAnalysesPerDay ?? 1}</strong><small>new AI analyses per 24 hours</small></span>
-                <span><strong>{isHolder ? "FULL" : "DIRECT + DEFI"}</strong><small>risk coverage</small></span>
+                <span><strong>{isHolder ? "FULL" : "DIRECT + WATCH"}</strong><small>risk coverage</small></span>
               </div>
               <details className="workspace-access-help">
                 <summary><CircleHelp size={18} />How access works</summary>
@@ -431,7 +435,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
               <button onClick={selectVisibleAssets}>{selectionFull ? "CLEAR ALL" : `SELECT ${Math.min(watchlistLimit, visibleAssets.length)}`}</button>
               <button className="save" onClick={() => void saveAssets()} disabled={saving}>{saving ? "SAVING" : "SAVE SCOPE"}</button>
             </div>
-            {!isHolder ? <div className="workspace-inline-help"><CircleHelp size={18} /><p><strong>Why is the limit {watchlistLimit}?</strong> Observer profiles can monitor ten assets. A verified wallet with at least {entitlements?.holderThreshold ?? "1"} MHR unlocks 30 without changing your existing profile.</p><button type="button" onClick={() => setView("wallets")}>UNLOCK WITH MHR</button></div> : null}
+            {!isHolder ? <div className="workspace-inline-help"><CircleHelp size={18} /><p><strong>Why is the limit {watchlistLimit}?</strong> Observer profiles can monitor ten assets. A verified wallet with at least {formatTokenThreshold(entitlements?.holderThreshold)} MHR unlocks 30 without changing your existing profile.</p><button type="button" onClick={() => setView("wallets")}>UNLOCK WITH MHR</button></div> : null}
             <div className="workspace-asset-grid">
               {visibleAssets.map((asset) => {
                 const selected = selectedSet.has(asset.tokenSymbol);
@@ -487,7 +491,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
                   <p className="mono">ROBINHOOD CHAIN / {wallet.chainId}</p>
                   <div className={`workspace-mhr-status ${wallet.mhr.status}`}>
                     <span className="mono">$MHR STATUS</span>
-                    <strong>{wallet.mhr.status === "holder" ? "HOLDER" : wallet.mhr.status === "not_held" ? "NOT HELD" : "UNAVAILABLE"}</strong>
+                    <strong>{wallet.mhr.status === "holder" ? "BALANCE FOUND" : wallet.mhr.status === "not_held" ? "NOT HELD" : "UNAVAILABLE"}</strong>
                     <small>{formatTokenBalance(wallet.mhr.balance)} MHR</small>
                     <a href={`https://robinhoodchain.blockscout.com/address/${MHR_CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer">VERIFY CONTRACT <ExternalLink size={12} /></a>
                   </div>
@@ -558,7 +562,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
             <div className="workspace-profile-grid">
               <article><CircleUserRound size={25} /><span className="mono">PRIMARY ACCESS</span><h2>{profile?.account.primaryMethod === "wallet" ? "Wallet signature" : "Email and password"}</h2><p>{profile?.account.email ?? profile?.wallets[0]?.address ?? "MIHARI profile"}</p></article>
               <article><Activity size={25} /><span className="mono">ADD ACCESS METHOD</span><h2>{profile?.account.email ? "Email connected" : "Add recovery email"}</h2><p>{profile?.account.email ? "You can access this profile by email and linked wallet." : "Connect email access without losing this wallet profile."}</p>{profile?.account.email ? <button onClick={() => setView("wallets")}>MANAGE WALLETS</button> : <Link href="/sign-in?redirect_url=/map">ADD EMAIL ACCESS <ArrowRight size={14} /></Link>}</article>
-              <article><FileCheck2 size={25} /><span className="mono">PRODUCT ACCESS</span><h2>{isHolder ? "$MHR Holder" : "Observer"}</h2><p>{isHolder ? "Higher limits, multi-wallet DeFi scanning and the complete Risk Graph are unlocked." : `Direct and DeFi monitoring are active for one wallet. Hold ${entitlements?.holderThreshold ?? "1"} MHR to unlock higher limits and the complete Risk Graph.`}</p></article>
+              <article><FileCheck2 size={25} /><span className="mono">PRODUCT ACCESS</span><h2>{isHolder ? "$MHR Holder" : "Observer"}</h2><p>{isHolder ? "Higher limits, multi-wallet DeFi scanning and protocol paths in the Risk Graph are unlocked." : `Direct holdings and watchlist signals are active. Hold ${formatTokenThreshold(entitlements?.holderThreshold)} MHR to unlock personal DeFi scans and higher limits.`}</p></article>
             </div>
           </section>
         ) : null}
@@ -567,7 +571,9 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
           <ProtocolExposure
             walletCount={profile?.wallets.length ?? 0}
             holderAccess={isHolder}
-            holderThreshold={entitlements?.holderThreshold ?? "1"}
+            holderThreshold={entitlements?.holderThreshold ?? "1000000"}
+            holdingSymbols={profile?.exposure.positions.map((position) => position.symbol) ?? []}
+            watchlistSymbols={profile?.watchlist?.symbols ?? []}
             onOpenWallets={() => setView("wallets")}
           />
         ) : null}
@@ -576,15 +582,17 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
           <RiskGraph
             directPositions={profile?.exposure.positions ?? []}
             directEvents={profile?.exposure.events ?? []}
+            watchlistSymbols={profile?.watchlist?.symbols ?? []}
             walletCount={profile?.wallets.length ?? 0}
             fullGraph={Boolean(entitlements?.features.fullRiskGraph)}
-            holderThreshold={entitlements?.holderThreshold ?? "1"}
+            holderThreshold={entitlements?.holderThreshold ?? "1000000"}
             onOpenWallets={() => setView("wallets")}
             onOpenDirectRisk={(position) => {
               setView("exposure");
               void openPositionRisk(position);
             }}
             onOpenProtocolExposure={() => setView("defi")}
+            onOpenEvents={() => setView("events")}
           />
         ) : null}
       </main>

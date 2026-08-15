@@ -30,9 +30,9 @@ export type ProductEntitlements = {
 };
 
 function threshold() {
-  const configured = process.env.MHR_HOLDER_THRESHOLD?.trim() || "1";
+  const configured = process.env.MHR_HOLDER_THRESHOLD?.trim() || "1000000";
   const parsed = Number(configured);
-  return Number.isFinite(parsed) && parsed > 0 ? configured : "1";
+  return Number.isFinite(parsed) && parsed > 0 ? configured : "1000000";
 }
 
 export function entitlementsFromHoldings(holdings: MhrHolding[]): ProductEntitlements {
@@ -59,7 +59,7 @@ export function entitlementsFromHoldings(holdings: MhrHolding[]): ProductEntitle
     features: {
       directExposure: true,
       officialEvents: true,
-      protocolExposure: true,
+      protocolExposure: holder,
       fullRiskGraph: holder,
     },
   };
@@ -73,4 +73,12 @@ export async function getAccountEntitlements(accountId: string) {
   const addresses = linkedWallets.filter((wallet) => wallet.verified).map((wallet) => wallet.address);
   const holdings = addresses.length ? await getMhrHoldings(addresses) : [];
   return entitlementsFromHoldings(holdings);
+}
+
+export function mhrRequiredResponse(entitlements: ProductEntitlements) {
+  return Response.json({
+    error: `Hold at least ${Number(entitlements.holderThreshold).toLocaleString("en-US")} MHR in verified wallets to unlock personal DeFi scanning.`,
+    code: "MHR_REQUIRED",
+    entitlements,
+  }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
 }

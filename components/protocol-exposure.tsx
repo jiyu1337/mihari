@@ -4,10 +4,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   ArrowRight,
-  CircleHelp,
   Database,
   Landmark,
   LoaderCircle,
+  LockKeyhole,
   RefreshCw,
   ShieldCheck,
   Wallet,
@@ -18,11 +18,14 @@ import type {
   ProtocolPosition,
   ProtocolScan,
 } from "@/lib/protocol-exposure";
+import { protocolCatalog as previewProtocolCatalog } from "@/lib/protocols/catalog";
 
 type ProtocolExposureProps = {
   walletCount: number;
   holderAccess: boolean;
   holderThreshold: string;
+  holdingSymbols: string[];
+  watchlistSymbols: string[];
   onOpenWallets: () => void;
 };
 
@@ -67,6 +70,10 @@ function shortAddress(address: string) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
 
+function formatTokenAmount(value: string) {
+  return Number(value).toLocaleString("en-US", { maximumFractionDigits: 0 });
+}
+
 function scanLabel(scan: ProtocolScan | undefined, protocol: ProtocolDefinition, loading: boolean) {
   if (protocol.stage === "planned") return "PLANNED";
   if (loading) return "SCANNING";
@@ -74,12 +81,24 @@ function scanLabel(scan: ProtocolScan | undefined, protocol: ProtocolDefinition,
   return scan.status.toUpperCase();
 }
 
-export function ProtocolExposure({ walletCount, holderAccess, holderThreshold, onOpenWallets }: ProtocolExposureProps) {
+export function ProtocolExposure({
+  walletCount,
+  holderAccess,
+  holderThreshold,
+  holdingSymbols,
+  watchlistSymbols,
+  onOpenWallets,
+}: ProtocolExposureProps) {
   const [snapshot, setSnapshot] = useState<ProtocolExposureResponse | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(holderAccess);
   const [error, setError] = useState("");
 
   const scan = useCallback(async () => {
+    if (!holderAccess) {
+      setLoading(false);
+      setSnapshot(null);
+      return;
+    }
     setLoading(true);
     setError("");
     try {
@@ -92,32 +111,45 @@ export function ProtocolExposure({ walletCount, holderAccess, holderThreshold, o
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [holderAccess]);
 
   useEffect(() => {
+    if (!holderAccess) return;
     const timer = window.setTimeout(() => void scan(), 0);
     return () => window.clearTimeout(timer);
-  }, [scan]);
+  }, [holderAccess, scan]);
+
+  const holdingSet = useMemo(() => new Set(holdingSymbols.map((symbol) => symbol.toUpperCase())), [holdingSymbols]);
+  const researchScope = useMemo(() => [
+    ...[...holdingSet].map((symbol) => ({ symbol, status: "HOLDING" as const })),
+    ...watchlistSymbols
+      .map((symbol) => symbol.toUpperCase())
+      .filter((symbol) => !holdingSet.has(symbol))
+      .map((symbol) => ({ symbol, status: "WATCHLIST / RESEARCH" as const })),
+  ], [holdingSet, watchlistSymbols]);
 
   const totalValue = useMemo(() => snapshot?.positions.reduce(
     (total, position) => total + Number(position.valueUsd ?? 0),
     0,
   ) ?? 0, [snapshot]);
   const eventMatches = snapshot?.positions.filter((position) => position.hasCorporateAction).length ?? 0;
+  const catalog = snapshot?.protocolCatalog ?? previewProtocolCatalog;
   const protocolById = useMemo(() => new Map(
-    snapshot?.protocolCatalog.map((protocol) => [protocol.id, protocol]) ?? [],
-  ), [snapshot]);
+    catalog.map((protocol) => [protocol.id, protocol]),
+  ), [catalog]);
   const scanByProtocol = useMemo(() => new Map(
     snapshot?.scans.map((scan) => [scan.protocol, scan]) ?? [],
   ), [snapshot]);
-  const activeProtocolIds = useMemo(() => new Set(snapshot?.protocolCatalog
+  const activeProtocolIds = useMemo(() => new Set(catalog
     .filter((protocol) => protocol.stage !== "planned")
-    .map((protocol) => protocol.id) ?? []), [snapshot]);
+    .map((protocol) => protocol.id)), [catalog]);
   const activeScans = snapshot?.scans.filter((scan) => activeProtocolIds.has(scan.protocol)) ?? [];
   const checkedProtocols = activeScans.filter((scan) => scan.status === "live" || scan.status === "partial").length;
   const hasUnavailableSource = activeScans.some((scan) => scan.status === "unavailable");
   const hasPartialSource = activeScans.some((scan) => scan.status === "partial");
-  const sourceStatus = loading
+  const sourceStatus = !holderAccess
+    ? "HOLDER REQUIRED"
+    : loading
     ? "SCANNING"
     : error
       ? "ERROR"
@@ -138,8 +170,8 @@ export function ProtocolExposure({ walletCount, holderAccess, holderThreshold, o
 
       {!holderAccess ? (
         <div className="workspace-inline-help protocol-access-help">
-          <CircleHelp size={20} />
-          <p><strong>Your Observer DeFi scan is active.</strong> It checks one verified wallet across every active adapter below. Hold at least {holderThreshold} MHR to scan up to five wallets and add protocol positions to the complete Risk Graph.</p>
+          <LockKeyhole size={20} />
+          <p><strong>DeFi scanning requires Holder access.</strong> You can review supported protocols and your research scope below. Hold at least {formatTokenAmount(holderThreshold)} MHR in a verified wallet to scan personal lending, vault, liquidity and perpetual positions.</p>
           <button type="button" onClick={onOpenWallets}>CHECK MHR STATUS</button>
         </div>
       ) : null}
@@ -147,8 +179,8 @@ export function ProtocolExposure({ walletCount, holderAccess, holderThreshold, o
       <div className="protocol-source-bar mono">
         <span><Landmark size={14} />ENGINE <strong>MULTI-PROTOCOL</strong></span>
         <span><Database size={14} />SOURCE <strong>{sourceStatus}</strong></span>
-        <span>COVERAGE <strong>{checkedProtocols} CHECKED / {snapshot?.protocolCatalog.length ?? 7} MAPPED</strong></span>
-        <button onClick={() => void scan()} disabled={loading}><RefreshCw className={loading ? "spin" : ""} size={14} />SCAN AGAIN</button>
+        <span>COVERAGE <strong>{holderAccess ? `${checkedProtocols} CHECKED / ${catalog.length} MAPPED` : `${catalog.length} PROTOCOLS`}</strong></span>
+        <button onClick={holderAccess ? () => void scan() : onOpenWallets} disabled={loading}>{holderAccess ? <RefreshCw className={loading ? "spin" : ""} size={14} /> : <LockKeyhole size={14} />}{holderAccess ? "SCAN AGAIN" : "UNLOCK SCAN"}</button>
       </div>
 
       <div className="workspace-metrics protocol-metrics mono">
@@ -158,6 +190,26 @@ export function ProtocolExposure({ walletCount, holderAccess, holderThreshold, o
         <div className={eventMatches ? "alert" : ""}><span>EVENT MATCHES</span><strong>{eventMatches}</strong></div>
       </div>
 
+      <section className="protocol-scope">
+        <header>
+          <div><p className="mono">ASSET SCOPE / HOLDINGS FIRST</p><h2>What MIHARI is checking.</h2></div>
+          <span className="mono">{researchScope.length} ASSETS</span>
+        </header>
+        {researchScope.length ? (
+          <div className="protocol-scope-grid">
+            {researchScope.map((asset) => (
+              <article className={asset.status === "HOLDING" ? "holding" : "watchlist"} key={asset.symbol}>
+                <strong>{asset.symbol}</strong>
+                <span className="mono">{asset.status}</span>
+                <small>{asset.status === "HOLDING" ? "Found in a verified wallet. Eligible for personal protocol matching." : "Monitored before purchase. This is research scope, not proof of a DeFi position."}</small>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <p className="protocol-scope-empty">No holdings or watchlist assets yet. Add Stock Tokens on the Assets page to create a research scope.</p>
+        )}
+      </section>
+
       <div className="protocol-explainer">
         <article><Wallet size={20} /><span><strong>Direct holdings</strong><small>The Exposure page shows Stock Tokens held directly by your verified wallets.</small></span></article>
         <ArrowRight size={18} />
@@ -166,9 +218,9 @@ export function ProtocolExposure({ walletCount, holderAccess, holderThreshold, o
         <article><ShieldCheck size={20} /><span><strong>Event match</strong><small>MIHARI checks whether an official corporate action touches the Stock Token inside that position.</small></span></article>
       </div>
 
-      {snapshot?.protocolCatalog.length ? (
+      {catalog.length ? (
         <div className="protocol-coverage-grid">
-          {snapshot.protocolCatalog.map((protocol) => {
+          {catalog.map((protocol) => {
             const protocolScan = scanByProtocol.get(protocol.id);
             const label = scanLabel(protocolScan, protocol, loading);
             return (
@@ -183,7 +235,7 @@ export function ProtocolExposure({ walletCount, holderAccess, holderThreshold, o
                   {protocol.capabilities.map((capability) => <span key={capability}>{capability}</span>)}
                 </div>
                 <footer className="mono">
-                  <span>{protocolScan?.positionCount ?? 0} POSITIONS</span>
+                  <span>{holderAccess ? `${protocolScan?.positionCount ?? 0} POSITIONS` : "PREVIEW"}</span>
                   <span>{protocol.stage.toUpperCase()}</span>
                 </footer>
               </article>
@@ -192,7 +244,17 @@ export function ProtocolExposure({ walletCount, holderAccess, holderThreshold, o
         </div>
       ) : null}
 
-      {loading ? (
+      {!holderAccess ? (
+        <div className="workspace-feature-gate protocol-holder-gate">
+          <span className="workspace-feature-gate-icon"><LockKeyhole size={27} /></span>
+          <div>
+            <p className="mono">MHR HOLDER ACCESS</p>
+            <h2>Unlock personal protocol exposure.</h2>
+            <p>The page above shows coverage and your research scope. A verified balance of at least {formatTokenAmount(holderThreshold)} MHR unlocks read-only scans for positions tied to your wallets. Watchlist assets remain research signals until MIHARI proves a position.</p>
+            <button type="button" onClick={onOpenWallets}>OPEN WALLETS</button>
+          </div>
+        </div>
+      ) : loading ? (
         <div className="workspace-empty protocol-empty"><LoaderCircle className="spin" size={30} /><h2>Scanning protocol positions.</h2><p>This is read-only. MIHARI never requests token approvals or transactions.</p></div>
       ) : error ? (
         <div className="workspace-empty protocol-empty"><AlertTriangle size={30} /><h2>Protocol engine unavailable.</h2><p>{error}</p><button onClick={() => void scan()}>TRY AGAIN</button></div>

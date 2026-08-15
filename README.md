@@ -50,8 +50,8 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | `03` | Start Observe mode | Syncs official asset, price, multiplier and corporate-action data |
 | `04` | Review the Event Register | Surfaces only watched assets with matching events |
 | `05` | Open an Incident File | Explains evidence, risk, affected systems and confidence |
-| `06` | Open DeFi Exposure | Checks supported lending, vault, DEX liquidity and perpetual positions for Stock Token exposure |
-| `07` | Open Risk Graph | Connects a live event to the official Stock Token and every proven direct or supported protocol position |
+| `06` | Open DeFi Exposure | Shows protocol coverage and holdings-first research scope. Holder access scans personal lending, vault, DEX liquidity and perpetual positions |
+| `07` | Open Risk Graph | Connects live events to holdings and watchlist signals. Holder access also adds proven protocol positions |
 | `08` | Review the Bounded Response | Recommends a safe next step while the operator remains in control |
 
 ## What is live
@@ -76,8 +76,8 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Uniswap V4 liquidity discovery | `BETA` | Reads V4 LP NFTs, PoolKey data, liquidity and live pool state for Stock Token exposure |
 | Arcus perpetual discovery | `BETA` | Reads public Stock Token perpetual positions with side, leverage, margin mode and unrealized PnL |
 | Lighter perpetual discovery | `BETA` | Reads public Lighter accounts and subaccounts, then keeps positions matched to official Stock Token symbols |
-| Unified Risk Graph | `BETA` | Builds live event-to-asset-to-position paths across direct holdings and active protocol adapters |
-| MHR Holder access | `BETA` | Unlocks larger limits, multi-wallet DeFi scanning and the full Risk Graph after an onchain balance check |
+| Unified Risk Graph | `BETA` | Builds live signals across direct holdings and watchlist assets. Holder access adds active protocol adapters |
+| MHR Holder access | `BETA` | Unlocks larger limits, personal DeFi scanning and protocol paths in the Risk Graph after an onchain balance check |
 | Ecosystem coverage registry | `LIVE` | Shows which Robinhood Chain sources are checked today and which adapters remain planned |
 | Policy execution | `NEXT` | No automatic protocol action or fund movement today |
 | Onchain proofs | `NEXT` | Production attestations require audited contracts |
@@ -129,10 +129,10 @@ Planned utility is designed around product use:
 | Access | Watchlist | Wallets | New AI analyses per 24 hours | Mapping |
 | --- | ---: | ---: | ---: | --- |
 | **Public** | 3 assets | 0 | Cached or rule based | Public corporate-action monitoring |
-| **Observer** | 10 assets | 1 | 1 | Direct holdings, official events and supported DeFi positions for one wallet |
-| **MHR Holder** | 30 assets | 5 | 10 | Multi-wallet direct and DeFi exposure plus the full Risk Graph |
+| **Observer** | 10 assets | 1 | 1 | Direct holdings, official events, watchlist research and the direct Risk Graph |
+| **MHR Holder** | 30 assets | 5 | 10 | Multi-wallet direct exposure, personal DeFi scans and protocol paths in the Risk Graph |
 
-Holder access currently requires at least `1 MHR` across verified wallets. The threshold is configurable with `MHR_HOLDER_THRESHOLD`. Every restriction is enforced by the server. Cached AI analysis is reused and does not consume another request.
+Holder access currently requires at least `1,000,000 MHR` across verified wallets. The threshold is configurable with `MHR_HOLDER_THRESHOLD`. Every restriction is enforced by the server. Cached AI analysis is reused and does not consume another request.
 
 ## Roadmap
 

@@ -64,14 +64,14 @@ Required for the next production milestone:
 - `DATABASE_URL`: temporary fallback for the previous manual connection; remove it after Neon is verified.
 - `OPENAI_API_KEY`: direct OpenAI API key. Keep it server-only and marked Sensitive in Vercel.
 - `MIHARI_AI_MODEL`: optional model override; defaults to `gpt-5-mini` for controlled cost.
-- `MHR_HOLDER_THRESHOLD`: minimum combined `$MHR` balance across verified wallets for Holder access. The beta default is `1`.
+- `MHR_HOLDER_THRESHOLD`: minimum combined `$MHR` balance across verified wallets for Holder access. The beta default is `1000000`.
 - `ROBINHOOD_API_BASE_URL`: official Stock Token API host.
 - `NEXT_PUBLIC_RPC_URL`: Robinhood Chain mainnet RPC.
 - contract address variables after audited mainnet deployment.
 
 ## Current product limits
 
-Public sessions can monitor 3 assets without a profile. Observer profiles can monitor 10 assets, verify 1 wallet, scan supported DeFi positions for that wallet and request 1 new AI analysis per rolling 24-hour window. MHR Holder profiles can monitor 30 assets, verify 5 wallets and request 10 new AI analyses. Holder access also unlocks multi-wallet DeFi scanning and the full Risk Graph.
+Public sessions can monitor 3 assets without a profile. Observer profiles can monitor 10 assets, verify 1 wallet, map direct holdings, review watchlist signals and request 1 new AI analysis per rolling 24-hour window. The DeFi page remains visible as a coverage and research preview. MHR Holder profiles can monitor 30 assets, verify 5 wallets and request 10 new AI analyses. Holder access unlocks personal DeFi scanning and adds proven protocol positions to the Risk Graph.
 
 The API enforces these limits. The interface explains the rule but is not the security boundary. Cached event analysis is reused without another model call. A rule-based explanation remains available when an AI limit is reached.
 

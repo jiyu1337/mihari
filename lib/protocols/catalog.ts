@@ -1,0 +1,60 @@
+import type { ProtocolDefinition } from "@/lib/protocol-exposure";
+
+export const protocolCatalog: ProtocolDefinition[] = [
+  {
+    id: "morpho",
+    name: "Morpho",
+    category: "lending",
+    stage: "live",
+    description: "Lending markets, collateral, borrowing and vault deposits.",
+    capabilities: ["SUPPLY", "COLLATERAL", "BORROW", "VAULTS"],
+  },
+  {
+    id: "uniswap-v3",
+    name: "Uniswap V3",
+    category: "dex",
+    stage: "beta",
+    description: "Concentrated liquidity positions containing official Stock Tokens.",
+    capabilities: ["LP POSITIONS", "RANGE STATUS", "TOKEN EXPOSURE"],
+  },
+  {
+    id: "uniswap-v4",
+    name: "Uniswap V4",
+    category: "dex",
+    stage: "beta",
+    description: "V4 liquidity positions containing official Stock Tokens.",
+    capabilities: ["LP POSITIONS", "RANGE STATUS", "TOKEN EXPOSURE"],
+  },
+  {
+    id: "rialto",
+    name: "Rialto",
+    category: "dex",
+    stage: "planned",
+    description: "PropAMM and routed liquidity exposure when position data is available.",
+    capabilities: ["LIQUIDITY", "ROUTING"],
+  },
+  {
+    id: "lighter",
+    name: "Lighter",
+    category: "perps",
+    stage: "beta",
+    description: "Public Stock Token perpetual positions across Lighter accounts and subaccounts.",
+    capabilities: ["PERPS", "LONG / SHORT", "MARGIN", "PNL"],
+  },
+  {
+    id: "arcus",
+    name: "Arcus",
+    category: "perps",
+    stage: "beta",
+    description: "Public perpetual positions matched to official Stock Token symbols.",
+    capabilities: ["PERPS", "LONG / SHORT", "MARGIN", "PNL"],
+  },
+  {
+    id: "chainlink",
+    name: "Chainlink",
+    category: "oracle",
+    stage: "planned",
+    description: "Oracle dependency mapping for protocol prices and policy checks.",
+    capabilities: ["PRICE FEEDS", "STALE DATA", "DEPENDENCIES"],
+  },
+];

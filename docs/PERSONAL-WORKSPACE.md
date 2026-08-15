@@ -76,16 +76,16 @@ For every verified wallet, MIHARI checks the official `$MHR` contract `0x92150e0
 
 | Status | Meaning |
 | --- | --- |
-| Holder | The verified address has a non-zero `$MHR` balance |
+| Balance Found | The verified address has a non-zero `$MHR` balance. This does not by itself mean the profile reached the Holder access threshold |
 | Not Held | The scan completed and found no non-zero `$MHR` balance |
 | Unavailable | Blockscout did not return a usable balance response, so MIHARI does not assume zero |
 
-MIHARI adds the `$MHR` balances across verified wallets. The initial beta threshold is 1 MHR and can be changed through the server environment without changing the token contract. Access is calculated by the server from current onchain balances.
+MIHARI adds the `$MHR` balances across verified wallets. The current beta threshold is 1,000,000 MHR and can be changed through the server environment without changing the token contract. Access is calculated by the server from current onchain balances.
 
 | Access | Watchlist | Verified wallets | New AI analyses per 24 hours | Position mapping |
 | --- | ---: | ---: | ---: | --- |
-| Observer | 10 | 1 | 1 | Direct holdings, official events and supported DeFi positions for one wallet |
-| MHR Holder | 30 | 5 | 10 | Multi-wallet direct and DeFi exposure plus the full Risk Graph |
+| Observer | 10 | 1 | 1 | Direct holdings, official events, watchlist research and the direct Risk Graph |
+| MHR Holder | 30 | 5 | 10 | Multi-wallet direct exposure, personal DeFi scans and protocol paths in the Risk Graph |
 
 Cached AI results do not consume another analysis because MIHARI reuses the existing verified result. If an AI limit is reached, the product still returns a rule-based explanation and monitoring continues.
 
@@ -112,7 +112,16 @@ The indicative value is informational. It is not an executable quote and does no
 
 ### DeFi Exposure
 
-DeFi Exposure is available to every registered profile and is separate from direct wallet Exposure. Observer access scans supported protocols for one verified wallet. MHR Holder access expands that scan across up to five verified wallets. MIHARI looks for Stock Tokens that may be supplied, borrowed, posted as collateral, deposited into a vault, represented inside liquidity or used as the market for a perpetual position.
+The DeFi Exposure page is visible to every registered profile and is separate from direct wallet Exposure. Observers can review supported integrations and see an asset research scope that places wallet holdings first, followed by watchlist-only assets. This preview does not query personal protocol positions. A combined verified balance of at least 1,000,000 MHR unlocks read-only protocol scans across up to five verified wallets.
+
+The asset scope uses two explicit labels:
+
+| Scope label | Meaning |
+| --- | --- |
+| Holding | The Stock Token was found in a verified wallet and can be matched to a personal protocol position |
+| Watchlist / Research | The asset was selected for monitoring but is not claimed as a holding or DeFi position |
+
+Holder scans look for Stock Tokens that may be supplied, borrowed, posted as collateral, deposited into a vault, represented inside liquidity or used as the market for a perpetual position.
 
 Five read-only adapters are active for Robinhood Chain exposure:
 
@@ -168,7 +177,7 @@ One Uniswap LP NFT can create two position rows when both sides of the pool are 
 
 ### Unified Risk Graph
 
-Risk Graph always shows direct wallet paths. Observer users can inspect supported DeFi positions on the DeFi Exposure page, while MHR Holder access adds those protocol positions to the same unified graph. It answers a narrower question than a portfolio dashboard: **which current official corporate action can reach a position MIHARI has actually mapped?**
+Risk Graph is available to every registered profile. It prioritizes verified wallet holdings, then adds watchlist assets as research signals. A watchlist signal is not described as proven exposure. MHR Holder access adds supported protocol positions to the same graph. The graph answers two questions: **which current official corporate action reaches a position MIHARI has mapped, and which event should a user review before buying a watched asset?**
 
 Each active path contains three verified layers:
 
@@ -182,10 +191,11 @@ The graph uses deterministic matching. AI does not invent nodes or edges. Direct
 
 | Graph label | Meaning |
 | --- | --- |
-| Current Events | Official corporate actions that match at least one mapped asset |
-| Mapped Assets | Unique Stock Token symbols found across direct and supported protocol positions |
+| Active Signals | Official corporate actions that match a holding, supported protocol position or watchlist asset |
+| Tracked Assets | Unique Stock Token symbols found across holdings, protocol positions and the watchlist |
 | Direct Paths | Verified wallet balance rows touched by current events |
 | Protocol Paths | Supported protocol position rows touched by current events |
+| Watchlist Signal | A monitored asset has an official event, but MIHARI has not found a direct or protocol position for it |
 | Live | All active protocol requests completed successfully |
 | Partial | Direct paths remain usable, but at least one active protocol source is incomplete or unavailable |
 | No Active Path | No current official corporate action matches a mapped position. Monitoring continues |

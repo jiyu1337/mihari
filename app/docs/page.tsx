@@ -32,8 +32,8 @@ const statusRows = [
   ["Uniswap V4 liquidity discovery", "Beta", "Reads V4 LP NFTs, pool state and tick ranges to calculate Stock Token exposure."],
   ["Arcus perpetual discovery", "Beta", "Matches public Arcus perpetual positions to official Stock Token symbols and reports side, leverage, margin and PnL."],
   ["Lighter perpetual discovery", "Beta", "Reads public Lighter accounts and subaccounts for active Stock Token perpetual positions."],
-  ["Unified Risk Graph", "Beta", "Connects live Robinhood events to verified direct holdings and supported protocol positions."],
-  ["MHR Holder access", "Beta", "Unlocks larger limits, multi-wallet DeFi scanning and the full Risk Graph after an onchain balance check."],
+  ["Unified Risk Graph", "Beta", "Connects live Robinhood events to holdings, watchlist research signals and, for Holders, supported protocol positions."],
+  ["MHR Holder access", "Beta", "Unlocks larger limits, personal DeFi scanning and protocol paths in the Risk Graph after an onchain balance check."],
   ["Protocol coverage registry", "Live", "Separates active adapters from planned Robinhood Chain integrations."],
   ["Policy execution", "Next", "MIHARI does not pause protocols or move funds today."],
   ["Onchain proof", "Next", "No production receipt is written until contracts are audited and deployed."],
@@ -224,26 +224,26 @@ export default function DocsPage() {
             <h2>Clear limits, checked onchain.</h2>
             <p>
               Every profile starts with useful Observer access. MIHARI adds the MHR balances across
-              verified wallets. A combined balance of at least 1 MHR unlocks Holder access in the
+              verified wallets. A combined balance of at least 1,000,000 MHR unlocks Holder access in the
               current beta. The balance check is read-only and cannot move tokens.
             </p>
             <p>
               Visitors without a profile can monitor up to 3 assets in the public Observe experience.
-              A registered Observer receives the full personal workspace, one verified wallet and a
-              basic DeFi scan. Holder access increases capacity and combines protocol positions into
-              the Unified Risk Graph.
+              A registered Observer receives the full personal workspace, one verified wallet,
+              watchlist research signals and a direct Risk Graph. The DeFi page shows its coverage
+              preview, while Holder access unlocks personal protocol scans.
             </p>
             <div className="docs-compare">
               <div>
                 <span className="mono">OBSERVER</span>
                 <h3>Direct monitoring</h3>
-                <p>Monitor 10 assets, verify 1 wallet, request 1 new AI analysis per 24 hours and map direct plus supported DeFi exposure for that wallet.</p>
+                <p>Monitor 10 assets, verify 1 wallet, request 1 new AI analysis per 24 hours and map direct holdings plus watchlist research signals.</p>
               </div>
               <ArrowRight size={22} />
               <div className="highlight">
                 <span className="mono">MHR HOLDER</span>
                 <h3>Complete position map</h3>
-                <p>Monitor 30 assets, verify 5 wallets, request 10 new AI analyses and add supported DeFi positions to the full Risk Graph.</p>
+                <p>Monitor 30 assets, verify 5 wallets, request 10 new AI analyses, scan personal DeFi positions and add proven protocol paths to the Risk Graph.</p>
               </div>
             </div>
             <div className="docs-callout">
@@ -279,8 +279,8 @@ export default function DocsPage() {
               <div><span className="mono">ASSETS</span><strong>Watchlist and contract directory</strong><p>Search the live catalog, use the limit shown for your profile, copy official contract addresses and verify deployments in Blockscout.</p></div>
               <div><span className="mono">WALLETS</span><strong>Verified wallets and $MHR</strong><p>Link multiple EVM addresses, see their verification status and check whether each address holds the official $MHR token.</p></div>
               <div><span className="mono">EXPOSURE</span><strong>Stock Tokens found onchain</strong><p>MIHARI scans the full official catalog, not only the watchlist. It shows balances, indicative values and whether a current corporate action matches each holding.</p></div>
-              <div><span className="mono">RISK GRAPH</span><strong>Current paths from event to position</strong><p>Connects a live Robinhood event to the official Stock Token and every matching direct or supported protocol position MIHARI can prove.</p></div>
-              <div><span className="mono">DEFI</span><strong>Stock Tokens inside supported protocols</strong><p>Scans verified wallets for Morpho lending, Uniswap liquidity and Arcus or Lighter perpetual positions, then matches recognized Stock Tokens with current corporate actions.</p></div>
+              <div><span className="mono">RISK GRAPH</span><strong>Holdings and research signals</strong><p>Connects a live Robinhood event to direct holdings and watchlist assets. Holder access adds every supported protocol position MIHARI can prove.</p></div>
+              <div><span className="mono">DEFI</span><strong>Coverage preview and Holder scan</strong><p>Everyone can review supported protocols and watchlist research scope. Holders can scan verified wallets for Morpho, Uniswap, Arcus and Lighter positions.</p></div>
               <div><span className="mono">PERSONAL RISK FILE</span><strong>Risk attached to a real holding</strong><p>If a wallet holding has an Event Match, View Risk adds the position balance to the event analysis so the user can review personal exposure.</p></div>
               <div><span className="mono">PROFILE</span><strong>Access and product mode</strong><p>See whether the profile started with wallet or email access, add the missing access method and confirm that the product remains in read-only Observe mode.</p></div>
               <div><span className="mono">RESCAN</span><strong>Refresh wallet information</strong><p>Request fresh profile data, wallet balances, Stock Token positions, $MHR status, prices and event matching.</p></div>
@@ -295,7 +295,7 @@ export default function DocsPage() {
               <div><strong>Contract / Chain 4663</strong><span className="status-pill readonly">Source data</span><p>The official Robinhood Stock Token deployment used for wallet matching on Robinhood Chain.</p></div>
               <div><strong>Save scope</strong><span className="status-pill readonly">Profile action</span><p>Saves the current selection to this private MIHARI profile.</p></div>
               <div><strong>Watchlist limit</strong><span className="status-pill readonly">Server enforced</span><p>Public access supports 3 assets, Observer access supports 10 and MHR Holder access supports 30. Wallet holdings are still scanned across the full official catalog.</p></div>
-              <div><strong>$MHR Holder</strong><span className="status-pill live">Onchain</span><p>The verified address has a non-zero balance of the official $MHR contract.</p></div>
+              <div><strong>$MHR Balance Found</strong><span className="status-pill live">Onchain</span><p>The verified address has a non-zero balance of the official $MHR contract. Holder product access starts only when combined verified balances reach 1,000,000 MHR.</p></div>
               <div><strong>$MHR Not Held</strong><span className="status-pill readonly">Onchain</span><p>The balance scan completed and no non-zero $MHR balance was found.</p></div>
               <div><strong>$MHR Unavailable</strong><span className="status-pill next">Source issue</span><p>The balance source did not return a usable response, so MIHARI does not assume the balance is zero.</p></div>
             </div>
@@ -351,9 +351,10 @@ export default function DocsPage() {
             <p className="docs-kicker mono">11 / UNIFIED RISK GRAPH</p>
             <h2>How to read an event-to-position path.</h2>
             <p>
-              Risk Graph combines direct wallet holdings and supported protocol positions. It shows
-              where a current official corporate action can reach exposure that MIHARI has actually
-              mapped. It does not create hypothetical positions or use simulated fallback events.
+              Risk Graph prioritizes direct wallet holdings and then adds watchlist assets as research
+              signals. It shows where a current official corporate action reaches exposure that MIHARI
+              has mapped, or which event should be reviewed before buying a watched asset. Holder access
+              also adds supported protocol positions. It does not create hypothetical positions or use simulated fallback events.
             </p>
             <div className="docs-flow docs-workflow">
               <div><AlertTriangle size={20} /><span className="mono">01 / EVENT</span><strong>Live Robinhood record</strong><p>The path starts only from an official corporate action returned in live mode.</p></div>
@@ -362,10 +363,11 @@ export default function DocsPage() {
               <div><Landmark size={20} /><span className="mono">04 / PROTOCOL</span><strong>Supported protocol position</strong><p>Each protocol path identifies the adapter, position type, amount and available margin or PnL context.</p></div>
             </div>
             <div className="status-table docs-label-table">
-              <div><strong>Current Events</strong><span className="status-pill live">Official</span><p>Corporate actions that match at least one mapped Stock Token asset.</p></div>
-              <div><strong>Mapped Assets</strong><span className="status-pill readonly">Scope</span><p>Unique Stock Token symbols found across direct and supported protocol positions.</p></div>
+              <div><strong>Active Signals</strong><span className="status-pill live">Official</span><p>Corporate actions that match a holding, supported protocol position or watchlist asset.</p></div>
+              <div><strong>Tracked Assets</strong><span className="status-pill readonly">Scope</span><p>Unique Stock Token symbols found across holdings, protocol positions and the watchlist.</p></div>
               <div><strong>Direct Paths</strong><span className="status-pill readonly">Wallet</span><p>Verified wallet balance rows touched by the current official events.</p></div>
               <div><strong>Protocol Paths</strong><span className="status-pill beta">Adapter</span><p>Supported protocol position rows touched by the current official events.</p></div>
+              <div><strong>Watchlist Signal</strong><span className="status-pill readonly">Research</span><p>A watched asset has an official event, but MIHARI has not found a personal position for it.</p></div>
               <div><strong>Partial</strong><span className="status-pill beta">Source</span><p>Usable direct paths remain visible while at least one protocol source is incomplete or unavailable.</p></div>
               <div><strong>No Active Path</strong><span className="status-pill readonly">Monitoring</span><p>No current official event matches a mapped position. This is not a guarantee of zero risk.</p></div>
             </div>
@@ -385,8 +387,8 @@ export default function DocsPage() {
               to decide whether a position contains a Stock Token.
             </p>
             <div className="docs-callout">
-              <strong>Available to every registered profile.</strong>
-              <p>Observer access scans one verified wallet. MHR Holder access scans up to five verified wallets and adds the resulting protocol positions to the full Unified Risk Graph.</p>
+              <strong>Visible to everyone, personal scans for Holders.</strong>
+              <p>Observers can review protocol coverage and an asset scope with holdings first and watchlist-only research assets second. A combined verified balance of at least 1,000,000 MHR unlocks personal scans across up to five wallets and adds proven protocol positions to the Risk Graph.</p>
             </div>
             <div className="docs-flow docs-workflow">
               <div><Wallet size={20} /><span className="mono">01 / IDENTITY</span><strong>Read verified addresses</strong><p>Only wallets already linked to the MIHARI profile are scanned.</p></div>
@@ -419,6 +421,8 @@ export default function DocsPage() {
             </div>
             <h3 className="docs-subheading">How to read the DeFi dashboard</h3>
             <div className="docs-result-grid">
+              <div><span className="mono">HOLDING</span><strong>Found in a verified wallet</strong><p>The asset is prioritized and can be matched to a personal protocol position after Holder access is verified.</p></div>
+              <div><span className="mono">WATCHLIST / RESEARCH</span><strong>Monitored before purchase</strong><p>The asset is checked for official events but is not presented as a wallet holding or proven DeFi position.</p></div>
               <div><span className="mono">CHECKED / MAPPED</span><strong>Real scans versus the roadmap</strong><p>Checked counts adapters that returned live or partial results. Mapped includes active and planned ecosystem sources shown in the registry.</p></div>
               <div><span className="mono">PROTOCOL POSITIONS</span><strong>Recognized position rows</strong><p>Each row represents one Stock Token side of a supported protocol position. One LP NFT can create more than one row if both currencies are official Stock Tokens.</p></div>
               <div><span className="mono">AMOUNT / VALUE</span><strong>Calculated Stock Token exposure</strong><p>Amount is the token quantity represented by the protocol position. Value uses the Robinhood bid and ask midpoint when available and remains indicative.</p></div>

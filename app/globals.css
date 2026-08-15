@@ -1768,7 +1768,7 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .workspace-identity-bar > span { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0 1rem; border-right: 1px solid var(--ink); color: var(--heather-3); font-size: 0.45rem; letter-spacing: 0.06em; }
 .workspace-identity-bar strong { color: var(--ink); }
 .workspace-identity-bar button { display: flex; align-items: center; justify-content: center; gap: 0.45rem; border: 0; background: var(--neon); font: 0.5rem/1 var(--font-mono), monospace; cursor: pointer; }
-.workspace-message { padding: 0.75rem clamp(1rem, 3vw, 3rem); border-bottom: 1px solid var(--ink); font-size: 0.55rem; }
+.workspace-message { min-height: 52px; display: flex; align-items: center; padding: 0.85rem clamp(1rem, 3vw, 3rem); border-bottom: 1px solid var(--ink); font-size: max(0.75rem, 12px); line-height: 1.45; letter-spacing: 0.025em; }
 .workspace-message.error { color: var(--paper); background: #8c250f; }
 .workspace-message.success { background: var(--neon); }
 .workspace-view { padding-bottom: 5rem; }
@@ -1941,6 +1941,20 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .protocol-explainer article span { min-width: 0; display: flex; flex-direction: column; gap: 0.45rem; }
 .protocol-explainer article strong { font-size: 0.78rem; }
 .protocol-explainer article small { color: var(--heather-3); font-size: 0.65rem; line-height: 1.5; }
+.protocol-scope { margin: 1.5rem clamp(1rem, 3vw, 3rem); border: 1px solid var(--ink); background: var(--white); }
+.protocol-scope > header { min-height: 96px; display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--ink); }
+.protocol-scope > header p { margin: 0 0 0.4rem; font-size: max(0.66rem, 10.5px); letter-spacing: 0.06em; }
+.protocol-scope > header h2 { margin: 0; font-size: clamp(1.65rem, 3vw, 2.7rem); letter-spacing: -0.05em; }
+.protocol-scope > header > span { font-size: max(0.66rem, 10.5px); }
+.protocol-scope-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.protocol-scope-grid article { min-height: 132px; display: flex; flex-direction: column; gap: 0.55rem; padding: 1rem; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.protocol-scope-grid article:nth-child(4n) { border-right: 0; }
+.protocol-scope-grid article.holding { background: var(--neon); }
+.protocol-scope-grid article.watchlist { background: var(--paper); }
+.protocol-scope-grid strong { font-size: 1.4rem; }
+.protocol-scope-grid span { font-size: max(0.66rem, 10.5px); }
+.protocol-scope-grid small { margin-top: auto; color: var(--heather-3); font-size: 0.72rem; line-height: 1.5; }
+.protocol-scope-empty { margin: 0; padding: 1.2rem; color: var(--heather-3); font-size: 0.8rem; line-height: 1.55; }
 .protocol-coverage-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; padding: 1px; border-bottom: 1px solid var(--ink); background: var(--ink); }
 .protocol-coverage-card { min-width: 0; min-height: 210px; display: flex; flex-direction: column; gap: 0.8rem; padding: 1rem; background: var(--white); }
 .protocol-coverage-card.beta { background: color-mix(in srgb, var(--neon) 18%, var(--white)); }
@@ -1971,6 +1985,7 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .protocol-coverage-note > span { font-size: 0.44rem; letter-spacing: 0.06em; }
 .protocol-coverage-note > span:last-child { text-align: right; }
 .protocol-coverage-note p { max-width: 760px; margin: 0; font-size: 0.72rem; line-height: 1.6; }
+.protocol-holder-gate button { min-height: 42px; margin-top: 0.9rem; padding: 0 0.9rem; border: 1px solid var(--ink); background: var(--neon); font: 0.7rem/1 var(--font-mono), monospace; cursor: pointer; }
 
 /* Unified corporate-action risk graph */
 .risk-graph-source { min-height: 62px; display: grid; grid-template-columns: 0.9fr 0.9fr 0.75fr 165px; border-bottom: 1px solid var(--ink); }
@@ -2041,6 +2056,20 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .risk-monitored-nodes article strong { font-size: 1.2rem; }
 .risk-monitored-nodes article span { font-size: 0.42rem; }
 .risk-monitored-nodes article small { color: var(--heather-3); font-size: 0.48rem; }
+.risk-watchlist-signals { margin: 0 clamp(1rem, 3vw, 3rem) 2rem; border: 1px solid var(--ink); background: var(--white); }
+.risk-watchlist-signals > header { min-height: 94px; display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--ink); }
+.risk-watchlist-signals > header p { margin: 0 0 0.35rem; font-size: max(0.66rem, 10.5px); letter-spacing: 0.06em; }
+.risk-watchlist-signals > header h2 { margin: 0; font-size: clamp(1.7rem, 3vw, 2.8rem); letter-spacing: -0.05em; }
+.risk-watchlist-signals > header > span { font-size: max(0.66rem, 10.5px); }
+.risk-watchlist-signals > div { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.risk-watchlist-signals article { min-height: 250px; display: flex; flex-direction: column; gap: 0.65rem; padding: 1.15rem; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.risk-watchlist-signals article.watch { background: color-mix(in srgb, var(--neon) 18%, var(--white)); }
+.risk-watchlist-signals article.critical { color: var(--paper); background: var(--danger); }
+.risk-watchlist-signals article > span { font-size: max(0.66rem, 10.5px); }
+.risk-watchlist-signals h3 { margin: 0.8rem 0 0; font-size: 2.4rem; letter-spacing: -0.06em; }
+.risk-watchlist-signals strong { font-size: 0.82rem; }
+.risk-watchlist-signals p { margin: 0; font-size: 0.78rem; line-height: 1.55; }
+.risk-watchlist-signals button { min-height: 40px; display: flex; align-items: center; justify-content: center; gap: 0.4rem; margin-top: auto; border: 1px solid currentColor; color: inherit; background: transparent; font: 0.68rem/1 var(--font-mono), monospace; cursor: pointer; }
 .risk-graph-boundary { display: grid; grid-template-columns: 150px minmax(0, 1fr) 170px; gap: 1.5rem; margin: 0 clamp(1rem, 3vw, 3rem); padding: 1rem; border: 1px solid var(--ink); background: var(--heather-1); }
 .risk-graph-boundary span { font-size: 0.43rem; letter-spacing: 0.06em; }
 .risk-graph-boundary span:last-child { text-align: right; }
@@ -2216,6 +2245,9 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
   .protocol-explainer { grid-template-columns: 1fr; }
   .protocol-explainer > svg { transform: rotate(90deg); }
   .protocol-coverage-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .protocol-scope-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .protocol-scope-grid article:nth-child(4n) { border-right: 1px solid var(--ink); }
+  .protocol-scope-grid article:nth-child(2n) { border-right: 0; }
   .protocol-position-table > header { display: none; }
   .protocol-position-table > article { grid-template-columns: 1fr 1fr; }
   .protocol-coverage-note { grid-template-columns: 1fr; }
@@ -2237,6 +2269,8 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
   .risk-monitored-nodes > div { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .risk-monitored-nodes article:nth-child(4n) { border-right: 1px solid var(--ink); }
   .risk-monitored-nodes article:nth-child(2n) { border-right: 0; }
+  .risk-watchlist-signals > div { grid-template-columns: 1fr; }
+  .risk-watchlist-signals article { border-right: 0; }
   .risk-graph-boundary { grid-template-columns: 1fr; }
   .risk-graph-boundary span:last-child { text-align: left; }
   .workspace-access-limits,
@@ -2254,6 +2288,10 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 
 @media (max-width: 620px) {
   .protocol-coverage-grid { grid-template-columns: 1fr; }
+  .protocol-scope-grid { grid-template-columns: 1fr; }
+  .protocol-scope-grid article,
+  .protocol-scope-grid article:nth-child(2n),
+  .protocol-scope-grid article:nth-child(4n) { border-right: 0; }
   .protocol-coverage-card { min-height: 180px; }
 }
 
