@@ -685,6 +685,26 @@ a {
 }
 
 .footer-mark { width: 36px; height: 36px; }
+.footer-links {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+}
+.footer-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--paper) 35%, transparent);
+}
+.footer-links a:hover,
+.footer-links a:focus-visible {
+  color: var(--neon);
+  border-color: var(--neon);
+}
 .site-footer > p { margin: 0; text-align: center; }
 .site-footer > p:last-child { text-align: right; font-size: 0.58rem; letter-spacing: 0.08em; }
 
@@ -738,6 +758,7 @@ a {
   .access-copy { padding: 4rem 20px; }
   .access-spec { padding: 2rem 20px; }
   .site-footer { grid-template-columns: 1fr; gap: 1.5rem; padding: 3rem 20px; }
+  .footer-links { justify-content: flex-start; }
   .site-footer > p,
   .site-footer > p:last-child { text-align: left; }
 }

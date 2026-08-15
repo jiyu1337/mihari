@@ -183,7 +183,14 @@ export default function Home() {
           <BrandMark className="footer-mark" inverted />
           <span>MIHARI</span>
         </div>
-        <p>Corporate Action Intelligence</p>
+        <nav className="footer-links mono" aria-label="MIHARI social links">
+          <a href="https://x.com/miharidapp" target="_blank" rel="noreferrer">
+            X / TWITTER <ExternalLink size={12} />
+          </a>
+          <a href="https://github.com/jiyu1337/mihari" target="_blank" rel="noreferrer">
+            GITHUB <ExternalLink size={12} />
+          </a>
+        </nav>
         <p className="mono">BUILDING ON ROBINHOOD CHAIN · 2026</p>
       </footer>
     </main>
