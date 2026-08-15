@@ -81,6 +81,14 @@ function formatTokenAmount(value: string) {
   return Number(value).toLocaleString("en-US", { maximumFractionDigits: 0 });
 }
 
+function eventStateLabel(event: CorporateEvent) {
+  const status = event.sourceStatus.toUpperCase();
+  if (status.includes("IN_PROGRESS")) return "EVENT ACTIVE";
+  if (status.includes("COMPLETED")) return "EVENT COMPLETED";
+  if (status.includes("PENDING")) return "EVENT PENDING";
+  return event.severity === "watch" ? "REVIEW EVENT" : "MONITOR EVENT";
+}
+
 export function RiskGraph({
   directPositions,
   directEvents,
@@ -254,7 +262,7 @@ export function RiskGraph({
                 <header className="mono">
                   <span>PATH {String(index + 1).padStart(2, "0")}</span>
                   <span>{node.directPositions.length + node.protocolPositions.length} VERIFIED EXPOSURES</span>
-                  <strong>{event.severity.toUpperCase()}</strong>
+                  <strong>{eventStateLabel(event)}</strong>
                 </header>
                 <div className="risk-graph-flow">
                   <section className="risk-event-node">
@@ -324,7 +332,7 @@ export function RiskGraph({
                   <ShieldCheck size={28} />
                   <h4>Event processed.</h4>
                   <p>MIHARI matched this official event to your watchlist and prepared an impact review before you make a decision.</p>
-                  <div className="mono"><span>RISK <strong>{node.event?.severity?.toUpperCase() ?? "WATCH"}</strong></span><span>CONFIDENCE <strong>{node.event?.confidence == null ? "SOURCE BASED" : `${node.event.confidence}%`}</strong></span></div>
+                  <div className="mono"><span>EVENT STATE <strong>{node.event ? eventStateLabel(node.event) : "MONITOR"}</strong></span><span>CONFIDENCE <strong>{node.event?.confidence == null ? "SOURCE BASED" : `${node.event.confidence}%`}</strong></span></div>
                   <button type="button" onClick={onOpenEvents}>OPEN EVENT ANALYSIS <ArrowRight size={13} /></button>
                 </div>
               </article>

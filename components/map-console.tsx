@@ -96,7 +96,9 @@ function formatTokenThreshold(value: string | undefined) {
 }
 
 function eventRiskLabel(event: CorporateEvent) {
-  if (event.severity === "critical") return "CRITICAL";
+  const type = event.type.toLowerCase();
+  if (type.includes("multiplier") || type.includes("split")) return "HIGH";
+  if (type.includes("dividend")) return "MEDIUM";
   if (event.severity === "watch") return "HIGH";
   return "LOW";
 }
@@ -562,7 +564,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
                   <span>POSITION <strong>{Number(openRiskPosition.balance).toLocaleString(undefined, { maximumFractionDigits: 6 })} {openRiskPosition.symbol}</strong></span>
                   <span>EVENT <strong>{openRiskEvent.type}</strong></span>
                   <span>SOURCE STATUS <strong>{openRiskEvent.sourceStatus}</strong></span>
-                  <span>RISK <strong>{openRiskAnalysis?.risk.toUpperCase() ?? eventRiskLabel(openRiskEvent)}</strong></span>
+                  <span>PERSONAL RISK <strong>{openRiskAnalysis?.risk.toUpperCase() ?? eventRiskLabel(openRiskEvent)}</strong></span>
                 </div>
                 <div className="workspace-risk-analysis">
                   <section><span className="mono">01 / WHAT HAPPENED</span><p>{openRiskAnalysis?.summary ?? openRiskEvent.summary}</p></section>

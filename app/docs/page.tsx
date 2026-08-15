@@ -331,11 +331,15 @@ export default function DocsPage() {
             </div>
 
             <h3 className="docs-subheading">Risk and source statuses</h3>
+            <div className="docs-callout">
+              <strong>Event state and personal risk are different.</strong>
+              <p>Event Active means Robinhood is still processing the corporate action. Personal Risk classifies the expected operational impact. An active cash dividend can therefore have Medium personal risk because it requires review, but does not by itself prove an urgent valuation mismatch.</p>
+            </div>
             <div className="status-table docs-label-table">
               <div><strong>Low</strong><span className="status-pill readonly">Risk</span><p>The record appears resolved or has limited immediate operational impact, but still requires normal monitoring.</p></div>
               <div><strong>Medium</strong><span className="status-pill readonly">Risk</span><p>The event can require accounting or operational review without an immediate critical mismatch.</p></div>
               <div><strong>High</strong><span className="status-pill live">Risk</span><p>The event may materially affect valuation, quoting or connected protocol accounting.</p></div>
-              <div><strong>Critical</strong><span className="status-pill live">Risk</span><p>The source indicates an in-progress event or mismatch that should receive immediate operator attention.</p></div>
+              <div><strong>Critical</strong><span className="status-pill live">Risk</span><p>The analysis identifies an urgent mismatch or a condition that may immediately affect valuation, quoting or connected positions.</p></div>
               <div><strong>In progress</strong><span className="status-pill live">Source</span><p>Robinhood reports that the corporate action is currently being processed.</p></div>
               <div><strong>Completed</strong><span className="status-pill readonly">Source</span><p>Robinhood reports that event processing is complete. Downstream systems may still need reconciliation.</p></div>
               <div><strong>Pending</strong><span className="status-pill next">Source</span><p>The source has not provided a completed event state or effective date yet.</p></div>
