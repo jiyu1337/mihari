@@ -13,7 +13,7 @@ import {
   protocolScansWithCoverage,
 } from "@/lib/protocols/registry";
 import { getAssetCatalog, getMarketSnapshot } from "@/lib/robinhood";
-import { scanUniswapV4Markets } from "@/lib/protocol-markets";
+import { scanProtocolMarkets } from "@/lib/protocol-markets";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -45,7 +45,7 @@ export async function GET() {
     return Response.json({
       ...emptySnapshot(),
       events: [],
-      marketScan: { status: "not_scanned", markets: [] },
+      marketScan: { status: "not_scanned", markets: [], scans: [] },
       source: {
         chainId: 4663,
         assetCatalog: "robinhood",
@@ -66,7 +66,7 @@ export async function GET() {
       .limit(1);
     const [exposure, marketScan] = await Promise.all([
       scanProtocolExposure(verifiedAddresses, assets, protocolAdapters),
-      scanUniswapV4Markets(assets, savedWatchlist?.symbols ?? []),
+      scanProtocolMarkets(assets, savedWatchlist?.symbols ?? []),
     ]);
     const symbols = [...new Set(exposure.positions.map((position) => position.symbol.toUpperCase()))];
     const market = symbols.length ? await getMarketSnapshot(symbols) : null;

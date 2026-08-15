@@ -25,7 +25,7 @@ const MAX_POSITIONS_PER_WALLET = 24;
 export const UNISWAP_V3_POSITION_MANAGER = getAddress(
   "0x73991a25c818bf1f1128deaab1492d45638de0d3",
 );
-const UNISWAP_V3_FACTORY = getAddress("0x1f7d7550b1b028f7571e69a784071f0205fd2efa");
+export const UNISWAP_V3_FACTORY = getAddress("0x1f7d7550b1b028f7571e69a784071f0205fd2efa");
 
 const positionManagerAbi = parseAbi([
   "function positions(uint256 tokenId) view returns (uint96 nonce, address operator, address token0, address token1, uint24 fee, int24 tickLower, int24 tickUpper, uint128 liquidity, uint256 feeGrowthInside0LastX128, uint256 feeGrowthInside1LastX128, uint128 tokensOwed0, uint128 tokensOwed1)",

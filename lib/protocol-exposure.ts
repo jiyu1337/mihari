@@ -65,16 +65,28 @@ export type ProtocolExposureSnapshot = {
 
 export type ProtocolMarket = {
   id: string;
-  protocol: "uniswap-v4";
+  protocol: "morpho" | "uniswap-v3" | "uniswap-v4" | "arcus" | "lighter";
+  kind: "lending_market" | "dex_pool" | "perp_market";
   symbol: string;
   counterparty: string;
-  poolId: string;
-  fee: string;
+  marketId: string;
+  fee: string | null;
+  liquidityUsd: string | null;
+  externalUrl: string | null;
+  linkLabel: string | null;
+};
+
+export type ProtocolMarketSourceScan = {
+  protocol: ProtocolMarket["protocol"];
+  status: "live" | "partial" | "unavailable" | "not_scanned";
+  marketCount: number;
+  warning?: string;
 };
 
 export type ProtocolMarketScan = {
-  status: "live" | "unavailable" | "not_scanned";
+  status: "live" | "partial" | "unavailable" | "not_scanned";
   markets: ProtocolMarket[];
+  scans: ProtocolMarketSourceScan[];
   warning?: string;
 };
 

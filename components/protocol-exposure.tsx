@@ -5,6 +5,7 @@ import {
   AlertTriangle,
   ArrowRight,
   Database,
+  ExternalLink,
   Landmark,
   LoaderCircle,
   LockKeyhole,
@@ -69,6 +70,30 @@ function formatMoney(value: number) {
 function shortAddress(address: string) {
   return `${address.slice(0, 6)}...${address.slice(-4)}`;
 }
+
+function shortReference(reference: string) {
+  return reference.length > 16 ? shortAddress(reference) : reference.toUpperCase();
+}
+
+const marketProtocolNames = {
+  morpho: "Morpho",
+  "uniswap-v3": "Uniswap V3",
+  "uniswap-v4": "Uniswap V4",
+  arcus: "Arcus",
+  lighter: "Lighter",
+} as const;
+
+const marketKindLabels = {
+  lending_market: "LENDING MARKET",
+  dex_pool: "LIQUIDITY POOL",
+  perp_market: "PERPETUAL MARKET",
+} as const;
+
+const marketKindDescriptions = {
+  lending_market: "A lending market where this Stock Token can be supplied, borrowed or used as collateral.",
+  dex_pool: "An onchain liquidity pool with an official Stock Token in the pair.",
+  perp_market: "A perpetual market whose underlying symbol matches an official Stock Token.",
+} as const;
 
 function formatTokenAmount(value: string) {
   return Number(value).toLocaleString("en-US", { maximumFractionDigits: 0 });
@@ -144,6 +169,7 @@ export function ProtocolExposure({
       market.symbol.includes(query)
       || market.counterparty.toUpperCase().includes(query)
       || market.protocol.toUpperCase().includes(query)
+      || market.kind.toUpperCase().includes(query)
     ));
   }, [discoveredMarkets, marketQuery]);
   const marketPageCount = Math.max(1, Math.ceil(filteredMarkets.length / 10));
@@ -232,7 +258,7 @@ export function ProtocolExposure({
             <p className="mono">MARKET COVERAGE / WATCHLIST</p>
             <h2>Where these assets can trade.</h2>
           </div>
-          <span className="mono">{holderAccess ? `${discoveredMarkets.length} POOLS FOUND` : "HOLDER SCAN"}</span>
+          <span className="mono">{holderAccess ? `${discoveredMarkets.length} MARKETS FOUND` : "HOLDER SCAN"}</span>
         </header>
         {!holderAccess ? (
           <div className="protocol-market-empty">
@@ -240,11 +266,18 @@ export function ProtocolExposure({
             <div><strong>Public pool discovery is ready to unlock.</strong><p>Holder access checks monitored Stock Tokens against supported DeFi markets. A discovered pool is market coverage, not proof that your wallet owns liquidity.</p></div>
           </div>
         ) : loading ? (
-          <div className="protocol-market-empty"><LoaderCircle className="spin" size={24} /><div><strong>Checking watchlist markets.</strong><p>MIHARI is reading Uniswap V4 pool records on Robinhood Chain.</p></div></div>
+          <div className="protocol-market-empty"><LoaderCircle className="spin" size={24} /><div><strong>Checking supported DeFi markets.</strong><p>MIHARI is reading Morpho, Uniswap V3, Uniswap V4, Arcus and Lighter in parallel.</p></div></div>
         ) : error || snapshot?.marketScan?.status === "unavailable" ? (
           <div className="protocol-market-empty"><AlertTriangle size={24} /><div><strong>Market coverage source unavailable.</strong><p>Personal position scans continue separately. Try the scan again in a moment.</p></div></div>
         ) : discoveredMarkets.length ? (
           <>
+            <div className="protocol-market-sources mono">
+              {snapshot?.marketScan.scans.map((source) => (
+                <span className={source.status} key={source.protocol} title={source.warning}>
+                  {marketProtocolNames[source.protocol]} <strong>{source.status === "live" ? `${source.marketCount} FOUND` : source.status.toUpperCase()}</strong>
+                </span>
+              ))}
+            </div>
             <div className="protocol-market-controls">
               <label><span className="mono">SEARCH MARKETS</span><input value={marketQuery} onChange={(event) => { setMarketQuery(event.target.value); setMarketPage(0); }} placeholder="AAPL, ETH or protocol" /></label>
               <div className="mono"><span>{filteredMarkets.length ? `${marketPage * 10 + 1}-${Math.min((marketPage + 1) * 10, filteredMarkets.length)} OF ${filteredMarkets.length}` : "0 RESULTS"}</span><button disabled={marketPage === 0} onClick={() => setMarketPage((page) => Math.max(0, page - 1))}>PREVIOUS</button><button disabled={marketPage >= marketPageCount - 1} onClick={() => setMarketPage((page) => Math.min(marketPageCount - 1, page + 1))}>NEXT</button></div>
@@ -253,17 +286,31 @@ export function ProtocolExposure({
               <div className="protocol-market-grid">
                 {visibleMarkets.map((market) => (
                   <article key={market.id}>
-                    <span className="mono">ACTIVE POOL</span>
+                    <div className="protocol-market-card-top mono">
+                      <span>{marketKindLabels[market.kind]}</span>
+                      <strong>{marketProtocolNames[market.protocol]}</strong>
+                    </div>
                     <h3>{market.symbol} / {market.counterparty}</h3>
-                    <p>Uniswap V4 pool with active liquidity for an asset in your monitoring scope.</p>
-                    <footer className="mono"><span>FEE {market.fee}</span><span>{shortAddress(market.poolId)}</span></footer>
+                    <p>{marketKindDescriptions[market.kind]}</p>
+                    <div className="protocol-market-meta mono">
+                      <span>{market.fee ? `FEE ${market.fee}` : "FEE NOT REPORTED"}</span>
+                      <span>{market.liquidityUsd ? `${formatMoney(Number(market.liquidityUsd))} LIQUIDITY` : shortReference(market.marketId)}</span>
+                    </div>
+                    <footer className="mono">
+                      <span>{shortReference(market.marketId)}</span>
+                      {market.externalUrl && market.linkLabel ? <a href={market.externalUrl} target="_blank" rel="noreferrer">{market.linkLabel} <ExternalLink size={13} /></a> : <span>NO DIRECT LINK</span>}
+                    </footer>
                   </article>
                 ))}
               </div>
             ) : <div className="protocol-market-empty"><Database size={24} /><div><strong>No market matches your search.</strong><p>Try another Stock Token symbol or clear the search field.</p></div></div>}
           </>
         ) : (
-          <div className="protocol-market-empty"><Database size={24} /><div><strong>No supported pool found for this watchlist.</strong><p>The assets remain monitored for corporate actions. Market coverage and personal positions are separate checks.</p></div></div>
+          <><div className="protocol-market-sources mono">
+            {snapshot?.marketScan.scans.map((source) => (
+              <span className={source.status} key={source.protocol} title={source.warning}>{marketProtocolNames[source.protocol]} <strong>{source.status.toUpperCase()}</strong></span>
+            ))}
+          </div><div className="protocol-market-empty"><Database size={24} /><div><strong>No supported market found for this watchlist.</strong><p>The assets remain monitored for corporate actions. Market coverage and personal positions are separate checks.</p></div></div></>
         )}
       </section>
 

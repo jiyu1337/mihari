@@ -1984,6 +1984,11 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .protocol-market-section > header p { margin: 0 0 0.45rem; font-size: max(0.72rem, 11.5px); letter-spacing: 0.05em; }
 .protocol-market-section > header h2 { margin: 0; font-size: clamp(1.8rem, 3vw, 2.8rem); letter-spacing: -0.05em; }
 .protocol-market-section > header > span { font-size: max(0.72rem, 11.5px); }
+.protocol-market-sources { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-bottom: 1px solid var(--ink); background: var(--ink); gap: 1px; }
+.protocol-market-sources > span { min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 0.6rem; padding: 0.75rem 0.9rem; background: var(--white); font-size: max(0.68rem, 11px); }
+.protocol-market-sources > span strong { padding: 0.24rem 0.35rem; background: var(--neon); }
+.protocol-market-sources > span.partial strong { background: #ffd33d; }
+.protocol-market-sources > span.unavailable strong { color: var(--paper); background: var(--danger); }
 .protocol-market-controls { min-height: 82px; display: grid; grid-template-columns: minmax(260px, 1fr) auto; align-items: end; gap: 1rem; padding: 1rem 1.2rem; border-bottom: 1px solid var(--ink); background: var(--paper); }
 .protocol-market-controls label { display: flex; flex-direction: column; gap: 0.45rem; }
 .protocol-market-controls label span { font-size: max(0.7rem, 11px); }
@@ -1996,9 +2001,13 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .protocol-market-grid article { min-height: 190px; display: flex; flex-direction: column; gap: 0.7rem; padding: 1.2rem; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
 .protocol-market-grid article:nth-child(3n) { border-right: 0; }
 .protocol-market-grid article > span { font-size: max(0.72rem, 11.5px); }
+.protocol-market-card-top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; font-size: max(0.72rem, 11.5px); }
+.protocol-market-card-top strong { padding: 0.28rem 0.42rem; background: var(--neon); }
 .protocol-market-grid h3 { margin: 0.5rem 0 0; font-size: 1.6rem; }
 .protocol-market-grid p { margin: 0; color: var(--heather-3); font-size: 0.88rem; line-height: 1.5; }
-.protocol-market-grid footer { margin-top: auto; display: flex; justify-content: space-between; gap: 1rem; font-size: max(0.7rem, 11px); }
+.protocol-market-meta { display: flex; flex-wrap: wrap; gap: 0.45rem 1rem; font-size: max(0.7rem, 11px); }
+.protocol-market-grid footer { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding-top: 0.75rem; border-top: 1px solid var(--ink); font-size: max(0.7rem, 11px); }
+.protocol-market-grid footer a { display: inline-flex; align-items: center; gap: 0.35rem; color: var(--ink); font-weight: 650; text-decoration: underline; text-underline-offset: 0.22rem; }
 .protocol-market-empty { min-height: 132px; display: flex; align-items: center; gap: 1rem; padding: 1.4rem; background: var(--paper); }
 .protocol-market-empty strong { font-size: 1rem; }
 .protocol-market-empty p { margin: 0.4rem 0 0; max-width: 780px; color: var(--heather-3); font-size: 0.88rem; line-height: 1.55; }
@@ -2311,6 +2320,7 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
   .protocol-explainer > svg { transform: rotate(90deg); }
   .protocol-coverage-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .protocol-scope-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .protocol-market-sources { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .protocol-market-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .protocol-market-controls { grid-template-columns: 1fr; align-items: stretch; }
   .protocol-market-grid article:nth-child(3n) { border-right: 1px solid var(--ink); }
@@ -2358,6 +2368,7 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 @media (max-width: 620px) {
   .protocol-coverage-grid { grid-template-columns: 1fr; }
   .protocol-scope-grid { grid-template-columns: 1fr; }
+  .protocol-market-sources { grid-template-columns: 1fr; }
   .protocol-market-grid { grid-template-columns: 1fr; }
   .protocol-market-controls > div { flex-wrap: wrap; }
   .protocol-market-grid article,
