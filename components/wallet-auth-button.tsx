@@ -3,17 +3,22 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LoaderCircle, Wallet } from "lucide-react";
+import { timedFetch, walletRequest, type EthereumProvider } from "@/lib/wallet-client";
 
-type EthereumProvider = {
-  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
+type AuthStage = "idle" | "connect" | "sign" | "verify";
+
+const stageLabel: Record<AuthStage, string> = {
+  idle: "",
+  connect: "APPROVE CONNECTION",
+  sign: "SIGN FREE MESSAGE",
+  verify: "OPENING PROFILE",
 };
-
-const CHAIN_ID_HEX = "0x1237";
 
 export function WalletAuthButton({ label = "Continue with wallet" }: { label?: string }) {
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
+  const [stage, setStage] = useState<AuthStage>("idle");
   const [error, setError] = useState("");
+  const loading = stage !== "idle";
 
   async function authenticate() {
     const provider = (window as Window & { ethereum?: EthereumProvider }).ethereum;
@@ -22,41 +27,31 @@ export function WalletAuthButton({ label = "Continue with wallet" }: { label?: s
       return;
     }
 
-    setLoading(true);
+    setStage("connect");
     setError("");
     try {
-      const accounts = await provider.request({ method: "eth_requestAccounts" }) as string[];
+      const accounts = await walletRequest<string[]>(
+        provider.request({ method: "eth_requestAccounts" }),
+        "Open your wallet extension and approve the connection, then try again.",
+      );
       const address = accounts[0];
       if (!address) throw new Error("No wallet account returned");
 
-      try {
-        await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CHAIN_ID_HEX }] });
-      } catch {
-        await provider.request({
-          method: "wallet_addEthereumChain",
-          params: [{
-            chainId: CHAIN_ID_HEX,
-            chainName: "Robinhood Chain",
-            nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-            rpcUrls: ["https://rpc.mainnet.chain.robinhood.com"],
-            blockExplorerUrls: ["https://robinhoodchain.blockscout.com"],
-          }],
-        });
-      }
-
-      const challengeResponse = await fetch("/api/auth/wallet/challenge", {
+      const challengeResponse = await timedFetch("/api/auth/wallet/challenge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address }),
       });
       if (!challengeResponse.ok) throw new Error("Could not start wallet sign-in");
       const challenge = await challengeResponse.json() as { nonce: string; message: string };
-      const signature = await provider.request({
-        method: "personal_sign",
-        params: [challenge.message, address],
-      }) as string;
+      setStage("sign");
+      const signature = await walletRequest<string>(
+        provider.request({ method: "personal_sign", params: [challenge.message, address] }),
+        "Open your wallet extension and sign the free MIHARI login message, then try again.",
+      );
 
-      const verifyResponse = await fetch("/api/auth/wallet/verify", {
+      setStage("verify");
+      const verifyResponse = await timedFetch("/api/auth/wallet/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address, signature, ...challenge }),
@@ -65,11 +60,11 @@ export function WalletAuthButton({ label = "Continue with wallet" }: { label?: s
         const result = await verifyResponse.json() as { error?: string };
         throw new Error(result.error ?? "Wallet sign-in failed");
       }
-      router.push("/map");
+      router.replace("/map");
       router.refresh();
     } catch (authError) {
       setError(authError instanceof Error ? authError.message : "Wallet sign-in was cancelled");
-      setLoading(false);
+      setStage("idle");
     }
   }
 
@@ -77,9 +72,15 @@ export function WalletAuthButton({ label = "Continue with wallet" }: { label?: s
     <div className="wallet-auth-control">
       <button type="button" onClick={() => void authenticate()} disabled={loading}>
         {loading ? <LoaderCircle className="spin" size={18} /> : <Wallet size={18} />}
-        {loading ? "VERIFYING WALLET" : label}
+        {loading ? stageLabel[stage] : label}
       </button>
-      <small>A free signature creates or opens your MIHARI profile. No gas. No transaction.</small>
+      <small>{stage === "connect"
+        ? "Open your wallet extension and approve the connection request."
+        : stage === "sign"
+          ? "Sign the MIHARI login message. It costs no gas and cannot move funds."
+          : stage === "verify"
+            ? "Signature verified. MIHARI is opening your workspace."
+            : "A free signature creates or opens your MIHARI profile. No gas. No transaction."}</small>
       {error ? <p className="mono">{error}</p> : null}
     </div>
   );

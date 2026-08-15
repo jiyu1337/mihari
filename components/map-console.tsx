@@ -39,10 +39,7 @@ import type { MappedPosition, MhrHolding } from "@/lib/map-data";
 import { MHR_CONTRACT_ADDRESS } from "@/lib/token";
 import type { CorporateEvent } from "@/lib/product-data";
 import type { RobinhoodAsset } from "@/lib/robinhood";
-
-type EthereumProvider = {
-  request: (args: { method: string; params?: unknown[] }) => Promise<unknown>;
-};
+import { timedFetch, walletRequest, type EthereumProvider } from "@/lib/wallet-client";
 
 type ProfileResponse = {
   account: { id: string; email: string | null; primaryMethod: "email" | "wallet" };
@@ -55,7 +52,6 @@ type ProfileResponse = {
 type WorkspaceView = "overview" | "events" | "assets" | "wallets" | "exposure" | "risk" | "defi" | "settings";
 type MapConsoleProps = { authUnavailable?: boolean };
 
-const CHAIN_ID_HEX = "0x1237";
 const workspaceNavigation = [
   { id: "overview", label: "Overview", icon: Orbit },
   { id: "events", label: "Events", icon: BellRing },
@@ -103,7 +99,8 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(!authUnavailable);
   const [saving, setSaving] = useState(false);
-  const [linking, setLinking] = useState(false);
+  const [linkStage, setLinkStage] = useState<"" | "CONNECT WALLET" | "SIGN MESSAGE" | "VERIFYING">("");
+  const linking = Boolean(linkStage);
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [copiedContract, setCopiedContract] = useState("");
@@ -263,38 +260,29 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
       return;
     }
 
-    setLinking(true);
+    setLinkStage("CONNECT WALLET");
     try {
-      const accounts = await provider.request({ method: "eth_requestAccounts" }) as string[];
+      const accounts = await walletRequest<string[]>(
+        provider.request({ method: "eth_requestAccounts" }),
+        "Open your wallet extension and approve the connection, then try again.",
+      );
       const address = accounts[0];
       if (!address) throw new Error("No wallet account returned");
-      try {
-        await provider.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CHAIN_ID_HEX }] });
-      } catch {
-        await provider.request({
-          method: "wallet_addEthereumChain",
-          params: [{
-            chainId: CHAIN_ID_HEX,
-            chainName: "Robinhood Chain",
-            nativeCurrency: { name: "Ether", symbol: "ETH", decimals: 18 },
-            rpcUrls: ["https://rpc.mainnet.chain.robinhood.com"],
-            blockExplorerUrls: ["https://robinhoodchain.blockscout.com"],
-          }],
-        });
-      }
 
-      const challengeResponse = await fetch("/api/wallets/challenge", {
+      const challengeResponse = await timedFetch("/api/wallets/challenge", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address }),
       });
       if (!challengeResponse.ok) throw new Error("Could not create wallet verification");
       const challenge = await challengeResponse.json() as { nonce: string; message: string };
-      const signature = await provider.request({
-        method: "personal_sign",
-        params: [challenge.message, address],
-      }) as string;
-      const verifyResponse = await fetch("/api/wallets/verify", {
+      setLinkStage("SIGN MESSAGE");
+      const signature = await walletRequest<string>(
+        provider.request({ method: "personal_sign", params: [challenge.message, address] }),
+        "Open your wallet extension and sign the free verification message, then try again.",
+      );
+      setLinkStage("VERIFYING");
+      const verifyResponse = await timedFetch("/api/wallets/verify", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ address, signature, ...challenge }),
@@ -309,7 +297,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
     } catch (linkError) {
       setError(linkError instanceof Error ? linkError.message : "Wallet connection cancelled");
     } finally {
-      setLinking(false);
+      setLinkStage("");
     }
   }
 
@@ -488,7 +476,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
             ) : null}
             <div className="workspace-wallet-access">
               <div><span className="mono">WALLET ACCESS</span><strong>{profile?.wallets.length ?? 0} of {walletLimit} linked</strong><p>{isHolder ? "Holder access supports up to five verified wallets." : "Observer access supports one wallet. If your MHR is held elsewhere, verify that holder wallet to unlock the higher limit."}</p></div>
-              <button onClick={() => void linkWallet()} disabled={linking}>{linking ? <LoaderCircle className="spin" size={16} /> : <Link2 size={16} />}{linking ? "VERIFYING" : profile?.wallets.length ? "VERIFY ANOTHER WALLET" : "VERIFY WALLET"}</button>
+              <button onClick={() => void linkWallet()} disabled={linking}>{linking ? <LoaderCircle className="spin" size={16} /> : <Link2 size={16} />}{linking ? linkStage : profile?.wallets.length ? "VERIFY ANOTHER WALLET" : "VERIFY WALLET"}</button>
             </div>
             <div className="workspace-wallet-grid">
               {profile?.wallets.length ? profile.wallets.map((wallet) => (
