@@ -120,7 +120,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
     setError("");
     try {
       const [profileResponse, assetResponse] = await Promise.all([
-        fetch("/api/profile", { cache: "no-store" }),
+        fetch("/api/profile?quick=1", { cache: "no-store" }),
         fetch("/api/assets", { cache: "force-cache" }),
       ]);
       if (!profileResponse.ok) throw new Error(`Profile unavailable (${profileResponse.status})`);
@@ -130,6 +130,14 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
       if (assetResponse.ok) {
         const assetPayload = await assetResponse.json() as { assets: RobinhoodAsset[] };
         setAssets(assetPayload.assets);
+      }
+      setLoading(false);
+
+      const hydratedResponse = await fetch("/api/profile", { cache: "no-store" });
+      if (hydratedResponse.ok) {
+        const hydratedProfile = await hydratedResponse.json() as ProfileResponse;
+        setProfile(hydratedProfile);
+        setSelectedSymbols((hydratedProfile.watchlist?.symbols ?? []).slice(0, hydratedProfile.entitlements.limits.watchlistAssets));
       }
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Workspace unavailable");
@@ -357,6 +365,14 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
 
         {error ? <div className="workspace-message error mono">{error}</div> : null}
         {notice ? <div className="workspace-message success mono">{notice}</div> : null}
+        {profile && !isHolder ? (
+          <div className="workspace-access-banner mono">
+            <strong>OBSERVER ACCESS</strong>
+            <span>10 WATCHLIST ASSETS / DIRECT HOLDINGS + GRAPH</span>
+            <span>HOLD {formatTokenThreshold(entitlements?.holderThreshold)} MHR TO UNLOCK DEFI SCANNING, 30 ASSETS AND 5 WALLETS</span>
+            <button type="button" onClick={() => setView("wallets")}>CHECK STATUS</button>
+          </div>
+        ) : null}
 
         {view === "overview" ? (
           <section className="workspace-view">

@@ -14,7 +14,7 @@ const profileUpdate = z.object({
   mode: z.enum(["observe", "guard", "automate"]).default("observe"),
 });
 
-export async function GET() {
+export async function GET(request: Request) {
   const account = await getAuthenticatedAccount();
   if (!account) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
@@ -24,6 +24,40 @@ export async function GET() {
     database.select().from(wallets).where(eq(wallets.accountId, account.id)),
   ]);
   const verifiedAddresses = savedWallets.filter((wallet) => wallet.verified).map((wallet) => wallet.address);
+  const quick = new URL(request.url).searchParams.get("quick") === "1";
+  if (quick) {
+    const pendingHoldings = verifiedAddresses.map((wallet) => ({
+      wallet,
+      balance: null,
+      status: "unavailable" as const,
+    }));
+    const entitlements = entitlementsFromHoldings(pendingHoldings);
+    return Response.json({
+      account: {
+        id: account.id,
+        email: account.email,
+        primaryMethod: account.authProviderId.startsWith("wallet:") ? "wallet" : "email",
+      },
+      watchlist: savedWatchlist[0]
+        ? {
+            ...savedWatchlist[0],
+            symbols: savedWatchlist[0].symbols.slice(0, entitlements.limits.watchlistAssets),
+            storedCount: savedWatchlist[0].symbols.length,
+          }
+        : null,
+      wallets: savedWallets.map((wallet) => ({
+        ...wallet,
+        mhr: {
+          wallet: wallet.address,
+          balance: null,
+          status: wallet.verified ? "unavailable" as const : "not_held" as const,
+        },
+      })),
+      exposure: { positions: [], events: [], scannedAt: new Date().toISOString() },
+      entitlements,
+      hydration: "pending",
+    }, { headers: { "Cache-Control": "private, no-store" } });
+  }
   const exposure = await mapWalletPositions(verifiedAddresses).catch(() => ({
     positions: [],
     events: [],

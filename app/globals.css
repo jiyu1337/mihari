@@ -1771,6 +1771,9 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .workspace-message { min-height: 52px; display: flex; align-items: center; padding: 0.85rem clamp(1rem, 3vw, 3rem); border-bottom: 1px solid var(--ink); font-size: max(0.75rem, 12px); line-height: 1.45; letter-spacing: 0.025em; }
 .workspace-message.error { color: var(--paper); background: #8c250f; }
 .workspace-message.success { background: var(--neon); }
+.workspace-access-banner { min-height: 58px; display: grid; grid-template-columns: auto 1fr 1.35fr auto; align-items: center; gap: 1rem; padding: 0.75rem clamp(1rem, 3vw, 3rem); border-bottom: 1px solid var(--ink); color: var(--paper); background: #8c250f; font-size: max(0.72rem, 11.5px); line-height: 1.4; letter-spacing: 0.025em; }
+.workspace-access-banner strong { color: var(--white); }
+.workspace-access-banner button { min-height: 38px; padding: 0 0.75rem; border: 1px solid var(--paper); color: var(--paper); background: transparent; font: inherit; cursor: pointer; }
 .workspace-view { padding-bottom: 5rem; }
 .workspace-title { min-height: 260px; display: grid; grid-template-columns: minmax(500px, 1.4fr) minmax(280px, 0.6fr); align-items: end; gap: 3rem; padding: clamp(2rem, 5vw, 5rem) clamp(1rem, 3vw, 3rem) 2.5rem; border-bottom: 1px solid var(--ink); }
 .workspace-title.compact { min-height: 210px; }
@@ -2195,6 +2198,8 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
   .impact-row { grid-template-columns: 60px 1fr; padding: 0.8rem; }
   .impact-row > a { grid-column: 2; }
   .workspace-header { grid-template-columns: 58px 1fr 54px; }
+  .workspace-access-banner { grid-template-columns: 1fr auto; }
+  .workspace-access-banner > span { grid-column: 1 / -1; }
   .workspace-brand { justify-content: center; padding: 0; font-size: 0; }
   .workspace-header nav { overflow-x: auto; }
   .workspace-header nav button { min-width: 58px; }

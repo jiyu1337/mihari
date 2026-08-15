@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { LoaderCircle, Wallet } from "lucide-react";
 import { timedFetch, walletRequest, type EthereumProvider } from "@/lib/wallet-client";
 
@@ -15,7 +14,6 @@ const stageLabel: Record<AuthStage, string> = {
 };
 
 export function WalletAuthButton({ label = "Continue with wallet" }: { label?: string }) {
-  const router = useRouter();
   const [stage, setStage] = useState<AuthStage>("idle");
   const [error, setError] = useState("");
   const loading = stage !== "idle";
@@ -60,8 +58,7 @@ export function WalletAuthButton({ label = "Continue with wallet" }: { label?: s
         const result = await verifyResponse.json() as { error?: string };
         throw new Error(result.error ?? "Wallet sign-in failed");
       }
-      router.replace("/map");
-      router.refresh();
+      window.location.replace("/map");
     } catch (authError) {
       setError(authError instanceof Error ? authError.message : "Wallet sign-in was cancelled");
       setStage("idle");
