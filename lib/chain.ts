@@ -1,5 +1,11 @@
 import { defineChain } from "viem";
 
+const testnetRpcUrl = process.env.NEXT_PUBLIC_TESTNET_RPC_URL?.trim()
+  || "https://rpc.testnet.chain.robinhood.com";
+const mainnetRpcUrl = process.env.ROBINHOOD_RPC_URL?.trim()
+  || process.env.NEXT_PUBLIC_RPC_URL?.trim()
+  || "https://rpc.mainnet.chain.robinhood.com";
+
 export const robinhoodTestnet = defineChain({
   id: 46630,
   name: "Robinhood Chain Testnet",
@@ -10,7 +16,7 @@ export const robinhoodTestnet = defineChain({
   },
   rpcUrls: {
     default: {
-      http: [process.env.NEXT_PUBLIC_RPC_URL ?? "https://rpc.testnet.chain.robinhood.com"],
+      http: [testnetRpcUrl],
     },
   },
   testnet: true,
@@ -26,7 +32,7 @@ export const robinhoodMainnet = defineChain({
   },
   rpcUrls: {
     default: {
-      http: [process.env.NEXT_PUBLIC_RPC_URL ?? "https://rpc.mainnet.chain.robinhood.com"],
+      http: [mainnetRpcUrl],
     },
   },
   contracts: {

@@ -226,7 +226,7 @@ export function ProtocolExposure({
           </div>
         ) : loading ? (
           <div className="protocol-market-empty"><LoaderCircle className="spin" size={24} /><div><strong>Checking watchlist markets.</strong><p>MIHARI is reading Uniswap V4 pool records on Robinhood Chain.</p></div></div>
-        ) : snapshot?.marketScan?.status === "unavailable" ? (
+        ) : error || snapshot?.marketScan?.status === "unavailable" ? (
           <div className="protocol-market-empty"><AlertTriangle size={24} /><div><strong>Market coverage source unavailable.</strong><p>Personal position scans continue separately. Try the scan again in a moment.</p></div></div>
         ) : discoveredMarkets.length ? (
           <div className="protocol-market-grid">
