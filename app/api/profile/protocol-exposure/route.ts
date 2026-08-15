@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
-import { wallets } from "@/db/schema";
+import { wallets, watchlists } from "@/db/schema";
 import { getAuthenticatedAccount } from "@/lib/account";
 import { getAccountEntitlements, mhrRequiredResponse } from "@/lib/entitlements";
 import {
@@ -13,6 +13,7 @@ import {
   protocolScansWithCoverage,
 } from "@/lib/protocols/registry";
 import { getAssetCatalog, getMarketSnapshot } from "@/lib/robinhood";
+import { scanUniswapV4Markets } from "@/lib/protocol-markets";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -44,6 +45,7 @@ export async function GET() {
     return Response.json({
       ...emptySnapshot(),
       events: [],
+      marketScan: { status: "not_scanned", markets: [] },
       source: {
         chainId: 4663,
         assetCatalog: "robinhood",
@@ -57,7 +59,15 @@ export async function GET() {
 
   try {
     const assets = await getAssetCatalog();
-    const exposure = await scanProtocolExposure(verifiedAddresses, assets, protocolAdapters);
+    const [savedWatchlist] = await getDatabase()
+      .select({ symbols: watchlists.symbols })
+      .from(watchlists)
+      .where(eq(watchlists.accountId, account.id))
+      .limit(1);
+    const [exposure, marketScan] = await Promise.all([
+      scanProtocolExposure(verifiedAddresses, assets, protocolAdapters),
+      scanUniswapV4Markets(assets, savedWatchlist?.symbols ?? []),
+    ]);
     const symbols = [...new Set(exposure.positions.map((position) => position.symbol.toUpperCase()))];
     const market = symbols.length ? await getMarketSnapshot(symbols) : null;
     const liveEvents = market?.mode === "live" ? market.events : [];
@@ -90,6 +100,7 @@ export async function GET() {
       positions,
       scans: protocolScansWithCoverage(exposure.scans, true),
       events: liveEvents,
+      marketScan,
       source: {
         chainId: 4663,
         assetCatalog: "robinhood",

@@ -63,8 +63,24 @@ export type ProtocolExposureSnapshot = {
   scannedAt: string;
 };
 
+export type ProtocolMarket = {
+  id: string;
+  protocol: "uniswap-v4";
+  symbol: string;
+  counterparty: string;
+  poolId: string;
+  fee: string;
+};
+
+export type ProtocolMarketScan = {
+  status: "live" | "unavailable" | "not_scanned";
+  markets: ProtocolMarket[];
+  warning?: string;
+};
+
 export type ProtocolExposureResponse = ProtocolExposureSnapshot & {
   events: CorporateEvent[];
+  marketScan: ProtocolMarketScan;
   source: {
     chainId: number;
     assetCatalog: string;

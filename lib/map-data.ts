@@ -1,24 +1,15 @@
-import { formatUnits, getAddress, isAddress } from "viem";
+import {
+  createPublicClient,
+  erc20Abi,
+  formatUnits,
+  getAddress,
+  http,
+  isAddress,
+  type Address,
+} from "viem";
+import { robinhoodMainnet } from "@/lib/chain";
 import { getAssetCatalog, getMarketSnapshot, type RobinhoodAsset } from "@/lib/robinhood";
 import { MHR_CONTRACT_ADDRESS } from "@/lib/token";
-
-const BLOCKSCOUT_API = "https://robinhoodchain.blockscout.com/api/v2";
-
-type BlockscoutBalance = {
-  value: string;
-  token: {
-    address_hash: string;
-    decimals: string | null;
-    symbol: string | null;
-    name: string | null;
-    exchange_rate: string | null;
-  };
-};
-
-type WalletBalanceResult = {
-  wallet: string;
-  balances: BlockscoutBalance[];
-};
 
 export type MappedPosition = {
   wallet: string;
@@ -37,84 +28,129 @@ export type MhrHolding = {
   status: "holder" | "not_held" | "unavailable";
 };
 
-function stockTokenByAddress(assets: RobinhoodAsset[]) {
-  return new Map(
-    assets.flatMap((asset) => asset.deployments
-      .filter((deployment) => deployment.chainId === 4663)
-      .map((deployment) => [deployment.contractAddress.toLowerCase(), asset] as const)),
-  );
+type StockTokenContract = {
+  address: Address;
+  asset: RobinhoodAsset;
+  decimals: number;
+};
+
+function rpcUrl() {
+  return process.env.ROBINHOOD_RPC_URL?.trim()
+    || process.env.NEXT_PUBLIC_RPC_URL?.trim()
+    || robinhoodMainnet.rpcUrls.default.http[0];
 }
 
-function validWalletAddresses(addresses: string[]) {
-  return addresses.filter((address) => isAddress(address)).map(getAddress);
-}
-
-async function fetchWalletBalances(addresses: string[]) {
-  const validAddresses = validWalletAddresses(addresses);
-  const responses = await Promise.allSettled(validAddresses.map(async (wallet): Promise<WalletBalanceResult> => {
-    const response = await fetch(`${BLOCKSCOUT_API}/addresses/${wallet}/token-balances`, {
-      headers: { Accept: "application/json" },
-      cache: "no-store",
-      signal: AbortSignal.timeout(8_000),
-    });
-    if (!response.ok) throw new Error(`Blockscout responded ${response.status}`);
-    return { wallet, balances: await response.json() as BlockscoutBalance[] };
-  }));
-  return { validAddresses, responses };
-}
-
-function mhrHoldingsFromResponses(
-  validAddresses: string[],
-  responses: PromiseSettledResult<WalletBalanceResult>[],
-): MhrHolding[] {
-  return responses.map((result, index) => {
-    const wallet = validAddresses[index]!;
-    if (result.status !== "fulfilled") return { wallet, balance: null, status: "unavailable" };
-
-    const holding = result.value.balances.find(
-      (balance) => balance.token.address_hash.toLowerCase() === MHR_CONTRACT_ADDRESS.toLowerCase(),
-    );
-    if (!holding || BigInt(holding.value) === BigInt(0)) {
-      return { wallet, balance: "0", status: "not_held" };
-    }
-
-    return {
-      wallet,
-      balance: formatUnits(BigInt(holding.value), Number(holding.token.decimals ?? 18)),
-      status: "holder",
-    };
+function publicClient() {
+  return createPublicClient({
+    chain: robinhoodMainnet,
+    transport: http(rpcUrl(), { timeout: 12_000 }),
   });
 }
 
+function validWalletAddresses(addresses: string[]) {
+  return [...new Set(addresses.filter((address) => isAddress(address)).map(getAddress))];
+}
+
+function stockTokenContracts(assets: RobinhoodAsset[]): StockTokenContract[] {
+  const seen = new Set<string>();
+  return assets.flatMap((asset) => asset.deployments
+    .filter((deployment) => deployment.chainId === robinhoodMainnet.id && isAddress(deployment.contractAddress))
+    .flatMap((deployment) => {
+      const address = getAddress(deployment.contractAddress);
+      if (seen.has(address.toLowerCase())) return [];
+      seen.add(address.toLowerCase());
+      return [{ address, asset, decimals: asset.tokenDecimals ?? 18 }];
+    }));
+}
+
+async function scanOfficialBalances(wallets: Address[], contracts: StockTokenContract[]) {
+  const client = publicClient();
+  return Promise.allSettled(wallets.map(async (wallet) => ({
+    wallet,
+    balances: await client.multicall({
+      allowFailure: true,
+      contracts: contracts.map((token) => ({
+        address: token.address,
+        abi: erc20Abi,
+        functionName: "balanceOf" as const,
+        args: [wallet] as const,
+      })),
+    }),
+  })));
+}
+
 export async function getMhrHoldings(addresses: string[]) {
-  const { validAddresses, responses } = await fetchWalletBalances(addresses);
-  return mhrHoldingsFromResponses(validAddresses, responses);
+  const wallets = validWalletAddresses(addresses);
+  if (!wallets.length) return [];
+
+  const client = publicClient();
+  try {
+    const results = await client.multicall({
+      allowFailure: true,
+      contracts: wallets.map((wallet) => ({
+        address: getAddress(MHR_CONTRACT_ADDRESS),
+        abi: erc20Abi,
+        functionName: "balanceOf" as const,
+        args: [wallet] as const,
+      })),
+    });
+
+    return results.map((result, index): MhrHolding => {
+      const wallet = wallets[index]!;
+      if (result.status === "failure") return { wallet, balance: null, status: "unavailable" };
+      const balance = result.result;
+      return {
+        wallet,
+        balance: formatUnits(balance, 18),
+        status: balance > BigInt(0) ? "holder" : "not_held",
+      };
+    });
+  } catch {
+    return wallets.map((wallet) => ({ wallet, balance: null, status: "unavailable" as const }));
+  }
 }
 
 export async function mapWalletPositions(addresses: string[]) {
   const validAddresses = validWalletAddresses(addresses);
-  if (!validAddresses.length) return { positions: [], events: [], mhrHoldings: [], scannedAt: new Date().toISOString() };
+  if (!validAddresses.length) {
+    return {
+      positions: [],
+      events: [],
+      mhrHoldings: [],
+      sourceStatus: "live" as const,
+      scannedAt: new Date().toISOString(),
+    };
+  }
 
-  const assets = await getAssetCatalog().catch(() => []);
-  const assetsByAddress = stockTokenByAddress(assets);
-  const { responses: balanceResponses } = await fetchWalletBalances(validAddresses);
+  const assets = await getAssetCatalog();
+  const contracts = stockTokenContracts(assets);
+  if (!contracts.length) throw new Error("Official Robinhood Stock Token catalog is unavailable");
 
-  const rawPositions = balanceResponses.flatMap((result) => {
-    if (result.status !== "fulfilled") return [];
-    return result.value.balances.flatMap((balance) => {
-      const asset = assetsByAddress.get(balance.token.address_hash.toLowerCase());
-      if (!asset || BigInt(balance.value) === BigInt(0)) return [];
-      const decimals = Number(balance.token.decimals ?? 18);
+  const [walletScans, mhrHoldings] = await Promise.all([
+    scanOfficialBalances(validAddresses, contracts),
+    getMhrHoldings(validAddresses),
+  ]);
+
+  const fulfilledScans = walletScans.filter((result) => result.status === "fulfilled");
+  const sourceStatus = fulfilledScans.length === walletScans.length
+    ? "live" as const
+    : fulfilledScans.length
+      ? "partial" as const
+      : "unavailable" as const;
+
+  const rawPositions = walletScans.flatMap((scan) => {
+    if (scan.status !== "fulfilled") return [];
+    return scan.value.balances.flatMap((balance, index) => {
+      const token = contracts[index];
+      if (!token || balance.status === "failure" || balance.result === BigInt(0)) return [];
       return [{
-        wallet: result.value.wallet,
-        asset,
-        contractAddress: balance.token.address_hash,
-        balance: formatUnits(BigInt(balance.value), decimals),
+        wallet: scan.value.wallet,
+        asset: token.asset,
+        contractAddress: token.address,
+        balance: formatUnits(balance.result, token.decimals),
       }];
     });
   });
-
-  const mhrHoldings = mhrHoldingsFromResponses(validAddresses, balanceResponses);
 
   const symbols = [...new Set(rawPositions.map((position) => position.asset.tokenSymbol))];
   const snapshot = symbols.length ? await getMarketSnapshot(symbols) : null;
@@ -129,7 +165,7 @@ export async function mapWalletPositions(addresses: string[]) {
     return {
       wallet: position.wallet,
       symbol: position.asset.tokenSymbol,
-      name: position.asset.tokenName.replace(" • Robinhood Token", ""),
+      name: position.asset.tokenName.replace(" â€¢ Robinhood Token", ""),
       contractAddress: position.contractAddress,
       balance: position.balance,
       price: price === null ? null : price.toFixed(2),
@@ -142,6 +178,8 @@ export async function mapWalletPositions(addresses: string[]) {
     positions,
     events: liveSnapshot?.events ?? [],
     mhrHoldings,
+    sourceStatus,
+    warning: sourceStatus === "live" ? undefined : "One or more wallet scans could not reach Robinhood Chain RPC.",
     scannedAt: new Date().toISOString(),
   };
 }

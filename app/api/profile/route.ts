@@ -53,7 +53,7 @@ export async function GET(request: Request) {
           status: wallet.verified ? "unavailable" as const : "not_held" as const,
         },
       })),
-      exposure: { positions: [], events: [], scannedAt: new Date().toISOString() },
+      exposure: { positions: [], events: [], sourceStatus: "pending", scannedAt: new Date().toISOString() },
       entitlements,
       hydration: "pending",
     }, { headers: { "Cache-Control": "private, no-store" } });
@@ -66,6 +66,8 @@ export async function GET(request: Request) {
       balance: null,
       status: "unavailable" as const,
     })),
+    sourceStatus: "unavailable" as const,
+    warning: "Robinhood Chain RPC scan unavailable",
     scannedAt: new Date().toISOString(),
   }));
   const entitlements = entitlementsFromHoldings(exposure.mhrHoldings);
@@ -98,6 +100,8 @@ export async function GET(request: Request) {
     exposure: {
       positions: exposure.positions,
       events: exposure.events,
+      sourceStatus: exposure.sourceStatus,
+      warning: exposure.warning,
       scannedAt: exposure.scannedAt,
     },
     entitlements,

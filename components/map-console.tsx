@@ -45,7 +45,13 @@ type ProfileResponse = {
   account: { id: string; email: string | null; primaryMethod: "email" | "wallet" };
   watchlist: { symbols: string[]; mode: string } | null;
   wallets: Array<{ id: string; address: string; chainId: number; verified: boolean; mhr: MhrHolding }>;
-  exposure: { positions: MappedPosition[]; events: CorporateEvent[]; scannedAt: string };
+  exposure: {
+    positions: MappedPosition[];
+    events: CorporateEvent[];
+    sourceStatus?: "pending" | "live" | "partial" | "unavailable";
+    warning?: string;
+    scannedAt: string;
+  };
   entitlements: ProductEntitlements;
 };
 
@@ -542,6 +548,8 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
                   </div>
                 ))}
               </div>
+            ) : profile?.exposure.sourceStatus === "unavailable" ? (
+              <div className="workspace-empty"><AlertTriangle size={30} /><h2>Wallet scan unavailable.</h2><p>{profile.exposure.warning ?? "MIHARI could not reach Robinhood Chain. Your holdings have not been reported as zero."}</p></div>
             ) : <div className="workspace-empty"><Orbit size={30} /><h2>No Stock Token positions found.</h2><p>Your saved watchlist continues monitoring even when a linked wallet has no position.</p></div>}
 
             {openRiskPosition && openRiskEvent ? (

@@ -1958,6 +1958,25 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .protocol-scope-grid span { font-size: max(0.66rem, 10.5px); }
 .protocol-scope-grid small { margin-top: auto; color: var(--heather-3); font-size: 0.72rem; line-height: 1.5; }
 .protocol-scope-empty { margin: 0; padding: 1.2rem; color: var(--heather-3); font-size: 0.8rem; line-height: 1.55; }
+.protocol-market-section { margin: 1.5rem clamp(1rem, 3vw, 3rem); border: 1px solid var(--ink); background: var(--white); }
+.protocol-market-section > header { min-height: 104px; display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; padding: 1.2rem; border-bottom: 1px solid var(--ink); }
+.protocol-market-section > header p { margin: 0 0 0.45rem; font-size: max(0.72rem, 11.5px); letter-spacing: 0.05em; }
+.protocol-market-section > header h2 { margin: 0; font-size: clamp(1.8rem, 3vw, 2.8rem); letter-spacing: -0.05em; }
+.protocol-market-section > header > span { font-size: max(0.72rem, 11.5px); }
+.protocol-market-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.protocol-market-grid article { min-height: 190px; display: flex; flex-direction: column; gap: 0.7rem; padding: 1.2rem; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.protocol-market-grid article:nth-child(3n) { border-right: 0; }
+.protocol-market-grid article > span { font-size: max(0.72rem, 11.5px); }
+.protocol-market-grid h3 { margin: 0.5rem 0 0; font-size: 1.6rem; }
+.protocol-market-grid p { margin: 0; color: var(--heather-3); font-size: 0.88rem; line-height: 1.5; }
+.protocol-market-grid footer { margin-top: auto; display: flex; justify-content: space-between; gap: 1rem; font-size: max(0.7rem, 11px); }
+.protocol-market-empty { min-height: 132px; display: flex; align-items: center; gap: 1rem; padding: 1.4rem; background: var(--paper); }
+.protocol-market-empty strong { font-size: 1rem; }
+.protocol-market-empty p { margin: 0.4rem 0 0; max-width: 780px; color: var(--heather-3); font-size: 0.88rem; line-height: 1.55; }
+.protocol-personal-positions { margin-top: 1.5rem; }
+.protocol-personal-positions > header { margin: 0 clamp(1rem, 3vw, 3rem); padding: 1.2rem; border: 1px solid var(--ink); background: var(--white); }
+.protocol-personal-positions > header p { margin: 0 0 0.4rem; font-size: max(0.72rem, 11.5px); }
+.protocol-personal-positions > header h2 { margin: 0; font-size: clamp(1.8rem, 3vw, 2.8rem); letter-spacing: -0.05em; }
 .protocol-coverage-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1px; padding: 1px; border-bottom: 1px solid var(--ink); background: var(--ink); }
 .protocol-coverage-card { min-width: 0; min-height: 210px; display: flex; flex-direction: column; gap: 0.8rem; padding: 1rem; background: var(--white); }
 .protocol-coverage-card.beta { background: color-mix(in srgb, var(--neon) 18%, var(--white)); }
@@ -2263,6 +2282,9 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
   .protocol-explainer > svg { transform: rotate(90deg); }
   .protocol-coverage-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .protocol-scope-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .protocol-market-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .protocol-market-grid article:nth-child(3n) { border-right: 1px solid var(--ink); }
+  .protocol-market-grid article:nth-child(2n) { border-right: 0; }
   .protocol-scope-grid article:nth-child(4n) { border-right: 1px solid var(--ink); }
   .protocol-scope-grid article:nth-child(2n) { border-right: 0; }
   .protocol-position-table > header { display: none; }
@@ -2306,6 +2328,10 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 @media (max-width: 620px) {
   .protocol-coverage-grid { grid-template-columns: 1fr; }
   .protocol-scope-grid { grid-template-columns: 1fr; }
+  .protocol-market-grid { grid-template-columns: 1fr; }
+  .protocol-market-grid article,
+  .protocol-market-grid article:nth-child(2n),
+  .protocol-market-grid article:nth-child(3n) { border-right: 0; }
   .protocol-scope-grid article,
   .protocol-scope-grid article:nth-child(2n),
   .protocol-scope-grid article:nth-child(4n) { border-right: 0; }

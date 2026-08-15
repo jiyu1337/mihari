@@ -133,6 +133,7 @@ export function ProtocolExposure({
     0,
   ) ?? 0, [snapshot]);
   const eventMatches = snapshot?.positions.filter((position) => position.hasCorporateAction).length ?? 0;
+  const discoveredMarkets = snapshot?.marketScan?.markets ?? [];
   const catalog = snapshot?.protocolCatalog ?? previewProtocolCatalog;
   const protocolById = useMemo(() => new Map(
     catalog.map((protocol) => [protocol.id, protocol]),
@@ -210,6 +211,39 @@ export function ProtocolExposure({
         )}
       </section>
 
+      <section className="protocol-market-section">
+        <header>
+          <div>
+            <p className="mono">MARKET COVERAGE / WATCHLIST</p>
+            <h2>Where these assets can trade.</h2>
+          </div>
+          <span className="mono">{holderAccess ? `${discoveredMarkets.length} POOLS FOUND` : "HOLDER SCAN"}</span>
+        </header>
+        {!holderAccess ? (
+          <div className="protocol-market-empty">
+            <LockKeyhole size={24} />
+            <div><strong>Public pool discovery is ready to unlock.</strong><p>Holder access checks monitored Stock Tokens against supported DeFi markets. A discovered pool is market coverage, not proof that your wallet owns liquidity.</p></div>
+          </div>
+        ) : loading ? (
+          <div className="protocol-market-empty"><LoaderCircle className="spin" size={24} /><div><strong>Checking watchlist markets.</strong><p>MIHARI is reading Uniswap V4 pool records on Robinhood Chain.</p></div></div>
+        ) : snapshot?.marketScan?.status === "unavailable" ? (
+          <div className="protocol-market-empty"><AlertTriangle size={24} /><div><strong>Market coverage source unavailable.</strong><p>Personal position scans continue separately. Try the scan again in a moment.</p></div></div>
+        ) : discoveredMarkets.length ? (
+          <div className="protocol-market-grid">
+            {discoveredMarkets.map((market) => (
+              <article key={market.id}>
+                <span className="mono">POOL DISCOVERED</span>
+                <h3>{market.symbol} / {market.counterparty}</h3>
+                <p>Uniswap V4 market found for an asset in your watchlist.</p>
+                <footer className="mono"><span>FEE {market.fee}</span><span>{shortAddress(market.poolId)}</span></footer>
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="protocol-market-empty"><Database size={24} /><div><strong>No supported pool found for this watchlist.</strong><p>The assets remain monitored for corporate actions. Market coverage and personal positions are separate checks.</p></div></div>
+        )}
+      </section>
+
       <div className="protocol-explainer">
         <article><Wallet size={20} /><span><strong>Direct holdings</strong><small>The Exposure page shows Stock Tokens held directly by your verified wallets.</small></span></article>
         <ArrowRight size={18} />
@@ -261,7 +295,9 @@ export function ProtocolExposure({
       ) : !walletCount ? (
         <div className="workspace-empty protocol-empty"><Wallet size={30} /><h2>Link a wallet to start.</h2><p>MIHARI needs a verified address before it can look for personal protocol positions.</p><button onClick={onOpenWallets}>OPEN WALLETS</button></div>
       ) : snapshot?.positions.length ? (
-        <div className="protocol-position-table">
+        <section className="protocol-personal-positions">
+          <header><p className="mono">YOUR POSITIONS / VERIFIED WALLETS</p><h2>Personal protocol exposure.</h2></header>
+          <div className="protocol-position-table">
           <header className="mono"><span>PROTOCOL POSITION</span><span>STOCK TOKEN</span><span>AMOUNT / VALUE</span><span>EVENT STATUS</span></header>
           {snapshot.positions.map((position) => (
             <article className={position.hasCorporateAction ? "exposed" : ""} key={position.id}>
@@ -274,9 +310,10 @@ export function ProtocolExposure({
               <span className="protocol-event-state"><strong className="mono">{position.hasCorporateAction ? "EVENT MATCH" : "NO EVENT MATCH"}</strong><small>{position.corporateAction ? `${position.corporateAction.type} / ${position.corporateAction.status}` : "MONITORING CONTINUES"}</small></span>
             </article>
           ))}
-        </div>
+          </div>
+        </section>
       ) : (
-        <div className="workspace-empty protocol-empty"><Landmark size={30} /><h2>No supported Stock Token protocol position found.</h2><p>The active adapters completed without finding a recognized Stock Token position. Planned sources are shown above and are not included in this result.</p></div>
+        <div className="workspace-empty protocol-empty"><Landmark size={30} /><h2>No personal protocol position found.</h2><p>MIHARI checked your verified wallets and found no recognized position in the active adapters. Pools listed under Market Coverage are public markets and do not mean your wallet owns liquidity.</p></div>
       )}
 
       <div className="protocol-coverage-note">
