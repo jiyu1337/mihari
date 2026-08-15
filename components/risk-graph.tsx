@@ -313,11 +313,20 @@ export function RiskGraph({
           <div>
             {watchlistSignalNodes.map((node) => (
               <article className={node.event?.severity ?? "watch"} key={`${node.symbol}-${node.event?.id}`}>
-                <span className="mono">WATCHLIST / NOT A HOLDING</span>
-                <h3>{node.symbol}</h3>
-                <strong>{node.event?.type}</strong>
-                <p>{node.event?.summary}</p>
-                <button type="button" onClick={onOpenEvents}>OPEN EVENT ANALYSIS <ArrowRight size={13} /></button>
+                <div className="risk-watchlist-event">
+                  <span className="mono">WATCHLIST / NOT A HOLDING</span>
+                  <h3>{node.symbol}</h3>
+                  <strong>{node.event?.type}</strong>
+                  <p>{node.event?.summary}</p>
+                </div>
+                <div className="risk-watchlist-agent">
+                  <span className="mono">MIHARI AI GUARDIAN / REVIEW READY</span>
+                  <ShieldCheck size={28} />
+                  <h4>Event processed.</h4>
+                  <p>MIHARI matched this official event to your watchlist and prepared an impact review before you make a decision.</p>
+                  <div className="mono"><span>RISK <strong>{node.event?.severity?.toUpperCase() ?? "WATCH"}</strong></span><span>CONFIDENCE <strong>{node.event?.confidence == null ? "SOURCE BASED" : `${node.event.confidence}%`}</strong></span></div>
+                  <button type="button" onClick={onOpenEvents}>OPEN EVENT ANALYSIS <ArrowRight size={13} /></button>
+                </div>
               </article>
             ))}
           </div>
