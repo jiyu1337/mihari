@@ -18,7 +18,7 @@ Current capability statement:
 
 - Full live Robinhood Stock Token catalog.
 - Email and wallet-native profiles.
-- Observer watchlists of up to 5 assets and MHR Holder watchlists of up to 20 assets.
+- Public watchlists of up to 3 assets, Observer watchlists of up to 10 assets and MHR Holder watchlists of up to 30 assets.
 - Read-only onboarding without a wallet.
 - Verified EVM wallets and automatic Stock Token holding discovery.
 - Direct exposure, supported DeFi position mapping and the Unified Risk Graph.
@@ -68,7 +68,7 @@ Do not describe these roadmap features as live.
 | 1 | What is MIHARI? | Product introduction | Live |
 | 2 | The product workflow | Short thread or carousel | Live |
 | 3 | 20 watched assets vs a few events | Educational post | Live |
-| 4 | Build a watchlist with Select 20 | 10-second demo | Live |
+| 4 | Build a personal watchlist | 10-second demo | Live |
 | 5 | Reading the Event Register | Educational post | Live |
 | 6 | From official event to Incident File | 10-second demo | Live |
 | 7 | What AI Confidence means | Trust post | Live |
@@ -168,7 +168,7 @@ Do not claim that MIHARI currently provides exact earnings, ex-dividend, record 
 
 ## Ten-second demo scripts
 
-### Demo 01: Select 20
+### Demo 01: Build a personal watchlist
 
 **Status:** Live now.
 

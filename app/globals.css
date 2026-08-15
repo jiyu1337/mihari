@@ -2085,10 +2085,7 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .workspace-feature-gate > button { grid-column: 2; width: fit-content; min-height: 46px; display: flex; align-items: center; gap: 0.55rem; padding: 0 1rem; border: 1px solid var(--ink); background: var(--neon); font: 0.7rem/1 var(--font-mono), monospace; cursor: pointer; }
 .risk-exposure-lane.locked { display: flex; flex-direction: column; background: var(--heather-1); }
 .risk-exposure-lane.locked > p { margin: auto 0; color: var(--ink); font-size: 0.66rem; line-height: 1.5; }
-.workspace-header nav button.locked { color: color-mix(in srgb, var(--paper) 72%, transparent); }
-.workspace-header nav button.locked svg:last-child { margin-left: auto; }
-
-/* Readability floor for the signed-in workspace */
+  /* Readability floor for the signed-in workspace */
 .workspace-identity-bar > span,
 .workspace-title > div > p,
 .workspace-metrics span,

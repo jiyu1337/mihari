@@ -1,5 +1,6 @@
-export const FREE_WATCHLIST_ASSETS = 5;
-export const HOLDER_WATCHLIST_ASSETS = 20;
+export const PUBLIC_WATCHLIST_ASSETS = 3;
+export const FREE_WATCHLIST_ASSETS = 10;
+export const HOLDER_WATCHLIST_ASSETS = 30;
 export const FREE_LINKED_WALLETS = 1;
 export const HOLDER_LINKED_WALLETS = 5;
 export const FREE_AI_ANALYSES_PER_DAY = 1;

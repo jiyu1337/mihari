@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Mail, Search, Wallet } from "lucide-react";
-import { MAX_WATCHLIST_ASSETS } from "@/lib/product-limits";
+import { PUBLIC_WATCHLIST_ASSETS } from "@/lib/product-limits";
 import type { RobinhoodAsset } from "@/lib/robinhood";
 
 const fallbackAssets = [
@@ -60,7 +60,7 @@ export function OnboardingConsole() {
         assets?: string[];
       };
       restoreTimer = window.setTimeout(() => {
-        if (saved.assets?.length) setSelectedAssets(saved.assets.slice(0, MAX_WATCHLIST_ASSETS));
+        if (saved.assets?.length) setSelectedAssets(saved.assets.slice(0, PUBLIC_WATCHLIST_ASSETS));
       }, 0);
     } catch {
       // A malformed local preference should never block onboarding.
@@ -99,20 +99,20 @@ export function OnboardingConsole() {
   }, [assetCatalog, assetSearch]);
   const selectedAssetSet = useMemo(() => new Set(selectedAssets), [selectedAssets]);
   const allAssetsSelected = useMemo(
-    () => selectedAssets.length >= Math.min(MAX_WATCHLIST_ASSETS, assetCatalog.length),
+    () => selectedAssets.length >= Math.min(PUBLIC_WATCHLIST_ASSETS, assetCatalog.length),
     [assetCatalog.length, selectedAssets.length],
   );
 
   function toggleAsset(symbol: string) {
     setSelectedAssets((current) => {
       if (current.includes(symbol)) return current.filter((item) => item !== symbol);
-      if (current.length >= MAX_WATCHLIST_ASSETS) return current;
+      if (current.length >= PUBLIC_WATCHLIST_ASSETS) return current;
       return [...current, symbol];
     });
   }
 
   function selectAllAssets() {
-    setSelectedAssets([...new Set(visibleAssets.slice(0, MAX_WATCHLIST_ASSETS).map((asset) => asset.tokenSymbol))]);
+    setSelectedAssets([...new Set(visibleAssets.slice(0, PUBLIC_WATCHLIST_ASSETS).map((asset) => asset.tokenSymbol))]);
   }
 
   function clearSelectedAssets() {
@@ -194,7 +194,7 @@ export function OnboardingConsole() {
                 <h1>Build your watchlist.</h1>
               </div>
               <p>
-                Choose up to 20 assets from the live Robinhood Stock Token catalog. The dashboard will only show
+                Choose up to 3 assets for a public monitoring session. Create a profile to save a larger watchlist and map personal exposure. The dashboard will only show
                 event records when one of these assets has a corporate action.
               </p>
             </div>
@@ -212,7 +212,7 @@ export function OnboardingConsole() {
                   {catalogMode === "loading" ? "SYNCING CATALOG" : `${assetCatalog.length} ${catalogMode === "live" ? "LIVE" : "FALLBACK"} ASSETS`}
                 </span>
                 <button type="button" onClick={selectAllAssets} disabled={allAssetsSelected || catalogMode === "loading"}>
-                  SELECT {Math.min(MAX_WATCHLIST_ASSETS, visibleAssets.length)}
+                  SELECT {Math.min(PUBLIC_WATCHLIST_ASSETS, visibleAssets.length)}
                 </button>
                 <button type="button" onClick={clearSelectedAssets} disabled={selectedAssets.length === 0}>
                   CLEAR
@@ -240,7 +240,7 @@ export function OnboardingConsole() {
             </div>
             <div className="setup-controls">
               <button className="back-button" onClick={() => setStep(1)}><ArrowLeft size={17} /> Back</button>
-              <span className="mono">{selectedAssets.length} / {MAX_WATCHLIST_ASSETS} WATCHED · {visibleAssets.length} SHOWN</span>
+              <span className="mono">{selectedAssets.length} / {PUBLIC_WATCHLIST_ASSETS} WATCHED · {visibleAssets.length} SHOWN</span>
               <button className="setup-next" disabled={selectedAssets.length === 0} onClick={() => setStep(3)}>
                 Set policy <ArrowRight size={18} />
               </button>

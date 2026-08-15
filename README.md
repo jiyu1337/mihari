@@ -77,7 +77,7 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Arcus perpetual discovery | `BETA` | Reads public Stock Token perpetual positions with side, leverage, margin mode and unrealized PnL |
 | Lighter perpetual discovery | `BETA` | Reads public Lighter accounts and subaccounts, then keeps positions matched to official Stock Token symbols |
 | Unified Risk Graph | `BETA` | Builds live event-to-asset-to-position paths across direct holdings and active protocol adapters |
-| MHR Holder access | `BETA` | Unlocks larger limits, supported DeFi position mapping and the full Risk Graph after an onchain balance check |
+| MHR Holder access | `BETA` | Unlocks larger limits, multi-wallet DeFi scanning and the full Risk Graph after an onchain balance check |
 | Ecosystem coverage registry | `LIVE` | Shows which Robinhood Chain sources are checked today and which adapters remain planned |
 | Policy execution | `NEXT` | No automatic protocol action or fund movement today |
 | Onchain proofs | `NEXT` | Production attestations require audited contracts |
@@ -128,8 +128,9 @@ Planned utility is designed around product use:
 
 | Access | Watchlist | Wallets | New AI analyses per 24 hours | Mapping |
 | --- | ---: | ---: | ---: | --- |
-| **Observer** | 5 assets | 1 | 1 | Direct Stock Token holdings and official events |
-| **MHR Holder** | 20 assets | 5 | 10 | Direct holdings, supported DeFi positions and the full Risk Graph |
+| **Public** | 3 assets | 0 | Cached or rule based | Public corporate-action monitoring |
+| **Observer** | 10 assets | 1 | 1 | Direct holdings, official events and supported DeFi positions for one wallet |
+| **MHR Holder** | 30 assets | 5 | 10 | Multi-wallet direct and DeFi exposure plus the full Risk Graph |
 
 Holder access currently requires at least `1 MHR` across verified wallets. The threshold is configurable with `MHR_HOLDER_THRESHOLD`. Every restriction is enforced by the server. Cached AI analysis is reused and does not consume another request.
 

@@ -87,7 +87,7 @@ export async function PATCH(request: Request) {
     return Response.json({
       error: entitlements.tier === "holder"
         ? `Your Holder access supports up to ${entitlements.limits.watchlistAssets} monitored assets.`
-        : `Observer profiles can monitor up to ${entitlements.limits.watchlistAssets} assets. Hold at least ${entitlements.holderThreshold} MHR in a verified wallet to unlock 20.`,
+        : `Observer profiles can monitor up to ${entitlements.limits.watchlistAssets} assets. Hold at least ${entitlements.holderThreshold} MHR in a verified wallet to unlock 30.`,
       code: "WATCHLIST_LIMIT",
       entitlements,
     }, { status: 403 });

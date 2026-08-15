@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import { getDatabase } from "@/db/client";
 import { wallets } from "@/db/schema";
 import { getAuthenticatedAccount } from "@/lib/account";
-import { getAccountEntitlements, mhrRequiredResponse } from "@/lib/entitlements";
+import { getAccountEntitlements } from "@/lib/entitlements";
 import {
   scanProtocolExposure,
   type ProtocolExposureSnapshot,
@@ -30,8 +30,6 @@ export async function GET() {
   if (!account) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
   const entitlements = await getAccountEntitlements(account.id);
-  if (!entitlements.features.protocolExposure) return mhrRequiredResponse(entitlements);
-
   const linkedWallets = await getDatabase()
     .select({ address: wallets.address, verified: wallets.verified })
     .from(wallets)

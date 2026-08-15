@@ -71,7 +71,7 @@ Required for the next production milestone:
 
 ## Current product limits
 
-Observer profiles can monitor 5 assets, verify 1 wallet and request 1 new AI analysis per rolling 24-hour window. MHR Holder profiles can monitor 20 assets, verify 5 wallets and request 10 new AI analyses. Holder access also unlocks supported DeFi position mapping and the full Risk Graph.
+Public sessions can monitor 3 assets without a profile. Observer profiles can monitor 10 assets, verify 1 wallet, scan supported DeFi positions for that wallet and request 1 new AI analysis per rolling 24-hour window. MHR Holder profiles can monitor 30 assets, verify 5 wallets and request 10 new AI analyses. Holder access also unlocks multi-wallet DeFi scanning and the full Risk Graph.
 
 The API enforces these limits. The interface explains the rule but is not the security boundary. Cached event analysis is reused without another model call. A rule-based explanation remains available when an AI limit is reached.
 

@@ -59,7 +59,7 @@ export function entitlementsFromHoldings(holdings: MhrHolding[]): ProductEntitle
     features: {
       directExposure: true,
       officialEvents: true,
-      protocolExposure: holder,
+      protocolExposure: true,
       fullRiskGraph: holder,
     },
   };
@@ -73,12 +73,4 @@ export async function getAccountEntitlements(accountId: string) {
   const addresses = linkedWallets.filter((wallet) => wallet.verified).map((wallet) => wallet.address);
   const holdings = addresses.length ? await getMhrHoldings(addresses) : [];
   return entitlementsFromHoldings(holdings);
-}
-
-export function mhrRequiredResponse(entitlements: ProductEntitlements) {
-  return Response.json({
-    error: `Hold at least ${entitlements.holderThreshold} MHR in a verified wallet to unlock this feature.`,
-    code: "MHR_REQUIRED",
-    entitlements,
-  }, { status: 403, headers: { "Cache-Control": "private, no-store" } });
 }

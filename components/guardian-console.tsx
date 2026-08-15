@@ -17,6 +17,7 @@ import {
 import { BrandMark } from "@/components/brand-mark";
 import type { AnalysisResponse } from "@/lib/analysis";
 import { corporateEvents, type CorporateEvent } from "@/lib/product-data";
+import { PUBLIC_WATCHLIST_ASSETS } from "@/lib/product-limits";
 import type { MarketSnapshot } from "@/lib/robinhood";
 
 type LocalConfiguration = {
@@ -97,7 +98,8 @@ export function GuardianConsole() {
   }, [configurationJson]);
 
   const symbols = useMemo(
-    () => (configuration.assets?.length ? configuration.assets : defaultConfiguration.assets) ?? [],
+    () => ((configuration.assets?.length ? configuration.assets : defaultConfiguration.assets) ?? [])
+      .slice(0, PUBLIC_WATCHLIST_ASSETS),
     [configuration.assets],
   );
   const selected = events.find((event) => event.id === selectedId) ?? events[0] ?? null;

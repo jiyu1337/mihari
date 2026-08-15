@@ -33,7 +33,7 @@ const statusRows = [
   ["Arcus perpetual discovery", "Beta", "Matches public Arcus perpetual positions to official Stock Token symbols and reports side, leverage, margin and PnL."],
   ["Lighter perpetual discovery", "Beta", "Reads public Lighter accounts and subaccounts for active Stock Token perpetual positions."],
   ["Unified Risk Graph", "Beta", "Connects live Robinhood events to verified direct holdings and supported protocol positions."],
-  ["MHR Holder access", "Beta", "Unlocks larger limits, DeFi position mapping and the full Risk Graph after an onchain balance check."],
+  ["MHR Holder access", "Beta", "Unlocks larger limits, multi-wallet DeFi scanning and the full Risk Graph after an onchain balance check."],
   ["Protocol coverage registry", "Live", "Separates active adapters from planned Robinhood Chain integrations."],
   ["Policy execution", "Next", "MIHARI does not pause protocols or move funds today."],
   ["Onchain proof", "Next", "No production receipt is written until contracts are audited and deployed."],
@@ -98,7 +98,7 @@ export default function DocsPage() {
             <h2>What a user can do in MIHARI today.</h2>
             <div className="docs-flow docs-workflow">
               <div><Wallet size={20} /><span className="mono">01 / ENTER</span><strong>Choose how to enter</strong><p>Open public Observe mode, use email and password, or create a wallet-first profile with a message signature.</p></div>
-              <div><ListChecks size={20} /><span className="mono">02 / SELECT</span><strong>Build a watchlist</strong><p>Choose up to 5 assets with Observer access or 20 with MHR Holder access.</p></div>
+              <div><ListChecks size={20} /><span className="mono">02 / SELECT</span><strong>Build a watchlist</strong><p>Monitor 3 assets publicly, 10 with Observer access or 30 with MHR Holder access.</p></div>
               <div><ShieldCheck size={20} /><span className="mono">03 / OBSERVE</span><strong>Start monitoring</strong><p>Observe mode reads and explains risk. It cannot execute a transaction.</p></div>
               <div><Database size={20} /><span className="mono">04 / SOURCE</span><strong>Read official data</strong><p>MIHARI checks Robinhood asset metadata, prices, multipliers and corporate actions.</p></div>
               <div><Eye size={20} /><span className="mono">05 / REVIEW</span><strong>Open a matching event</strong><p>The Event Register shows watched assets that currently have an official corporate-action record.</p></div>
@@ -128,12 +128,12 @@ export default function DocsPage() {
 
           <section className="docs-section" id="assets-events">
             <p className="docs-kicker mono">03 / ASSETS VS EVENTS</p>
-            <h2>Why can a watchlist contain 20 assets but Events show only a few?</h2>
+            <h2>Why can a watchlist contain many assets while Events shows only a few?</h2>
             <div className="docs-compare">
               <div>
                 <span className="mono">WATCHLIST · SELECTED ASSETS</span>
                 <h3>What MIHARI monitors</h3>
-                <p>One asset or a custom list of up to 20 assets can be in your private watchlist.</p>
+                <p>Your private watchlist can contain up to 10 assets with Observer access or 30 with MHR Holder access.</p>
               </div>
               <ArrowRight size={22} />
               <div className="highlight">
@@ -227,17 +227,23 @@ export default function DocsPage() {
               verified wallets. A combined balance of at least 1 MHR unlocks Holder access in the
               current beta. The balance check is read-only and cannot move tokens.
             </p>
+            <p>
+              Visitors without a profile can monitor up to 3 assets in the public Observe experience.
+              A registered Observer receives the full personal workspace, one verified wallet and a
+              basic DeFi scan. Holder access increases capacity and combines protocol positions into
+              the Unified Risk Graph.
+            </p>
             <div className="docs-compare">
               <div>
                 <span className="mono">OBSERVER</span>
                 <h3>Direct monitoring</h3>
-                <p>Monitor 5 assets, verify 1 wallet, request 1 new AI analysis per 24 hours and map direct Stock Token holdings.</p>
+                <p>Monitor 10 assets, verify 1 wallet, request 1 new AI analysis per 24 hours and map direct plus supported DeFi exposure for that wallet.</p>
               </div>
               <ArrowRight size={22} />
               <div className="highlight">
                 <span className="mono">MHR HOLDER</span>
                 <h3>Complete position map</h3>
-                <p>Monitor 20 assets, verify 5 wallets, request 10 new AI analyses and add supported DeFi positions to the Risk Graph.</p>
+                <p>Monitor 30 assets, verify 5 wallets, request 10 new AI analyses and add supported DeFi positions to the full Risk Graph.</p>
               </div>
             </div>
             <div className="docs-callout">
@@ -257,7 +263,7 @@ export default function DocsPage() {
               non-zero balance of the official Robinhood contract in a verified wallet.
             </p>
             <div className="docs-compare">
-              <div><span className="mono">WATCHLIST</span><h3>What you want to monitor</h3><p>Up to 5 assets with Observer access or 20 with MHR Holder access, including assets you may be researching before buying.</p></div>
+              <div><span className="mono">WATCHLIST</span><h3>What you want to monitor</h3><p>Up to 10 assets with Observer access or 30 with MHR Holder access, including assets you may be researching before buying.</p></div>
               <ArrowRight size={22} />
               <div className="highlight"><span className="mono">EXPOSURE</span><h3>What the wallet actually holds</h3><p>Non-zero official Stock Token balances discovered automatically across every verified wallet.</p></div>
             </div>
@@ -288,7 +294,7 @@ export default function DocsPage() {
               <div><strong>Watchlist only</strong><span className="status-pill readonly">Monitoring</span><p>The asset is monitored, but MIHARI did not find that Stock Token in the linked wallets.</p></div>
               <div><strong>Contract / Chain 4663</strong><span className="status-pill readonly">Source data</span><p>The official Robinhood Stock Token deployment used for wallet matching on Robinhood Chain.</p></div>
               <div><strong>Save scope</strong><span className="status-pill readonly">Profile action</span><p>Saves the current selection to this private MIHARI profile.</p></div>
-              <div><strong>Watchlist limit</strong><span className="status-pill readonly">Server enforced</span><p>Observer access supports 5 assets and MHR Holder access supports 20. Wallet holdings are still scanned across the full official catalog.</p></div>
+              <div><strong>Watchlist limit</strong><span className="status-pill readonly">Server enforced</span><p>Public access supports 3 assets, Observer access supports 10 and MHR Holder access supports 30. Wallet holdings are still scanned across the full official catalog.</p></div>
               <div><strong>$MHR Holder</strong><span className="status-pill live">Onchain</span><p>The verified address has a non-zero balance of the official $MHR contract.</p></div>
               <div><strong>$MHR Not Held</strong><span className="status-pill readonly">Onchain</span><p>The balance scan completed and no non-zero $MHR balance was found.</p></div>
               <div><strong>$MHR Unavailable</strong><span className="status-pill next">Source issue</span><p>The balance source did not return a usable response, so MIHARI does not assume the balance is zero.</p></div>
@@ -378,6 +384,10 @@ export default function DocsPage() {
               protocols for those positions and then uses the official Robinhood contract catalog
               to decide whether a position contains a Stock Token.
             </p>
+            <div className="docs-callout">
+              <strong>Available to every registered profile.</strong>
+              <p>Observer access scans one verified wallet. MHR Holder access scans up to five verified wallets and adds the resulting protocol positions to the full Unified Risk Graph.</p>
+            </div>
             <div className="docs-flow docs-workflow">
               <div><Wallet size={20} /><span className="mono">01 / IDENTITY</span><strong>Read verified addresses</strong><p>Only wallets already linked to the MIHARI profile are scanned.</p></div>
               <div><Landmark size={20} /><span className="mono">02 / PROTOCOL</span><strong>Query active adapters</strong><p>MIHARI reads Morpho positions, Uniswap V3 and V4 LP NFTs, plus public Arcus and Lighter perpetual positions for verified addresses.</p></div>

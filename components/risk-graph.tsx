@@ -192,7 +192,7 @@ export function RiskGraph({
       {!fullGraph ? (
         <div className="workspace-inline-help risk-graph-access-help">
           <LockKeyhole size={20} />
-          <p><strong>Your direct risk graph is active.</strong> MIHARI matches official events to Stock Tokens held in your verified wallets. Hold at least {holderThreshold} MHR to add supported lending, vault and liquidity positions to the same graph.</p>
+          <p><strong>Your direct risk graph is active.</strong> DeFi Exposure remains available on its own page for one verified wallet. Hold at least {holderThreshold} MHR to combine direct, lending, vault and liquidity positions in this unified graph.</p>
           <button type="button" onClick={onOpenWallets}>CHECK MHR STATUS</button>
         </div>
       ) : null}
@@ -245,7 +245,7 @@ export function RiskGraph({
                     </div>
                     <div className={`risk-exposure-lane protocol ${!fullGraph ? "locked" : ""}`}>
                       <header>{fullGraph ? <Landmark size={16} /> : <LockKeyhole size={16} />}<span className="mono">PROTOCOL / {fullGraph ? node.protocolPositions.length : "LOCKED"}</span></header>
-                      {!fullGraph ? <p>VERIFY AN MHR HOLDER WALLET TO MAP DEFI POSITIONS</p> : node.protocolPositions.length ? node.protocolPositions.map((position) => (
+                      {!fullGraph ? <p>OPEN DEFI EXPOSURE FOR THE BASIC SCAN. HOLDER ACCESS ADDS IT TO THIS GRAPH.</p> : node.protocolPositions.length ? node.protocolPositions.map((position) => (
                         <div key={position.id}>
                           <span><strong>{protocolById.get(position.protocol) ?? position.protocol}</strong><small className="mono">{protocolMeta(position)}</small></span>
                           <span><strong>{Number(position.amount).toLocaleString(undefined, { maximumFractionDigits: 6 })} {position.symbol}</strong><small>{formatMoney(position.valueUsd)}</small></span>

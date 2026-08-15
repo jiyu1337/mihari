@@ -4,9 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   ArrowRight,
+  CircleHelp,
   Database,
   Landmark,
-  LockKeyhole,
   LoaderCircle,
   RefreshCw,
   ShieldCheck,
@@ -21,7 +21,7 @@ import type {
 
 type ProtocolExposureProps = {
   walletCount: number;
-  unlocked: boolean;
+  holderAccess: boolean;
   holderThreshold: string;
   onOpenWallets: () => void;
 };
@@ -74,16 +74,12 @@ function scanLabel(scan: ProtocolScan | undefined, protocol: ProtocolDefinition,
   return scan.status.toUpperCase();
 }
 
-export function ProtocolExposure({ walletCount, unlocked, holderThreshold, onOpenWallets }: ProtocolExposureProps) {
+export function ProtocolExposure({ walletCount, holderAccess, holderThreshold, onOpenWallets }: ProtocolExposureProps) {
   const [snapshot, setSnapshot] = useState<ProtocolExposureResponse | null>(null);
-  const [loading, setLoading] = useState(unlocked);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
   const scan = useCallback(async () => {
-    if (!unlocked) {
-      setLoading(false);
-      return;
-    }
     setLoading(true);
     setError("");
     try {
@@ -96,13 +92,12 @@ export function ProtocolExposure({ walletCount, unlocked, holderThreshold, onOpe
     } finally {
       setLoading(false);
     }
-  }, [unlocked]);
+  }, []);
 
   useEffect(() => {
-    if (!unlocked) return;
     const timer = window.setTimeout(() => void scan(), 0);
     return () => window.clearTimeout(timer);
-  }, [scan, unlocked]);
+  }, [scan]);
 
   const totalValue = useMemo(() => snapshot?.positions.reduce(
     (total, position) => total + Number(position.valueUsd ?? 0),
@@ -134,37 +129,20 @@ export function ProtocolExposure({ walletCount, unlocked, holderThreshold, onOpe
             ? "LIVE"
             : "UNAVAILABLE";
 
-  if (!unlocked) {
-    return (
-      <section className="workspace-view protocol-view">
-        <div className="workspace-title compact">
-          <div><p className="mono">07 / DEFI EXPOSURE</p><h1>Beyond your wallet.</h1></div>
-          <p>See where your Stock Tokens are supplied, borrowed, deposited or used as collateral across supported DeFi protocols.</p>
-        </div>
-        <section className="workspace-feature-gate">
-          <div className="workspace-feature-gate-icon"><LockKeyhole size={30} /></div>
-          <div>
-            <p className="mono">MHR HOLDER ACCESS</p>
-            <h2>Unlock protocol exposure.</h2>
-            <p>Observer access already monitors your direct wallet holdings and official corporate actions. A verified wallet holding at least {holderThreshold} MHR also unlocks protocol position discovery.</p>
-          </div>
-          <div className="workspace-feature-list">
-            <span><strong>Morpho, Uniswap, Arcus and Lighter</strong><small>Read-only scans across active adapters</small></span>
-            <span><strong>Position-level event matching</strong><small>See whether an event reaches collateral, lending or liquidity</small></span>
-            <span><strong>No approvals or transactions</strong><small>MIHARI only reads public onchain data</small></span>
-          </div>
-          <button type="button" onClick={onOpenWallets}>VERIFY HOLDER WALLET <ArrowRight size={16} /></button>
-        </section>
-      </section>
-    );
-  }
-
   return (
     <section className="workspace-view protocol-view">
       <div className="workspace-title compact">
         <div><p className="mono">07 / DEFI EXPOSURE</p><h1>Beyond your wallet.</h1></div>
         <p>MIHARI checks supported lending, vault and liquidity protocols, then maps every recognized Stock Token position to official corporate actions.</p>
       </div>
+
+      {!holderAccess ? (
+        <div className="workspace-inline-help protocol-access-help">
+          <CircleHelp size={20} />
+          <p><strong>Your Observer DeFi scan is active.</strong> It checks one verified wallet across every active adapter below. Hold at least {holderThreshold} MHR to scan up to five wallets and add protocol positions to the complete Risk Graph.</p>
+          <button type="button" onClick={onOpenWallets}>CHECK MHR STATUS</button>
+        </div>
+      ) : null}
 
       <div className="protocol-source-bar mono">
         <span><Landmark size={14} />ENGINE <strong>MULTI-PROTOCOL</strong></span>
