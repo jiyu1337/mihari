@@ -11,6 +11,8 @@ import { robinhoodMainnet } from "@/lib/chain";
 import { getAssetCatalog, getMarketSnapshot, type RobinhoodAsset } from "@/lib/robinhood";
 import { MHR_CONTRACT_ADDRESS } from "@/lib/token";
 
+const BLOCKSCOUT_API = "https://robinhoodchain.blockscout.com/api/v2";
+
 export type MappedPosition = {
   wallet: string;
   symbol: string;
@@ -32,6 +34,20 @@ type StockTokenContract = {
   address: Address;
   asset: RobinhoodAsset;
   decimals: number;
+};
+
+type WalletStockScan = {
+  wallet: Address;
+  balances: Array<{ status: "success"; result: bigint } | { status: "failure" }>;
+  source: "rpc" | "blockscout";
+};
+
+type BlockscoutBalance = {
+  value?: string;
+  token?: {
+    address_hash?: string;
+    decimals?: string | null;
+  };
 };
 
 function rpcUrl() {
@@ -63,51 +79,99 @@ function stockTokenContracts(assets: RobinhoodAsset[]): StockTokenContract[] {
     }));
 }
 
-async function scanOfficialBalances(wallets: Address[], contracts: StockTokenContract[]) {
+async function scanRpcWallet(wallet: Address, contracts: StockTokenContract[]): Promise<WalletStockScan> {
   const client = publicClient();
-  return Promise.allSettled(wallets.map(async (wallet) => ({
+  const balances = await client.multicall({
+    allowFailure: true,
+    contracts: contracts.map((token) => ({
+      address: token.address,
+      abi: erc20Abi,
+      functionName: "balanceOf" as const,
+      args: [wallet] as const,
+    })),
+  });
+  if (!balances.some((balance) => balance.status === "success")) {
+    throw new Error("Robinhood Chain RPC returned no readable balances");
+  }
+  return { wallet, balances, source: "rpc" };
+}
+
+async function scanBlockscoutWallet(wallet: Address, contracts: StockTokenContract[]): Promise<WalletStockScan> {
+  const response = await fetch(`${BLOCKSCOUT_API}/addresses/${wallet}/token-balances`, {
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+    signal: AbortSignal.timeout(12_000),
+  });
+  if (!response.ok) throw new Error(`Blockscout responded ${response.status}`);
+  const payload = await response.json() as BlockscoutBalance[];
+  const byAddress = new Map(payload.flatMap((balance) => {
+    const address = balance.token?.address_hash?.toLowerCase();
+    if (!address || balance.value === undefined) return [];
+    try {
+      return [[address, BigInt(balance.value)] as const];
+    } catch {
+      return [];
+    }
+  }));
+  return {
     wallet,
-    balances: await client.multicall({
-      allowFailure: true,
-      contracts: contracts.map((token) => ({
-        address: token.address,
-        abi: erc20Abi,
-        functionName: "balanceOf" as const,
-        args: [wallet] as const,
-      })),
-    }),
-  })));
+    balances: contracts.map((token) => ({
+      status: "success" as const,
+      result: byAddress.get(token.address.toLowerCase()) ?? BigInt(0),
+    })),
+    source: "blockscout",
+  };
+}
+
+async function scanOfficialBalances(wallets: Address[], contracts: StockTokenContract[]) {
+  return Promise.allSettled(wallets.map((wallet) => Promise.any([
+    scanRpcWallet(wallet, contracts),
+    scanBlockscoutWallet(wallet, contracts),
+  ])));
+}
+
+async function readMhrFromRpc(wallet: Address) {
+  return publicClient().readContract({
+    address: getAddress(MHR_CONTRACT_ADDRESS),
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [wallet],
+  });
+}
+
+async function readMhrFromBlockscout(wallet: Address) {
+  const response = await fetch(`${BLOCKSCOUT_API}/addresses/${wallet}/token-balances`, {
+    headers: { Accept: "application/json" },
+    cache: "no-store",
+    signal: AbortSignal.timeout(12_000),
+  });
+  if (!response.ok) throw new Error(`Blockscout responded ${response.status}`);
+  const payload = await response.json() as BlockscoutBalance[];
+  const holding = payload.find((balance) => (
+    balance.token?.address_hash?.toLowerCase() === MHR_CONTRACT_ADDRESS.toLowerCase()
+  ));
+  return BigInt(holding?.value ?? "0");
 }
 
 export async function getMhrHoldings(addresses: string[]) {
   const wallets = validWalletAddresses(addresses);
   if (!wallets.length) return [];
 
-  const client = publicClient();
-  try {
-    const results = await client.multicall({
-      allowFailure: true,
-      contracts: wallets.map((wallet) => ({
-        address: getAddress(MHR_CONTRACT_ADDRESS),
-        abi: erc20Abi,
-        functionName: "balanceOf" as const,
-        args: [wallet] as const,
-      })),
-    });
+  const results = await Promise.allSettled(wallets.map((wallet) => Promise.any([
+    readMhrFromRpc(wallet),
+    readMhrFromBlockscout(wallet),
+  ])));
 
-    return results.map((result, index): MhrHolding => {
-      const wallet = wallets[index]!;
-      if (result.status === "failure") return { wallet, balance: null, status: "unavailable" };
-      const balance = result.result;
+  return results.map((result, index): MhrHolding => {
+    const wallet = wallets[index]!;
+    if (result.status === "rejected") return { wallet, balance: null, status: "unavailable" };
+    const balance = result.value;
       return {
         wallet,
         balance: formatUnits(balance, 18),
         status: balance > BigInt(0) ? "holder" : "not_held",
       };
-    });
-  } catch {
-    return wallets.map((wallet) => ({ wallet, balance: null, status: "unavailable" as const }));
-  }
+  });
 }
 
 export async function mapWalletPositions(addresses: string[]) {
