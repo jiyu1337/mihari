@@ -92,6 +92,8 @@ export function ProtocolExposure({
   const [snapshot, setSnapshot] = useState<ProtocolExposureResponse | null>(null);
   const [loading, setLoading] = useState(holderAccess);
   const [error, setError] = useState("");
+  const [marketQuery, setMarketQuery] = useState("");
+  const [marketPage, setMarketPage] = useState(0);
 
   const scan = useCallback(async () => {
     if (!holderAccess) {
@@ -105,6 +107,7 @@ export function ProtocolExposure({
       const response = await fetch("/api/profile/protocol-exposure", { cache: "no-store" });
       const payload = await response.json() as ProtocolExposureResponse & { error?: string; warning?: string };
       if (!response.ok) throw new Error(payload.warning ?? payload.error ?? "Protocol scan unavailable");
+      setMarketPage(0);
       setSnapshot(payload);
     } catch (scanError) {
       setError(scanError instanceof Error ? scanError.message : "Protocol scan unavailable");
@@ -133,7 +136,19 @@ export function ProtocolExposure({
     0,
   ) ?? 0, [snapshot]);
   const eventMatches = snapshot?.positions.filter((position) => position.hasCorporateAction).length ?? 0;
-  const discoveredMarkets = snapshot?.marketScan?.markets ?? [];
+  const discoveredMarkets = useMemo(() => snapshot?.marketScan?.markets ?? [], [snapshot]);
+  const filteredMarkets = useMemo(() => {
+    const query = marketQuery.trim().toUpperCase();
+    if (!query) return discoveredMarkets;
+    return discoveredMarkets.filter((market) => (
+      market.symbol.includes(query)
+      || market.counterparty.toUpperCase().includes(query)
+      || market.protocol.toUpperCase().includes(query)
+    ));
+  }, [discoveredMarkets, marketQuery]);
+  const marketPageCount = Math.max(1, Math.ceil(filteredMarkets.length / 10));
+  const visibleMarkets = filteredMarkets.slice(marketPage * 10, marketPage * 10 + 10);
+
   const catalog = snapshot?.protocolCatalog ?? previewProtocolCatalog;
   const protocolById = useMemo(() => new Map(
     catalog.map((protocol) => [protocol.id, protocol]),
@@ -229,16 +244,24 @@ export function ProtocolExposure({
         ) : error || snapshot?.marketScan?.status === "unavailable" ? (
           <div className="protocol-market-empty"><AlertTriangle size={24} /><div><strong>Market coverage source unavailable.</strong><p>Personal position scans continue separately. Try the scan again in a moment.</p></div></div>
         ) : discoveredMarkets.length ? (
-          <div className="protocol-market-grid">
-            {discoveredMarkets.map((market) => (
-              <article key={market.id}>
-                <span className="mono">POOL DISCOVERED</span>
-                <h3>{market.symbol} / {market.counterparty}</h3>
-                <p>Uniswap V4 market found for an asset in your watchlist.</p>
-                <footer className="mono"><span>FEE {market.fee}</span><span>{shortAddress(market.poolId)}</span></footer>
-              </article>
-            ))}
-          </div>
+          <>
+            <div className="protocol-market-controls">
+              <label><span className="mono">SEARCH MARKETS</span><input value={marketQuery} onChange={(event) => { setMarketQuery(event.target.value); setMarketPage(0); }} placeholder="AAPL, ETH or protocol" /></label>
+              <div className="mono"><span>{filteredMarkets.length ? `${marketPage * 10 + 1}-${Math.min((marketPage + 1) * 10, filteredMarkets.length)} OF ${filteredMarkets.length}` : "0 RESULTS"}</span><button disabled={marketPage === 0} onClick={() => setMarketPage((page) => Math.max(0, page - 1))}>PREVIOUS</button><button disabled={marketPage >= marketPageCount - 1} onClick={() => setMarketPage((page) => Math.min(marketPageCount - 1, page + 1))}>NEXT</button></div>
+            </div>
+            {visibleMarkets.length ? (
+              <div className="protocol-market-grid">
+                {visibleMarkets.map((market) => (
+                  <article key={market.id}>
+                    <span className="mono">ACTIVE POOL</span>
+                    <h3>{market.symbol} / {market.counterparty}</h3>
+                    <p>Uniswap V4 pool with active liquidity for an asset in your monitoring scope.</p>
+                    <footer className="mono"><span>FEE {market.fee}</span><span>{shortAddress(market.poolId)}</span></footer>
+                  </article>
+                ))}
+              </div>
+            ) : <div className="protocol-market-empty"><Database size={24} /><div><strong>No market matches your search.</strong><p>Try another Stock Token symbol or clear the search field.</p></div></div>}
+          </>
         ) : (
           <div className="protocol-market-empty"><Database size={24} /><div><strong>No supported pool found for this watchlist.</strong><p>The assets remain monitored for corporate actions. Market coverage and personal positions are separate checks.</p></div></div>
         )}
