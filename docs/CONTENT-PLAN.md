@@ -17,22 +17,25 @@ Current capability statement:
 ## What is live now
 
 - Full live Robinhood Stock Token catalog.
-- Search, individual selection, `Select 20` and `Clear`.
+- Email and wallet-native profiles.
+- Observer watchlists of up to 5 assets and MHR Holder watchlists of up to 20 assets.
 - Read-only onboarding without a wallet.
-- Optional EVM wallet connection and Robinhood Chain network switch.
+- Verified EVM wallets and automatic Stock Token holding discovery.
+- Direct exposure, supported DeFi position mapping and the Unified Risk Graph.
 - Official corporate-action Event Register.
 - Robinhood price and multiplier context.
 - AI Observation, Impact Map, risk level and Bounded Response.
 - AI evidence-confidence score.
+- Onchain `$MHR` balance checks and server-enforced product access.
 - Neon persistence and analysis caching.
 
 ## What is coming next
 
-- Wallet-based vault and lending position discovery.
 - Protocol-specific policy preparation and approval.
 - Bounded onchain execution.
 - Audited Robinhood Chain contracts.
 - Onchain decision and response receipts.
+- Upcoming event timelines and dividend exposure when reliable official date fields are available.
 
 Do not describe these roadmap features as live.
 
@@ -78,6 +81,20 @@ Do not describe these roadmap features as live.
 | 14 | Policy execution and onchain proofs | Roadmap post | Coming next |
 
 ## Short-post library
+
+### Robinhood calendar and dividend update
+
+Angle to save for a future response to Robinhood product updates:
+
+> Robinhood tells you when an event is coming.
+>
+> MIHARI shows where that event can reach your onchain exposure and what should be reviewed.
+
+Supporting idea:
+
+> Earnings calendars and dividend trackers make upcoming events easier to see. MIHARI is building the next layer for Stock Tokens: match official corporate actions with direct wallet holdings and supported DeFi positions, then explain possible effects on NAV, collateral, vaults and liquidity.
+
+Do not claim that MIHARI currently provides exact earnings, ex-dividend, record or payment dates. The Robinhood Stock Token corporate-actions API exposes event details and `processDate`, but `processDate` is not the dividend payable date. Add exact calendar dates only after a reliable official source is integrated.
 
 ### Product workflow
 
