@@ -9,6 +9,7 @@ import { analyses, corporateActions } from "@/db/schema";
 import { getAuthenticatedAccount } from "@/lib/account";
 import { analysisSchema, type AnalysisResponse } from "@/lib/analysis";
 import { getAccountEntitlements } from "@/lib/entitlements";
+import { buildDeterministicPolicy } from "@/lib/policy-recommendation";
 import type { CorporateEvent } from "@/lib/product-data";
 import { getMarketSnapshot } from "@/lib/robinhood";
 
@@ -16,7 +17,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MODEL = process.env.MIHARI_AI_MODEL ?? "gpt-5-mini";
-const PROMPT_VERSION = "corporate-action-risk-v1";
+const PROMPT_VERSION = "corporate-action-policy-v2";
 const DAILY_AI_LIMIT = 25;
 
 const requestSchema = z.object({
@@ -51,19 +52,23 @@ function deterministicFallback(event: CorporateEvent, warning?: string): Analysi
   const isMultiplier = normalized.includes("multiplier") || normalized.includes("split");
   const isDividend = normalized.includes("dividend");
 
+  const affectedSystems: AnalysisResponse["affectedSystems"] = isMultiplier
+    ? ["quotes", "nav", "vaults", "lending"]
+    : isDividend
+      ? ["nav", "vaults"]
+      : ["agents"];
+  const risk: AnalysisResponse["risk"] = isMultiplier ? "high" : "medium";
+
   return {
     summary: event.summary,
     impactAssessment: event.impact,
-    affectedSystems: isMultiplier
-      ? ["quotes", "nav", "vaults", "lending"]
-      : isDividend
-        ? ["nav", "vaults"]
-        : ["agents"],
-    risk: isMultiplier ? "high" : "medium",
+    affectedSystems,
+    risk,
     recommendedAction: event.action,
     policyAction: isMultiplier ? "pause_quotes" : "warn",
     confidence: 82,
     evidence: ["Official Robinhood corporate-action record", "MIHARI deterministic policy rules"],
+    policyRecommendation: buildDeterministicPolicy(event, { affectedSystems, risk }),
     mode: "deterministic",
     cached: false,
     ...(warning ? { warning } : {}),
@@ -202,6 +207,9 @@ export async function POST(request: Request) {
         "Use only the supplied official Robinhood payload. Never invent dates, rates, positions, protocols, or evidence.",
         "Explain how a corporate action may affect quotes, NAV, vault accounting, lending collateral, and agents.",
         "A recommendation is advisory and cannot authorize or execute a transaction.",
+        "Return a structured policy recommendation with observable apply and release conditions.",
+        "Policy checks must be concrete verification steps, not transaction instructions.",
+        "Set execution to advisory_only. MIHARI never claims that a recommendation has been applied.",
         "Choose manual_review when evidence conflicts or is incomplete.",
         "Keep every field concise and suitable for a professional incident console.",
       ].join(" "),
