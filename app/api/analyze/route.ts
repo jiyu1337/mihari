@@ -193,7 +193,7 @@ export async function POST(request: Request) {
     const { output } = await generateText({
       model: openai(MODEL),
       output: Output.object({ schema: analysisSchema }),
-      maxOutputTokens: 700,
+      maxOutputTokens: 1_100,
       abortSignal: AbortSignal.timeout(20_000),
       providerOptions: {
         openai: {
