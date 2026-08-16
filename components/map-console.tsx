@@ -20,6 +20,7 @@ import {
   LoaderCircle,
   Network,
   Orbit,
+  ClipboardCheck,
   RefreshCw,
   Search,
   Settings2,
@@ -30,6 +31,7 @@ import {
 } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { ProfileEvents } from "@/components/profile-events";
+import { PolicyRecommendations } from "@/components/policy-recommendations";
 import { ProfileSignOut } from "@/components/profile-sign-out";
 import { ProtocolExposure } from "@/components/protocol-exposure";
 import { RiskGraph } from "@/components/risk-graph";
@@ -55,7 +57,7 @@ type ProfileResponse = {
   entitlements: ProductEntitlements;
 };
 
-type WorkspaceView = "overview" | "events" | "assets" | "wallets" | "exposure" | "risk" | "defi" | "settings";
+type WorkspaceView = "overview" | "events" | "assets" | "wallets" | "exposure" | "risk" | "defi" | "policies" | "settings";
 type MapConsoleProps = { authUnavailable?: boolean };
 
 const workspaceNavigation = [
@@ -66,6 +68,7 @@ const workspaceNavigation = [
   { id: "exposure", label: "Exposure", icon: ShieldCheck },
   { id: "risk", label: "Graph", icon: Network },
   { id: "defi", label: "DeFi", icon: Landmark },
+  { id: "policies", label: "Policy", icon: ClipboardCheck },
   { id: "settings", label: "Profile", icon: Settings2 },
 ] as const;
 
@@ -584,7 +587,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
 
         {view === "settings" ? (
           <section className="workspace-view">
-            <div className="workspace-title compact"><div><p className="mono">08 / PROFILE CONTROL</p><h1>Your profile.</h1></div><p>Manage the identities that open this workspace. Add email to a wallet-native profile or link wallets to an email profile.</p></div>
+            <div className="workspace-title compact"><div><p className="mono">09 / PROFILE CONTROL</p><h1>Your profile.</h1></div><p>Manage the identities that open this workspace. Add email to a wallet-native profile or link wallets to an email profile.</p></div>
             <div className="workspace-profile-grid">
               <article><CircleUserRound size={25} /><span className="mono">PRIMARY ACCESS</span><h2>{profile?.account.primaryMethod === "wallet" ? "Wallet signature" : "Email and password"}</h2><p>{profile?.account.email ?? profile?.wallets[0]?.address ?? "MIHARI profile"}</p></article>
               <article><Activity size={25} /><span className="mono">ADD ACCESS METHOD</span><h2>{profile?.account.email ? "Email connected" : "Add recovery email"}</h2><p>{profile?.account.email ? "You can access this profile by email and linked wallet." : "Connect email access without losing this wallet profile."}</p>{profile?.account.email ? <button onClick={() => setView("wallets")}>MANAGE WALLETS</button> : <Link href="/sign-in?redirect_url=/map">ADD EMAIL ACCESS <ArrowRight size={14} /></Link>}</article>
@@ -619,6 +622,17 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
             }}
             onOpenProtocolExposure={() => setView("defi")}
             onOpenEvents={() => setView("events")}
+          />
+        ) : null}
+
+        {view === "policies" ? (
+          <PolicyRecommendations
+            heldSymbols={profile?.exposure.positions.map((position) => position.symbol) ?? []}
+            heldEvents={profile?.exposure.events ?? []}
+            holderAccess={Boolean(isHolder)}
+            aiAnalysesPerDay={entitlements?.limits.aiAnalysesPerDay ?? 1}
+            onOpenEvents={() => setView("events")}
+            onOpenExposure={() => setView("exposure")}
           />
         ) : null}
       </main>
