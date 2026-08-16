@@ -63,7 +63,9 @@ export function PolicyRecommendations({
   );
   const availableEvents = useMemo(() => {
     const byId = new Map<string, CorporateEvent>();
-    for (const event of [...heldEvents, ...(feed?.events ?? [])]) byId.set(event.id, event);
+    for (const event of [...heldEvents, ...(feed?.events ?? [])]) {
+      if (event.source === "robinhood") byId.set(event.id, event);
+    }
     return [...byId.values()];
   }, [feed?.events, heldEvents]);
 
