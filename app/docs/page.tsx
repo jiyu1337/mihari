@@ -33,9 +33,10 @@ const statusRows = [
   ["Arcus perpetual discovery", "Beta", "Matches public Arcus perpetual positions to official Stock Token symbols and reports side, leverage, margin and PnL."],
   ["Lighter perpetual discovery", "Beta", "Reads public Lighter accounts and subaccounts for active Stock Token perpetual positions."],
   ["Unified Risk Graph", "Beta", "Connects live Robinhood events to holdings, watchlist research signals and, for Holders, supported protocol positions."],
+  ["Policy Recommendations", "Beta", "Turns a verified event into a structured operator review plan with checks, boundaries and clear conditions."],
   ["MHR Holder access", "Beta", "Unlocks larger limits, personal DeFi scanning and protocol paths in the Risk Graph after an onchain balance check."],
   ["Protocol coverage registry", "Live", "Separates active adapters from planned Robinhood Chain integrations."],
-  ["Policy execution", "Next", "MIHARI does not pause protocols or move funds today."],
+  ["Policy execution", "Next", "Recommendations are advisory. MIHARI does not pause protocols or move funds today."],
   ["Onchain proof", "Next", "No production receipt is written until contracts are audited and deployed."],
 ];
 
@@ -65,6 +66,7 @@ export default function DocsPage() {
             <a href="#exposure-statuses">Exposure statuses</a>
             <a href="#risk-graph">Risk Graph</a>
             <a href="#defi-exposure">DeFi Exposure</a>
+            <a href="#policy-recommendations">Policy Recommendations</a>
             <a href="#status">What works today</a>
             <a href="#terms">Key terms</a>
           </nav>
@@ -281,6 +283,7 @@ export default function DocsPage() {
               <div><span className="mono">EXPOSURE</span><strong>Stock Tokens found onchain</strong><p>MIHARI scans the full official catalog, not only the watchlist. It shows balances, indicative values and whether a current corporate action matches each holding.</p></div>
               <div><span className="mono">RISK GRAPH</span><strong>Holdings and research signals</strong><p>Connects a live Robinhood event to direct holdings and watchlist assets. Holder access adds every supported protocol position MIHARI can prove.</p></div>
               <div><span className="mono">DEFI</span><strong>Coverage preview and Holder scan</strong><p>Everyone can review supported protocols and watchlist research scope. Holders can scan verified wallets for Morpho, Uniswap, Arcus and Lighter positions.</p></div>
+              <div><span className="mono">POLICY</span><strong>Structured operator review plan</strong><p>Turns a verified event into a priority, scope, required checks, apply conditions and clear conditions. It does not execute the recommendation.</p></div>
               <div><span className="mono">PERSONAL RISK FILE</span><strong>Risk attached to a real holding</strong><p>If a wallet holding has an Event Match, View Risk adds the position balance to the event analysis so the user can review personal exposure.</p></div>
               <div><span className="mono">PROFILE</span><strong>Access and product mode</strong><p>See whether the profile started with wallet or email access, add the missing access method and confirm that the product remains in read-only Observe mode.</p></div>
               <div><span className="mono">RESCAN</span><strong>Refresh wallet information</strong><p>Request fresh profile data, wallet balances, Stock Token positions, $MHR status, prices and event matching.</p></div>
@@ -441,8 +444,41 @@ export default function DocsPage() {
             </div>
           </section>
 
+          <section className="docs-section" id="policy-recommendations">
+            <p className="docs-kicker mono">13 / POLICY RECOMMENDATIONS</p>
+            <h2>From a detected event to a reviewable plan.</h2>
+            <p>
+              The Policy page starts with a server-verified Robinhood corporate action. MIHARI
+              interprets its possible operational impact and creates a bounded recommendation for
+              the user or protocol operator. Holdings and watchlist events can both produce a
+              recommendation, but MIHARI keeps their context separate.
+            </p>
+            <div className="docs-flow docs-workflow">
+              <div><Database size={20} /><span className="mono">01 / EVENT</span><strong>Verify the source</strong><p>The recommendation starts from an official Robinhood corporate-action record, not arbitrary browser text.</p></div>
+              <div><AlertTriangle size={20} /><span className="mono">02 / INTERPRET</span><strong>Identify possible impact</strong><p>MIHARI classifies risk and names the systems that may require review, such as NAV, quotes, vaults or lending.</p></div>
+              <div><ListChecks size={20} /><span className="mono">03 / RECOMMEND</span><strong>Build the policy plan</strong><p>The result contains a priority, intent, required checks and observable policy boundaries.</p></div>
+              <div><ShieldCheck size={20} /><span className="mono">04 / DECIDE</span><strong>Keep the operator in control</strong><p>The user reviews the recommendation. No signature, approval or transaction is requested.</p></div>
+            </div>
+
+            <h3 className="docs-subheading">How to read the Policy page</h3>
+            <div className="docs-result-grid">
+              <div><span className="mono">PRIORITY</span><strong>How quickly to review</strong><p>Routine means normal monitoring. Review means an operator should verify the event and dependent calculations. Urgent means sensitive new activity should be reviewed before continuing.</p></div>
+              <div><span className="mono">INTENT</span><strong>What the plan is trying to achieve</strong><p>Examples include monitoring, reviewing accounting, restricting new exposure or pausing sensitive flows. This label is not an executed action.</p></div>
+              <div><span className="mono">SCOPE</span><strong>Systems that may be affected</strong><p>Quotes, NAV, vaults, lending or agents. Scope describes potential operational reach, not proof of a position in every listed system.</p></div>
+              <div><span className="mono">REQUIRED CHECKS</span><strong>Evidence to verify</strong><p>Concrete operator checks such as confirming the active multiplier, reviewing ex-dividend pricing or identifying integrations using stale data.</p></div>
+              <div><span className="mono">APPLY WHEN</span><strong>Activation condition</strong><p>An observable condition that explains when the recommendation is relevant. It does not activate a smart contract or protocol rule.</p></div>
+              <div><span className="mono">CLEAR WHEN</span><strong>Release condition</strong><p>An observable condition that explains when reconciliation is complete and the recommendation can be closed.</p></div>
+              <div><span className="mono">OPERATOR DECISION</span><strong>Required human control</strong><p>No Action, Review Required or Approval Required describes the expected review level. MIHARI does not make the decision for the user.</p></div>
+              <div><span className="mono">ADVISORY ONLY</span><strong>No automatic execution</strong><p>The recommendation cannot move funds, change a protocol position, submit an approval or claim that a policy was applied.</p></div>
+            </div>
+            <div className="docs-callout">
+              <strong>AI interpretation, deterministic safety boundary.</strong>
+              <p>OpenAI can create the structured recommendation from verified evidence. If AI is unavailable or limited, MIHARI returns deterministic policy rules. Both outputs use the same schema and remain advisory.</p>
+            </div>
+          </section>
+
           <section className="docs-section" id="status">
-            <p className="docs-kicker mono">13 / PRODUCT STATUS</p>
+            <p className="docs-kicker mono">14 / PRODUCT STATUS</p>
             <h2>What works today - and what does not.</h2>
             <div className="status-table">
               {statusRows.map(([feature, status, explanation]) => (
@@ -456,7 +492,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="terms">
-            <p className="docs-kicker mono">14 / KEY TERMS</p>
+            <p className="docs-kicker mono">15 / KEY TERMS</p>
             <h2>A short glossary.</h2>
             <dl className="docs-glossary">
               <div><dt>NAV</dt><dd>Net Asset Value: the calculated value of assets held by a vault or fund, minus its liabilities.</dd></div>

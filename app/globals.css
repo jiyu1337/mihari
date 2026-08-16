@@ -2237,6 +2237,7 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .workspace-event-file > footer button,
 .protocol-empty button,
 .risk-graph-empty button { font-size: max(0.68rem, 10.8px); }
+.workspace-event-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 
 /* Policy recommendations */
 .policy-title h1 { max-width: 980px; }

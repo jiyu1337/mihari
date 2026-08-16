@@ -450,6 +450,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
             heldSymbols={profile?.exposure.positions.map((position) => position.symbol) ?? []}
             watchlistLimit={watchlistLimit}
             onOpenExposure={() => setView("exposure")}
+            onOpenPolicy={() => setView("policies")}
           />
         ) : null}
 

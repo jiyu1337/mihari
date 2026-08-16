@@ -88,17 +88,10 @@ export function PolicyRecommendations({
     return () => window.clearTimeout(timer);
   }, [sync]);
 
-  useEffect(() => {
-    if (!availableEvents.length) {
-      setSelectedId("");
-      return;
-    }
-    setSelectedId((current) => availableEvents.some((event) => event.id === current)
-      ? current
-      : availableEvents[0]!.id);
-  }, [availableEvents]);
-
-  const selectedEvent = availableEvents.find((event) => event.id === selectedId) ?? null;
+  const effectiveSelectedId = availableEvents.some((event) => event.id === selectedId)
+    ? selectedId
+    : availableEvents[0]?.id ?? "";
+  const selectedEvent = availableEvents.find((event) => event.id === effectiveSelectedId) ?? null;
   const selectedAnalysis = selectedEvent ? analyses[selectedEvent.id] : undefined;
   const policy = selectedAnalysis?.policyRecommendation;
   const held = selectedEvent ? heldSet.has(selectedEvent.asset.toUpperCase()) : false;
@@ -157,7 +150,7 @@ export function PolicyRecommendations({
             <aside className="policy-event-selector">
               <header><span className="mono">EVENTS WITH RECOMMENDATIONS</span><strong>{availableEvents.length}</strong></header>
               {availableEvents.map((event) => (
-                <button type="button" className={event.id === selectedId ? "active" : ""} key={event.id} onClick={() => setSelectedId(event.id)}>
+                <button type="button" className={event.id === effectiveSelectedId ? "active" : ""} key={event.id} onClick={() => setSelectedId(event.id)}>
                   <span><strong>{event.asset}</strong><small>{event.type}</small></span>
                   <span className="mono"><b>{heldSet.has(event.asset.toUpperCase()) ? "HOLDING" : "WATCHLIST"}</b><i>{event.sourceStatus}</i></span>
                   <ArrowRight size={17} />
@@ -170,7 +163,7 @@ export function PolicyRecommendations({
                 <>
                   <header>
                     <div><p className="mono">POLICY FILE / {selectedEvent.asset}</p><h2>{policy?.title ?? "Preparing recommendation."}</h2></div>
-                    <span className={`policy-priority mono ${policy?.priority ?? "pending"}`}>{policy ? `${policy.priority.toUpperCase()} PRIORITY` : "ANALYZING"}</span>
+                    <span className={`policy-priority mono ${policy?.priority ?? "pending"}`}>{policy ? `${policy.priority.toUpperCase()} PRIORITY` : analyzing === selectedEvent.id ? "ANALYZING" : "PENDING"}</span>
                   </header>
 
                   <div className="policy-signal-flow">

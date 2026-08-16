@@ -266,3 +266,28 @@ An official Robinhood corporate-action record has the same symbol as a Stock Tok
 MIHARI maps direct wallet-held Stock Tokens plus supported Morpho, Uniswap V3, Uniswap V4, Arcus and Lighter positions involving Stock Tokens. Rialto position discovery and Chainlink dependency mapping remain visible in the coverage roadmap but are not scanned yet. MIHARI does not claim coverage of every Robinhood Chain vault, lending market, DEX LP, perpetual position or agent-managed position. Affected Systems may still describe categories beyond the adapters currently supported.
 
 MIHARI operates in Observe mode. It analyzes and recommends but does not move funds or execute a response.
+
+## Policy Recommendations
+
+Policy Recommendations turns an official corporate action into a structured review plan. It is available inside the signed-in workspace for events matched to wallet holdings or watchlist assets.
+
+The page separates three layers:
+
+1. **Detected Event** is the verified Robinhood corporate-action record.
+2. **Risk Interpretation** explains the possible operational impact and affected systems.
+3. **Recommended Policy** describes a bounded operator review plan.
+
+| Label | Meaning |
+| --- | --- |
+| Priority | Routine, Review or Urgent. It describes review urgency, not price direction |
+| Intent | The goal of the plan, such as monitoring, reviewing accounting, restricting new exposure or pausing sensitive flows |
+| Scope | Quotes, NAV, vaults, lending or agents that may require review |
+| Required Checks | Concrete evidence and calculations an operator should verify |
+| Apply When | Observable condition that makes the recommendation relevant |
+| Clear When | Observable condition that indicates reconciliation is complete |
+| Operator Decision | No Action, Review Required or Approval Required |
+| Advisory Only | The recommendation has not been executed and cannot authorize a transaction |
+
+Observer and Holder profiles can read policy recommendations. Their existing AI limits still apply: one new AI analysis per 24 hours for an Observer and ten for an MHR Holder. Cached results are reused. If AI is unavailable or limited, deterministic MIHARI rules return the same structured policy format.
+
+Policy Recommendations does not request a signature, token approval or transaction. Approval-based Guard actions remain a later roadmap stage.

@@ -17,6 +17,7 @@ type ProfileEventsProps = {
   heldSymbols: string[];
   watchlistLimit: number;
   onOpenExposure: () => void;
+  onOpenPolicy: () => void;
 };
 
 function riskLabel(event: CorporateEvent, analysis?: AnalysisResponse) {
@@ -26,7 +27,7 @@ function riskLabel(event: CorporateEvent, analysis?: AnalysisResponse) {
   return "LOW";
 }
 
-export function ProfileEvents({ heldSymbols, watchlistLimit, onOpenExposure }: ProfileEventsProps) {
+export function ProfileEvents({ heldSymbols, watchlistLimit, onOpenExposure, onOpenPolicy }: ProfileEventsProps) {
   const [feed, setFeed] = useState<EventFeedResponse | null>(null);
   const [selectedId, setSelectedId] = useState("");
   const [analyses, setAnalyses] = useState<Record<string, AnalysisResponse>>({});
@@ -150,7 +151,10 @@ export function ProfileEvents({ heldSymbols, watchlistLimit, onOpenExposure }: P
               </div>
               <footer>
                 <span className="mono">AFFECTED SYSTEMS <strong>{selectedAnalysis?.affectedSystems.join(" / ").toUpperCase() ?? "ANALYSIS PENDING"}</strong></span>
-                {heldSet.has(selectedEvent.asset.toUpperCase()) ? <button type="button" onClick={onOpenExposure}>OPEN PERSONAL EXPOSURE <ArrowRight size={14} /></button> : null}
+                <div className="workspace-event-actions">
+                  <button type="button" onClick={onOpenPolicy}>OPEN POLICY <ArrowRight size={14} /></button>
+                  {heldSet.has(selectedEvent.asset.toUpperCase()) ? <button type="button" onClick={onOpenExposure}>OPEN PERSONAL EXPOSURE <ArrowRight size={14} /></button> : null}
+                </div>
               </footer>
             </article>
           ) : null}

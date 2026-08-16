@@ -52,7 +52,8 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | `05` | Open an Incident File | Explains evidence, risk, affected systems and confidence |
 | `06` | Open DeFi Exposure | Shows protocol coverage and holdings-first research scope. Holder access scans personal lending, vault, DEX liquidity and perpetual positions |
 | `07` | Open Risk Graph | Connects live events to holdings and watchlist signals. Holder access also adds proven protocol positions |
-| `08` | Review the Bounded Response | Recommends a safe next step while the operator remains in control |
+| `08` | Open Policy Recommendations | Converts a verified event into priority, scope, checks and observable boundaries |
+| `09` | Review the Bounded Response | Recommends a safe next step while the operator remains in control |
 
 ## What is live
 
@@ -77,6 +78,7 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Arcus perpetual discovery | `BETA` | Reads public Stock Token perpetual positions with side, leverage, margin mode and unrealized PnL |
 | Lighter perpetual discovery | `BETA` | Reads public Lighter accounts and subaccounts, then keeps positions matched to official Stock Token symbols |
 | Unified Risk Graph | `BETA` | Builds live signals across direct holdings and watchlist assets. Holder access adds active protocol adapters |
+| Policy Recommendations | `BETA` | Converts verified events into structured advisory plans with priority, scope, required checks, apply conditions and clear conditions |
 | MHR Holder access | `BETA` | Unlocks larger limits, personal DeFi scanning and protocol paths in the Risk Graph after an onchain balance check |
 | Ecosystem coverage registry | `LIVE` | Shows which Robinhood Chain sources are checked today and which adapters remain planned |
 | Policy execution | `NEXT` | No automatic protocol action or fund movement today |
@@ -96,8 +98,9 @@ flowchart LR
     C --> E["Neon incident memory"]
     D --> E
     E --> F["Event Register & Incident File"]
+    F --> P["Policy Recommendations"]
     E --> R["Unified Risk Graph"]
-    F -. future .-> G["Policy execution"]
+    P -. future .-> G["Policy execution"]
     R -. future .-> G
     G -. future .-> H["Robinhood Chain proof"]
 ```
@@ -140,7 +143,7 @@ Holder access currently requires at least `1,000,000 MHR` across verified wallet
 | --- | :---: | --- |
 | **01 · Observe** | `LIVE` | Official data, watchlists, Event Register, AI Incident Files and read-only identity |
 | **02 · Map** | `IN PROGRESS` | Profiles, direct holdings and read-only Morpho, Uniswap V3, Uniswap V4, Arcus and Lighter exposure mapping are implemented in `feature/defi-exposure` |
-| **03 · Guard** | `PLANNED` | Deterministic policies, operator approval, transaction previews and bounded actions |
+| **03 · Guard** | `IN PROGRESS` | Structured policy recommendations are implemented in `feature/policy-recommendations`. Operator approval, transaction previews and bounded actions remain planned |
 | **04 · Prove** | `PLANNED` | Audited contracts, onchain receipts, independent operators and verifiable monitoring |
 
 Each phase ships only after its data sources, permissions and security assumptions can be verified in production.
