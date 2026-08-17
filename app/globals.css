@@ -2551,6 +2551,60 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .policy-boundary p { margin: 0; font-size: 0.78rem; line-height: 1.55; }
 .policy-boundary strong { text-align: right; }
 
+.guard-workflow { border-top: 1px solid var(--ink); background: var(--white); }
+.guard-workflow > header { min-height: 118px; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding: 1.35rem; border-bottom: 1px solid var(--ink); }
+.guard-workflow > header span { display: block; margin-bottom: 0.65rem; font-size: max(0.7rem, 11px); letter-spacing: 0.05em; }
+.guard-workflow > header h3 { max-width: 820px; margin: 0; font-size: clamp(1.8rem, 3vw, 3.4rem); line-height: 1; letter-spacing: -0.055em; }
+.guard-beta { flex: none; margin: 0 !important; padding: 0.6rem 0.75rem; border: 1px solid var(--ink); background: var(--neon); }
+.guard-beta.approved { color: var(--paper); background: var(--ink); }
+.guard-loading { min-height: 110px; display: flex; align-items: center; justify-content: center; gap: 0.75rem; }
+.guard-gate,
+.guard-start { min-height: 150px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 1.2rem; padding: 1.35rem; background: var(--heather-1); }
+.guard-gate.advisory { grid-template-columns: auto minmax(0, 1fr); }
+.guard-gate strong,
+.guard-start strong { font-size: 1rem; }
+.guard-gate p,
+.guard-start p { max-width: 760px; margin: 0.45rem 0 0; color: var(--heather-3); font-size: max(0.82rem, 13px); line-height: 1.55; }
+.guard-start button,
+.guard-actions button { min-height: 46px; display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; padding: 0 1rem; border: 1px solid var(--ink); color: var(--ink); background: var(--neon); font: max(0.7rem, 11px)/1 var(--font-mono), monospace; cursor: pointer; }
+.guard-start button:disabled,
+.guard-actions button:disabled { cursor: not-allowed; opacity: 0.45; }
+.guard-preview-meta { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--ink); }
+.guard-preview-meta > span { min-width: 0; min-height: 84px; display: flex; flex-direction: column; justify-content: center; gap: 0.55rem; padding: 1rem 1.25rem; border-right: 1px solid var(--ink); }
+.guard-preview-meta > span:last-child { border-right: 0; }
+.guard-preview-meta span,
+.guard-preview-grid h4,
+.guard-approval > div:first-child > span,
+.guard-receipt-grid span { font: max(0.7rem, 11px)/1.3 var(--font-mono), monospace; letter-spacing: 0.05em; }
+.guard-preview-meta strong { overflow-wrap: anywhere; font-size: max(0.78rem, 12px); }
+.guard-preview-grid { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--ink); }
+.guard-preview-grid > section { min-width: 0; padding: 1.25rem; }
+.guard-preview-grid > section:first-child { border-right: 1px solid var(--ink); }
+.guard-preview-grid h4 { margin: 0 0 1rem; }
+.guard-preview-grid ol,
+.guard-preview-grid ul { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.guard-preview-grid li { min-height: 60px; display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 0.75rem; border-top: 1px solid var(--rule); font-size: max(0.82rem, 13px); line-height: 1.5; }
+.guard-approval { display: grid; grid-template-columns: minmax(240px, 0.7fr) minmax(320px, 1fr); }
+.guard-approval > div { min-width: 0; padding: 1.25rem; }
+.guard-approval > div:first-child { border-right: 1px solid var(--ink); }
+.guard-approval h4 { margin: 1rem 0 0.55rem; font-size: 1.35rem; letter-spacing: -0.03em; }
+.guard-approval p { margin: 0; color: var(--heather-3); font-size: max(0.82rem, 13px); line-height: 1.55; }
+.guard-confirmation { display: grid; gap: 0.85rem; }
+.guard-confirmation > label:not(.guard-note) { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 0.7rem; font-size: max(0.82rem, 13px); line-height: 1.45; }
+.guard-confirmation input[type="checkbox"] { width: 18px; height: 18px; accent-color: var(--ink); }
+.guard-note { display: grid; gap: 0.5rem; padding-top: 0.75rem; border-top: 1px solid var(--rule); font-size: max(0.78rem, 12px); }
+.guard-note input,
+.guard-note textarea { width: 100%; padding: 0.8rem; border: 1px solid var(--ink); border-radius: 0; color: var(--ink); background: var(--paper); font: max(0.82rem, 13px)/1.45 var(--font-sans), sans-serif; }
+.guard-note textarea { min-height: 82px; resize: vertical; }
+.guard-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 0.75rem; padding-top: 0 !important; }
+.guard-actions button.secondary { background: var(--white); }
+.guard-error { margin: 0; padding: 0.85rem 1.25rem; border-top: 1px solid var(--ink); color: var(--paper); background: var(--danger); font-size: max(0.72rem, 11px); }
+.guard-receipt-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-bottom: 1px solid var(--ink); }
+.guard-receipt-grid > div { min-width: 0; min-height: 130px; display: flex; flex-direction: column; justify-content: center; gap: 0.7rem; padding: 1.2rem; border-right: 1px solid var(--ink); }
+.guard-receipt-grid > div:last-child { border-right: 0; }
+.guard-receipt-grid strong { overflow-wrap: anywhere; font-size: max(0.8rem, 13px); }
+.guard-receipt > p { margin: 0; padding: 1.15rem 1.3rem; color: var(--heather-3); font-size: max(0.82rem, 13px); line-height: 1.55; }
+
 @media (max-width: 1050px) {
   .map-shell { grid-template-columns: 68px minmax(0, 1fr); }
   .map-account > span { display: none; }
@@ -2694,6 +2748,23 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
   .policy-conditions > section:first-child { border-right: 0; border-bottom: 1px solid var(--ink); }
   .policy-boundary { grid-template-columns: 1fr; }
   .policy-boundary strong { text-align: left; }
+}
+
+@media (max-width: 760px) {
+  .guard-workflow > header { align-items: flex-start; flex-direction: column; }
+  .guard-gate,
+  .guard-start { grid-template-columns: auto minmax(0, 1fr); }
+  .guard-start button { grid-column: 1 / -1; }
+  .guard-preview-meta,
+  .guard-preview-grid,
+  .guard-approval,
+  .guard-receipt-grid { grid-template-columns: 1fr; }
+  .guard-preview-meta > span,
+  .guard-preview-grid > section:first-child,
+  .guard-approval > div:first-child,
+  .guard-receipt-grid > div { border-right: 0; border-bottom: 1px solid var(--ink); }
+  .guard-actions { flex-direction: column; }
+  .guard-actions button { width: 100%; }
 }
 
 @media (max-width: 620px) {

@@ -33,4 +33,8 @@ export const helpCopy = {
   clearWhen: "Conditions that must be confirmed before the recommendation can be closed.",
   aiAnalysis: "AI explains verified source data. It does not invent events, approve transactions or control funds.",
   ruleBased: "A deterministic MIHARI fallback used when a new AI response is unavailable or unnecessary.",
+  guardDraft: "A bounded response prepared from the current verified event. It remains a draft until you explicitly approve or dismiss it.",
+  executionPreview: "Preview only means MIHARI shows the intended action and scope, but cannot submit a protocol transaction.",
+  decisionReceipt: "A private hash linking the verified event, Guard preview and your recorded decision.",
+  executionBoundary: "No token approval, transaction or fund movement occurs in this beta.",
 } as const;

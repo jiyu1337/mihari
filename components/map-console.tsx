@@ -70,7 +70,7 @@ const workspaceNavigation = [
   { id: "exposure", label: "Exposure", icon: ShieldCheck },
   { id: "risk", label: "Graph", icon: Network },
   { id: "defi", label: "DeFi", icon: Landmark },
-  { id: "policies", label: "Policy", icon: ClipboardCheck },
+  { id: "policies", label: "Guard", icon: ClipboardCheck },
   { id: "settings", label: "Profile", icon: Settings2 },
 ] as const;
 
@@ -634,6 +634,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
             heldEvents={profile?.exposure.events ?? []}
             holderAccess={Boolean(isHolder)}
             aiAnalysesPerDay={entitlements?.limits.aiAnalysesPerDay ?? 1}
+            holderThreshold={entitlements?.holderThreshold ?? "1000000"}
             onOpenEvents={() => setView("events")}
             onOpenExposure={() => setView("exposure")}
           />

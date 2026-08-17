@@ -13,6 +13,7 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { HelpLabel } from "@/components/help-tip";
+import { GuardWorkflow } from "@/components/guard-workflow";
 import type { AnalysisResponse, PolicyRecommendation } from "@/lib/analysis";
 import { helpCopy } from "@/lib/help-content";
 import type { CorporateEvent } from "@/lib/product-data";
@@ -30,6 +31,7 @@ type PolicyRecommendationsProps = {
   heldEvents: CorporateEvent[];
   holderAccess: boolean;
   aiAnalysesPerDay: number;
+  holderThreshold: string;
   onOpenEvents: () => void;
   onOpenExposure: () => void;
 };
@@ -49,6 +51,7 @@ export function PolicyRecommendations({
   heldEvents,
   holderAccess,
   aiAnalysesPerDay,
+  holderThreshold,
   onOpenEvents,
   onOpenExposure,
 }: PolicyRecommendationsProps) {
@@ -197,6 +200,13 @@ export function PolicyRecommendations({
                           <div><HelpLabel label="CLEAR WHEN">{helpCopy.clearWhen}</HelpLabel>{policy.releaseWhen.map((condition) => <p key={condition}>{condition}</p>)}</div>
                         </section>
                       </div>
+
+                      <GuardWorkflow
+                        event={selectedEvent}
+                        held={held}
+                        holderAccess={holderAccess}
+                        holderThreshold={holderThreshold}
+                      />
 
                       <footer>
                         <span><ShieldCheck size={20} /><strong>Recommendation only.</strong> No signature, approval or transaction is requested.</span>
