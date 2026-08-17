@@ -502,6 +502,7 @@ export default function DocsPage() {
               <div><span className="mono">APPROVED</span><strong>Decision recorded</strong><p>The confirmation checks passed and the private audit receipt was stored in the user's MIHARI account.</p></div>
               <div><span className="mono">PRIVATE RECEIPT</span><strong>Evidence of the decision</strong><p>A SHA-256 hash links the account, event source hash, reviewed preview, intent and approval time.</p></div>
               <div><span className="mono">NOT SUBMITTED</span><strong>No onchain transaction</strong><p>The receipt has no transaction hash. No protocol action, token approval or fund movement occurred.</p></div>
+              <div><span className="mono">EXPORT JSON</span><strong>Portable audit record</strong><p>Download the event hashes, verified holding snapshot, reviewed Guard preview and decision metadata as a local JSON file.</p></div>
             </div>
             <div className="docs-callout">
               <strong>Holder feature, execution still locked.</strong>

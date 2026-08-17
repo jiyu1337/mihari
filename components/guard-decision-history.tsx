@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ArrowRight, CheckCircle2, Clock3, FileKey2, LoaderCircle, X, XCircle } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock3, Download, FileKey2, LoaderCircle, X, XCircle } from "lucide-react";
 import { HelpLabel } from "@/components/help-tip";
 import type { GuardActionRecord } from "@/lib/guard-action";
 import { helpCopy } from "@/lib/help-content";
@@ -23,6 +23,31 @@ export function GuardDecisionHistory() {
   const [loading, setLoading] = useState(true);
   const [warning, setWarning] = useState("");
   const [selectedId, setSelectedId] = useState("");
+
+  function exportReceipt(action: GuardActionRecord) {
+    const receipt = {
+      product: "MIHARI",
+      receiptType: "private_guard_decision",
+      network: { name: "Robinhood Chain", chainId: action.preview.chainId },
+      actionId: action.id,
+      status: action.status,
+      symbol: action.symbol,
+      sourceEventId: action.sourceEventId,
+      sourceHash: action.sourceHash,
+      decisionHash: action.decisionHash,
+      approvedAt: action.approvedAt,
+      approvalNote: action.approvalNote,
+      preview: action.preview,
+      execution: { submitted: false, transactionHash: null },
+    };
+    const blob = new Blob([JSON.stringify(receipt, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `mihari-guard-${action.symbol.toLowerCase()}-${action.id.slice(0, 8)}.json`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
 
   const sync = useCallback(async () => {
     setLoading(true);
@@ -82,7 +107,10 @@ export function GuardDecisionHistory() {
         <article className="guard-receipt-inspector">
           <header>
             <div><span className="mono">PRIVATE RECEIPT / {selected.symbol}</span><h3>{selected.preview.title}</h3></div>
-            <button type="button" aria-label="Close receipt" onClick={() => setSelectedId("")}><X size={20} /></button>
+            <div className="guard-receipt-controls">
+              <button type="button" onClick={() => exportReceipt(selected)}><Download size={18} />EXPORT JSON</button>
+              <button type="button" aria-label="Close receipt" onClick={() => setSelectedId("")}><X size={20} /></button>
+            </div>
           </header>
           <div className="guard-receipt-facts">
             <div><span className="mono">STATUS</span><strong>{selected.status.toUpperCase()}</strong></div>

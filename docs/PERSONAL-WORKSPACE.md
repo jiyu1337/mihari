@@ -314,7 +314,7 @@ The preview contains the intended response, affected systems, operator checks, a
 
 Approval requires three safety confirmations and the exact phrase `APPROVE SYMBOL`. Before accepting the decision, the server checks the MHR balance, Stock Token holding and official event again. If the source event changed, the old preview cannot be approved.
 
-An approved decision creates a private SHA-256 receipt that links the account, official source hash, Guard preview, intent and approval time. The receipt is stored in MIHARI for audit history. It is not an onchain proof.
+An approved decision creates a private SHA-256 receipt that links the account, official source hash, verified holding snapshot, Guard preview, intent and approval time. The receipt is stored in MIHARI for audit history and can be exported as JSON. It is not an onchain proof.
 
 ### Current Guard boundary
 
