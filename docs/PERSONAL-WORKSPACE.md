@@ -290,4 +290,36 @@ The page separates three layers:
 
 Observer and Holder profiles can read policy recommendations. Their existing AI limits still apply: one new AI analysis per 24 hours for an Observer and ten for an MHR Holder. Cached results are reused. If AI is unavailable or limited, deterministic MIHARI rules return the same structured policy format.
 
-Policy Recommendations does not request a signature, token approval or transaction. Approval-based Guard actions remain a later roadmap stage.
+Policy Recommendations does not request a signature, token approval or transaction.
+
+## Guard Actions
+
+Guard Actions is the approval layer after Policy Recommendations. It is available to MHR Holder profiles only when the selected event matches a Stock Token found in a verified wallet. A watchlist-only asset remains a research signal and cannot create an actionable Guard decision.
+
+The server verifies all three requirements before creating a draft:
+
+1. The corporate action still exists in the live Robinhood source.
+2. The Stock Token is held in a verified wallet attached to the current account.
+3. The verified wallets hold at least the configured MHR Holder threshold.
+
+The preview contains the intended response, affected systems, operator checks, apply conditions, clear conditions, action steps and fixed safety boundaries. The user sees the complete preview before approval.
+
+| Guard status | Meaning |
+| --- | --- |
+| Draft | A current official event was verified and a reviewable response was prepared |
+| Approved | The user completed every confirmation and a private decision receipt was stored |
+| Dismissed | The user closed the draft without approving it |
+| Preview Only | No protocol call, token approval or transaction can be submitted |
+| Not Submitted | A decision exists, but there is no onchain transaction hash |
+
+Approval requires three safety confirmations and the exact phrase `APPROVE SYMBOL`. Before accepting the decision, the server checks the MHR balance, Stock Token holding and official event again. If the source event changed, the old preview cannot be approved.
+
+An approved decision creates a private SHA-256 receipt that links the account, official source hash, Guard preview, intent and approval time. The receipt is stored in MIHARI for audit history. It is not an onchain proof.
+
+### Current Guard boundary
+
+- No token approval is requested.
+- No funds or positions can be moved.
+- No protocol transaction is submitted.
+- No public onchain receipt is created.
+- Automatic execution remains locked until the contracts and protocol adapters are independently audited and deployed.

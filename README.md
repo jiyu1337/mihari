@@ -53,7 +53,8 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | `06` | Open DeFi Exposure | Shows protocol coverage and holdings-first research scope. Holder access scans personal lending, vault, DEX liquidity and perpetual positions |
 | `07` | Open Risk Graph | Connects live events to holdings and watchlist signals. Holder access also adds proven protocol positions |
 | `08` | Open Policy Recommendations | Converts a verified event into priority, scope, checks and observable boundaries |
-| `09` | Review the Bounded Response | Recommends a safe next step while the operator remains in control |
+| `09` | Prepare a Guard Action | Rebuilds the bounded response from the latest official event and shows the exact scope and safety limits |
+| `10` | Record a Guard Decision | Requires explicit confirmation and stores a private audit receipt without submitting a transaction |
 
 ## What is live
 
@@ -79,9 +80,11 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Lighter perpetual discovery | `BETA` | Reads public Lighter accounts and subaccounts, then keeps positions matched to official Stock Token symbols |
 | Unified Risk Graph | `BETA` | Builds live signals across direct holdings and watchlist assets. Holder access adds active protocol adapters |
 | Policy Recommendations | `BETA` | Converts verified events into structured advisory plans with priority, scope, required checks, apply conditions and clear conditions |
+| Guard Action Preview | `BETA` | Lets MHR Holders prepare a bounded action for an official event matched to a verified wallet holding |
+| Private decision receipts | `BETA` | Records the event hash, reviewed preview and explicit operator decision in the private MIHARI workspace |
 | MHR Holder access | `BETA` | Unlocks larger limits, personal DeFi scanning and protocol paths in the Risk Graph after an onchain balance check |
 | Ecosystem coverage registry | `LIVE` | Shows which Robinhood Chain sources are checked today and which adapters remain planned |
-| Policy execution | `NEXT` | No automatic protocol action or fund movement today |
+| Protocol execution | `NEXT` | Guard approval does not submit a protocol transaction or move funds today |
 | Onchain proofs | `NEXT` | Production attestations require audited contracts |
 
 ## System architecture
@@ -100,9 +103,9 @@ flowchart LR
     E --> F["Event Register & Incident File"]
     F --> P["Policy Recommendations"]
     E --> R["Unified Risk Graph"]
-    P -. future .-> G["Policy execution"]
+    P --> G["Guard preview & private decision receipt"]
     R -. future .-> G
-    G -. future .-> H["Robinhood Chain proof"]
+    G -. future .-> H["Audited execution & Robinhood Chain proof"]
 ```
 
 MIHARI is intentionally hybrid. Official market data and AI inference run offchain; future policy configuration, execution receipts and attestations are designed for Robinhood Chain.
@@ -133,7 +136,7 @@ Planned utility is designed around product use:
 | --- | ---: | ---: | ---: | --- |
 | **Public** | 3 assets | 0 | Cached or rule based | Public corporate-action monitoring |
 | **Observer** | 10 assets | 1 | 1 | Direct holdings, official events, watchlist research and the direct Risk Graph |
-| **MHR Holder** | 30 assets | 5 | 10 | Multi-wallet direct exposure, personal DeFi scans and protocol paths in the Risk Graph |
+| **MHR Holder** | 30 assets | 5 | 10 | Multi-wallet exposure, personal DeFi scans, full Risk Graph and Guard decision receipts |
 
 Holder access currently requires at least `1,000,000 MHR` across verified wallets. The threshold is configurable with `MHR_HOLDER_THRESHOLD`. Every restriction is enforced by the server. Cached AI analysis is reused and does not consume another request.
 
@@ -143,7 +146,7 @@ Holder access currently requires at least `1,000,000 MHR` across verified wallet
 | --- | :---: | --- |
 | **01 · Observe** | `LIVE` | Official data, watchlists, Event Register, AI Incident Files and read-only identity |
 | **02 · Map** | `IN PROGRESS` | Profiles, direct holdings and read-only Morpho, Uniswap V3, Uniswap V4, Arcus and Lighter exposure mapping are implemented in `feature/defi-exposure` |
-| **03 · Guard** | `IN PROGRESS` | Structured policy recommendations are implemented in `feature/policy-recommendations`. Operator approval, transaction previews and bounded actions remain planned |
+| **03 · Guard** | `IN PROGRESS` | Policy recommendations, bounded Guard previews, explicit approval and private decision receipts are implemented in `feature/guard-actions`. Protocol transactions remain locked |
 | **04 · Prove** | `PLANNED` | Audited contracts, onchain receipts, independent operators and verifiable monitoring |
 
 Each phase ships only after its data sources, permissions and security assumptions can be verified in production.

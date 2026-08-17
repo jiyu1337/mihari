@@ -106,7 +106,8 @@ This means the accurate public description is: **AI corporate-action protection 
 3. User selects tokenized stocks and chooses Observe or Guard policy.
 4. The event register shows normalized corporate actions.
 5. The incident file explains evidence, impact, confidence and bounded response.
-6. A Guard action requires wallet approval and writes a receipt to Robinhood Chain.
+6. A Guard action requires Holder access, a verified direct holding and explicit user confirmation.
+7. The current beta stores a private decision receipt. It does not submit a transaction or write an onchain proof.
 
 ## Token utility
 

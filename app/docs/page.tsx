@@ -34,9 +34,11 @@ const statusRows = [
   ["Lighter perpetual discovery", "Beta", "Reads public Lighter accounts and subaccounts for active Stock Token perpetual positions."],
   ["Unified Risk Graph", "Beta", "Connects live Robinhood events to holdings, watchlist research signals and, for Holders, supported protocol positions."],
   ["Policy Recommendations", "Beta", "Turns a verified event into a structured operator review plan with checks, boundaries and clear conditions."],
+  ["Guard Action Preview", "Beta", "Lets MHR Holders prepare and explicitly approve a bounded response for an official event matched to a verified wallet holding."],
+  ["Private decision receipts", "Beta", "Stores a private audit hash for the verified event, reviewed preview and operator decision without submitting a transaction."],
   ["MHR Holder access", "Beta", "Unlocks larger limits, personal DeFi scanning and protocol paths in the Risk Graph after an onchain balance check."],
   ["Protocol coverage registry", "Live", "Separates active adapters from planned Robinhood Chain integrations."],
-  ["Policy execution", "Next", "Recommendations are advisory. MIHARI does not pause protocols or move funds today."],
+  ["Protocol execution", "Next", "Guard approval remains private and does not pause protocols, move funds or submit a transaction today."],
   ["Onchain proof", "Next", "No production receipt is written until contracts are audited and deployed."],
 ];
 
@@ -51,7 +53,7 @@ export default function DocsPage() {
       <SiteHeader />
       <div className="docs-shell">
         <aside className="docs-sidebar">
-          <p className="mono">MIHARI DOCS / v0.3</p>
+          <p className="mono">MIHARI DOCS / v0.4</p>
           <nav aria-label="Documentation sections">
             <a href="#overview">Overview</a>
             <a href="#how-it-works">User workflow</a>
@@ -67,6 +69,7 @@ export default function DocsPage() {
             <a href="#risk-graph">Risk Graph</a>
             <a href="#defi-exposure">DeFi Exposure</a>
             <a href="#policy-recommendations">Policy Recommendations</a>
+            <a href="#guard-actions">Guard Actions</a>
             <a href="#status">What works today</a>
             <a href="#terms">Key terms</a>
           </nav>
@@ -477,8 +480,37 @@ export default function DocsPage() {
             </div>
           </section>
 
+          <section className="docs-section" id="guard-actions">
+            <p className="docs-kicker mono">14 / GUARD ACTIONS</p>
+            <h2>Approve a decision without giving up control.</h2>
+            <p>
+              Guard Actions is the next layer after a Policy Recommendation. An MHR Holder can
+              prepare a bounded response only when the event is still present in the official
+              Robinhood source and the affected Stock Token is held in a verified wallet.
+              Watchlist-only assets remain research signals.
+            </p>
+            <div className="docs-flow docs-workflow">
+              <div><Database size={20} /><span className="mono">01 / REVERIFY</span><strong>Read the event again</strong><p>The server fetches the official event again and creates a source hash. Browser text is never accepted as evidence.</p></div>
+              <div><Wallet size={20} /><span className="mono">02 / PROVE SCOPE</span><strong>Check access and holding</strong><p>The server confirms MHR Holder access and an actual Stock Token balance in a verified wallet.</p></div>
+              <div><ListChecks size={20} /><span className="mono">03 / PREVIEW</span><strong>Show every boundary</strong><p>The user sees the intended action, systems in scope, checks, action steps and closing conditions before approval.</p></div>
+              <div><ShieldCheck size={20} /><span className="mono">04 / APPROVE</span><strong>Record an explicit decision</strong><p>Three confirmations and an exact approval phrase are required before a private decision receipt is created.</p></div>
+            </div>
+
+            <h3 className="docs-subheading">What the current beta records</h3>
+            <div className="docs-result-grid">
+              <div><span className="mono">DRAFT</span><strong>Prepared, not approved</strong><p>A current official event and direct holding were verified. The user can review or dismiss the preview.</p></div>
+              <div><span className="mono">APPROVED</span><strong>Decision recorded</strong><p>The confirmation checks passed and the private audit receipt was stored in the user's MIHARI account.</p></div>
+              <div><span className="mono">PRIVATE RECEIPT</span><strong>Evidence of the decision</strong><p>A SHA-256 hash links the account, event source hash, reviewed preview, intent and approval time.</p></div>
+              <div><span className="mono">NOT SUBMITTED</span><strong>No onchain transaction</strong><p>The receipt has no transaction hash. No protocol action, token approval or fund movement occurred.</p></div>
+            </div>
+            <div className="docs-callout">
+              <strong>Holder feature, execution still locked.</strong>
+              <p>Guard previews and private decision receipts are live in beta. Automatic protocol execution and public onchain proofs remain unavailable until audited contracts and adapters are deployed.</p>
+            </div>
+          </section>
+
           <section className="docs-section" id="status">
-            <p className="docs-kicker mono">14 / PRODUCT STATUS</p>
+            <p className="docs-kicker mono">15 / PRODUCT STATUS</p>
             <h2>What works today - and what does not.</h2>
             <div className="status-table">
               {statusRows.map(([feature, status, explanation]) => (
@@ -492,7 +524,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="terms">
-            <p className="docs-kicker mono">15 / KEY TERMS</p>
+            <p className="docs-kicker mono">16 / KEY TERMS</p>
             <h2>A short glossary.</h2>
             <dl className="docs-glossary">
               <div><dt>NAV</dt><dd>Net Asset Value: the calculated value of assets held by a vault or fund, minus its liabilities.</dd></div>

@@ -59,7 +59,8 @@ Do not describe these roadmap features as live.
 5. The Event Register shows watched assets with matching events.
 6. The user opens an Incident File.
 7. MIHARI explains the event, maps possible impact and recommends a bounded response.
-8. The user decides what to do. Nothing executes automatically.
+8. An MHR Holder with a verified direct holding can prepare a Guard action.
+9. The user reviews the complete preview and can record a private approval receipt. Nothing executes automatically.
 
 ## 14-day publishing plan
 
@@ -78,7 +79,7 @@ Do not describe these roadmap features as live.
 | 11 | Why MIHARI is read-only today | Trust post | Live |
 | 12 | Built on Robinhood Chain | Ecosystem post | Live foundation |
 | 13 | Vault and lending discovery | Roadmap post | Coming next |
-| 14 | Policy execution and onchain proofs | Roadmap post | Coming next |
+| 14 | Guard preview and private decision receipts | Product demo | Beta live |
 
 ## Short-post library
 
@@ -165,6 +166,14 @@ Do not claim that MIHARI currently provides exact earnings, ex-dividend, record 
 > MIHARI is building auditable Robinhood Chain receipts for evidence, policy decisions and final responses.
 >
 > Contracts and production receipts are coming next.
+
+### Guard beta
+
+> A recommendation should show its boundaries before anyone approves it.
+>
+> MIHARI Guard lets eligible MHR Holders prepare a bounded response for an official event matched to a verified wallet holding. The user reviews the scope, safety checks and closing conditions, then records a private decision receipt.
+>
+> No token approval. No fund movement. No protocol transaction in the current beta.
 
 ## Ten-second demo scripts
 
