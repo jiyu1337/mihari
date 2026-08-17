@@ -30,6 +30,7 @@ import {
   X,
 } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
+import { HelpLabel } from "@/components/help-tip";
 import { ProfileEvents } from "@/components/profile-events";
 import { PolicyRecommendations } from "@/components/policy-recommendations";
 import { ProfileSignOut } from "@/components/profile-sign-out";
@@ -37,6 +38,7 @@ import { ProtocolExposure } from "@/components/protocol-exposure";
 import { RiskGraph } from "@/components/risk-graph";
 import type { AnalysisResponse } from "@/lib/analysis";
 import type { ProductEntitlements } from "@/lib/entitlements";
+import { helpCopy } from "@/lib/help-content";
 import type { MappedPosition, MhrHolding } from "@/lib/map-data";
 import { MHR_CONTRACT_ADDRESS } from "@/lib/token";
 import type { CorporateEvent } from "@/lib/product-data";
@@ -368,9 +370,9 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
 
       <main className="workspace-main">
         <section className="workspace-identity-bar mono">
-          <span>PROFILE <strong>{profile?.account.primaryMethod === "wallet" ? "WALLET-NATIVE" : "EMAIL"}</strong></span>
-          <span>NETWORK <strong>ROBINHOOD CHAIN / 4663</strong></span>
-          <span>ACCESS <strong>{accessLabel}</strong></span>
+          <span><HelpLabel label="PROFILE">How you currently sign in. Email and wallet access can open the same MIHARI workspace.</HelpLabel><strong>{profile?.account.primaryMethod === "wallet" ? "WALLET-NATIVE" : "EMAIL"}</strong></span>
+          <span><HelpLabel label="NETWORK">The chain used for wallet balances, Stock Token contracts and supported DeFi positions.</HelpLabel><strong>ROBINHOOD CHAIN / 4663</strong></span>
+          <span><HelpLabel label="ACCESS" align="end">{isHolder ? helpCopy.holderAccess : helpCopy.observerAccess}</HelpLabel><strong>{accessLabel}</strong></span>
           <button onClick={() => void loadWorkspace()} disabled={loading}><RefreshCw className={loading ? "spin" : ""} size={14} />RESCAN</button>
         </section>
 
@@ -389,13 +391,13 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
           <section className="workspace-view">
             <div className="workspace-title">
               <div><p className="mono">01 / PERSONAL CONTROL ROOM</p><h1>Your assets. Your exposure.</h1></div>
-              <p>MIHARI connects your saved monitoring scope with verified onchain positions and official corporate-action data.</p>
+              <p>Your watchlist, verified wallets, Stock Token holdings and current event matches in one place.</p>
             </div>
             <div className="workspace-metrics mono">
-              <div><span>MONITORED ASSETS</span><strong>{profile?.watchlist?.symbols.length ?? 0}</strong></div>
-              <div><span>VERIFIED WALLETS</span><strong>{profile?.wallets.length ?? 0}</strong></div>
-              <div><span>STOCK TOKEN POSITIONS</span><strong>{profile?.exposure.positions.length ?? 0}</strong></div>
-              <div className={exposedPositions.length ? "alert" : ""}><span>ACTIVE EXPOSURES</span><strong>{exposedPositions.length}</strong></div>
+              <div><HelpLabel label="MONITORED ASSETS">{helpCopy.monitoredAssets}</HelpLabel><strong>{profile?.watchlist?.symbols.length ?? 0}</strong></div>
+              <div><HelpLabel label="VERIFIED WALLETS">{helpCopy.verifiedWallets}</HelpLabel><strong>{profile?.wallets.length ?? 0}</strong></div>
+              <div><HelpLabel label="STOCK TOKEN POSITIONS">{helpCopy.stockTokenPositions}</HelpLabel><strong>{profile?.exposure.positions.length ?? 0}</strong></div>
+              <div className={exposedPositions.length ? "alert" : ""}><HelpLabel label="ACTIVE EXPOSURES" align="end">{helpCopy.activeExposure}</HelpLabel><strong>{exposedPositions.length}</strong></div>
             </div>
             <section className={`workspace-access-panel ${isHolder ? "holder" : "observer"}`}>
               <div className="workspace-access-summary">
@@ -514,11 +516,11 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
               {profile?.wallets.length ? profile.wallets.map((wallet) => (
                 <article key={wallet.id}>
                   <Wallet size={25} />
-                  <span className="mono">VERIFIED IDENTITY</span>
+                  <HelpLabel label="VERIFIED IDENTITY">{helpCopy.verifiedWallets}</HelpLabel>
                   <h2>{shortAddress(wallet.address)}</h2>
                   <p className="mono">ROBINHOOD CHAIN / {wallet.chainId}</p>
                   <div className={`workspace-mhr-status ${wallet.mhr.status}`}>
-                    <span className="mono">$MHR STATUS</span>
+                    <HelpLabel label="$MHR STATUS" align="end">{helpCopy.holderAccess}</HelpLabel>
                     <strong>{wallet.mhr.status === "holder" ? "BALANCE FOUND" : wallet.mhr.status === "not_held" ? "NOT HELD" : "UNAVAILABLE"}</strong>
                     <small>{formatTokenBalance(wallet.mhr.balance)} MHR</small>
                     <a href={`https://robinhoodchain.blockscout.com/address/${MHR_CONTRACT_ADDRESS}`} target="_blank" rel="noreferrer">VERIFY CONTRACT <ExternalLink size={12} /></a>
@@ -532,8 +534,8 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
 
         {view === "exposure" ? (
           <section className="workspace-view">
-            <div className="workspace-title compact"><div><p className="mono">05 / POSITION INTELLIGENCE</p><h1>Exposure.</h1></div><p>Every linked wallet is scanned automatically for all official Robinhood Stock Tokens, including assets outside your watchlist. Event matches open a personal risk file.</p></div>
-            <div className="workspace-value-band"><span className="mono">INDICATIVE STOCK TOKEN VALUE</span><strong>{formatMoney(totalValue.toFixed(2))}</strong></div>
+            <div className="workspace-title compact"><div><p className="mono">05 / POSITION INTELLIGENCE</p><h1>Exposure.</h1></div><p>Stock Tokens found in every verified wallet. Assets outside your watchlist are included automatically.</p></div>
+            <div className="workspace-value-band"><HelpLabel label="INDICATIVE STOCK TOKEN VALUE">{helpCopy.indicativeValue}</HelpLabel><strong>{formatMoney(totalValue.toFixed(2))}</strong></div>
             <div className="workspace-exposure-guide">
               <div><Orbit size={18} /><span><strong>POSITION FOUND</strong><small>The token balance was found in a verified wallet on Robinhood Chain.</small></span></div>
               <div><ShieldCheck size={18} /><span><strong>NO EVENT MATCH</strong><small>No matching corporate action exists in the current Robinhood source window. This is not a guarantee of zero risk.</small></span></div>
@@ -541,14 +543,14 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
             </div>
             {profile?.exposure.positions.length ? (
               <div className="workspace-position-table">
-                <header className="mono"><span>ASSET</span><span>BALANCE</span><span>INDICATIVE VALUE</span><span>EVENT STATUS</span></header>
+                <header className="mono"><span>ASSET</span><span>BALANCE</span><HelpLabel label="INDICATIVE VALUE">{helpCopy.indicativeValue}</HelpLabel><HelpLabel label="EVENT STATUS" align="end">{helpCopy.eventMatch}</HelpLabel></header>
                 {profile.exposure.positions.map((position) => (
                   <div className={position.hasCorporateAction ? "exposed" : ""} key={`${position.wallet}-${position.contractAddress}`}>
                     <span><strong>{position.symbol}</strong><small>{position.name}</small></span>
                     <span className="mono">{Number(position.balance).toLocaleString(undefined, { maximumFractionDigits: 6 })}</span>
                     <span>{formatMoney(position.valueUsd)}</span>
                     <span className="workspace-position-status">
-                      <strong className="mono">{position.hasCorporateAction ? "EVENT MATCH" : "NO EVENT MATCH"}</strong>
+                      <HelpLabel label={position.hasCorporateAction ? "EVENT MATCH" : "NO EVENT MATCH"} as="strong" align="end">{position.hasCorporateAction ? helpCopy.eventMatch : helpCopy.noEventMatch}</HelpLabel>
                       {position.hasCorporateAction ? <button type="button" onClick={() => void openPositionRisk(position)}>VIEW RISK <ArrowRight size={12} /></button> : <small>MONITORING CONTINUES</small>}
                     </span>
                   </div>
@@ -567,8 +569,8 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
                 <div className="workspace-risk-meta mono">
                   <span>POSITION <strong>{Number(openRiskPosition.balance).toLocaleString(undefined, { maximumFractionDigits: 6 })} {openRiskPosition.symbol}</strong></span>
                   <span>EVENT <strong>{openRiskEvent.type}</strong></span>
-                  <span>SOURCE STATUS <strong>{openRiskEvent.sourceStatus}</strong></span>
-                  <span>PERSONAL RISK <strong>{openRiskAnalysis?.risk.toUpperCase() ?? eventRiskLabel(openRiskEvent)}</strong></span>
+                  <span><HelpLabel label="SOURCE STATUS">{helpCopy.sourceStatus}</HelpLabel><strong>{openRiskEvent.sourceStatus}</strong></span>
+                  <span><HelpLabel label="PERSONAL RISK" align="end">{helpCopy.risk}</HelpLabel><strong>{openRiskAnalysis?.risk.toUpperCase() ?? eventRiskLabel(openRiskEvent)}</strong></span>
                 </div>
                 <div className="workspace-risk-analysis">
                   <section><span className="mono">01 / WHAT HAPPENED</span><p>{openRiskAnalysis?.summary ?? openRiskEvent.summary}</p></section>
@@ -576,9 +578,9 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
                   <section className="response"><span className="mono">03 / RECOMMENDED RESPONSE</span><p>{openRiskAnalysis?.recommendedAction ?? openRiskEvent.action}</p></section>
                 </div>
                 <footer className="mono">
-                  <span>ANALYSIS <strong>{analyzingSymbol === openRiskPosition.symbol ? "RUNNING" : openRiskAnalysis?.mode === "ai" ? "AI" : openRiskAnalysis?.mode === "deterministic" ? "RULE BASED" : "SOURCE SUMMARY"}</strong></span>
-                  <span>CONFIDENCE <strong>{openRiskAnalysis ? `${openRiskAnalysis.confidence}%` : analyzingSymbol ? "PENDING" : "NOT SCORED"}</strong></span>
-                  <span>AFFECTED SYSTEMS <strong>{openRiskAnalysis?.affectedSystems.join(" / ").toUpperCase() ?? "ANALYSIS PENDING"}</strong></span>
+                  <span><HelpLabel label="ANALYSIS">{openRiskAnalysis?.mode === "deterministic" ? helpCopy.ruleBased : helpCopy.aiAnalysis}</HelpLabel><strong>{analyzingSymbol === openRiskPosition.symbol ? "RUNNING" : openRiskAnalysis?.mode === "ai" ? "AI" : openRiskAnalysis?.mode === "deterministic" ? "RULE BASED" : "SOURCE SUMMARY"}</strong></span>
+                  <span><HelpLabel label="CONFIDENCE">{helpCopy.confidence}</HelpLabel><strong>{openRiskAnalysis ? `${openRiskAnalysis.confidence}%` : analyzingSymbol ? "PENDING" : "NOT SCORED"}</strong></span>
+                  <span><HelpLabel label="AFFECTED SYSTEMS" align="end">{helpCopy.affectedSystems}</HelpLabel><strong>{openRiskAnalysis?.affectedSystems.join(" / ").toUpperCase() ?? "ANALYSIS PENDING"}</strong></span>
                 </footer>
                 {riskAnalysisError ? <p className="workspace-risk-error mono">{riskAnalysisError}. Official source details are still shown.</p> : null}
               </article>

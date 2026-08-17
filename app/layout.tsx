@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "MIHARI — Corporate Action Intelligence",
+  title: "MIHARI | Corporate Action Intelligence",
   description:
     "AI monitoring and onchain protection for tokenized stocks on Robinhood Chain.",
 };

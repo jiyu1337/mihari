@@ -2,7 +2,9 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, ArrowRight, LoaderCircle, RefreshCw, ShieldCheck } from "lucide-react";
+import { HelpLabel } from "@/components/help-tip";
 import type { AnalysisResponse } from "@/lib/analysis";
+import { helpCopy } from "@/lib/help-content";
 import type { CorporateEvent } from "@/lib/product-data";
 
 type EventFeedResponse = {
@@ -97,12 +99,12 @@ export function ProfileEvents({ heldSymbols, watchlistLimit, onOpenExposure, onO
     <section className="workspace-view">
       <div className="workspace-title compact">
         <div><p className="mono">02 / PRIVATE EVENT REGISTER</p><h1>Watchlist events.</h1></div>
-        <p>MIHARI refreshes official corporate actions every minute while this view is open. Events are shown only for your saved monitoring scope.</p>
+        <p>Official corporate actions for your saved assets. This page refreshes every minute while it is open.</p>
       </div>
       <div className="workspace-event-status mono">
-        <span>WATCHING <strong>{feed?.watchedCount ?? 0} / {watchlistLimit}</strong></span>
-        <span>SOURCE <strong>{feed?.mode === "fallback" ? "FALLBACK" : "ROBINHOOD LIVE"}</strong></span>
-        <span>LAST SYNC <strong>{feed?.fetchedAt ? new Date(feed.fetchedAt).toLocaleTimeString() : "PENDING"}</strong></span>
+        <span><HelpLabel label="WATCHING">{helpCopy.watchScope}</HelpLabel><strong>{feed?.watchedCount ?? 0} / {watchlistLimit}</strong></span>
+        <span><HelpLabel label="SOURCE">{helpCopy.dataMode}</HelpLabel><strong>{feed?.mode === "fallback" ? "FALLBACK" : "ROBINHOOD LIVE"}</strong></span>
+        <span><HelpLabel label="LAST SYNC">{helpCopy.lastSync}</HelpLabel><strong>{feed?.fetchedAt ? new Date(feed.fetchedAt).toLocaleTimeString() : "PENDING"}</strong></span>
         <button type="button" onClick={() => void syncEvents()} disabled={loading}><RefreshCw className={loading ? "spin" : ""} size={14} />SYNC NOW</button>
       </div>
       {error ? <div className="workspace-message error mono">{error}</div> : null}
@@ -140,9 +142,9 @@ export function ProfileEvents({ heldSymbols, watchlistLimit, onOpenExposure, onO
               </header>
               <div className="workspace-risk-meta mono">
                 <span>EVENT DATE <strong>{selectedEvent.time}</strong></span>
-                <span>SOURCE STATUS <strong>{selectedEvent.sourceStatus}</strong></span>
-                <span>ANALYSIS <strong>{analyzing === selectedEvent.id ? "RUNNING" : selectedAnalysis?.mode === "ai" ? "AI" : selectedAnalysis ? "RULE BASED" : "SOURCE"}</strong></span>
-                <span>CONFIDENCE <strong>{selectedAnalysis ? `${selectedAnalysis.confidence}%` : "PENDING"}</strong></span>
+                <span><HelpLabel label="SOURCE STATUS">{helpCopy.sourceStatus}</HelpLabel><strong>{selectedEvent.sourceStatus}</strong></span>
+                <span><HelpLabel label="ANALYSIS">{selectedAnalysis?.mode === "deterministic" ? helpCopy.ruleBased : helpCopy.aiAnalysis}</HelpLabel><strong>{analyzing === selectedEvent.id ? "RUNNING" : selectedAnalysis?.mode === "ai" ? "AI" : selectedAnalysis ? "RULE BASED" : "SOURCE"}</strong></span>
+                <span><HelpLabel label="CONFIDENCE" align="end">{helpCopy.confidence}</HelpLabel><strong>{selectedAnalysis ? `${selectedAnalysis.confidence}%` : "PENDING"}</strong></span>
               </div>
               <div className="workspace-risk-analysis">
                 <section><span className="mono">01 / WHAT HAPPENED</span><p>{selectedAnalysis?.summary ?? selectedEvent.summary}</p></section>
@@ -150,7 +152,7 @@ export function ProfileEvents({ heldSymbols, watchlistLimit, onOpenExposure, onO
                 <section className="response"><span className="mono">03 / SAFE RESPONSE</span><p>{selectedAnalysis?.recommendedAction ?? selectedEvent.action}</p></section>
               </div>
               <footer>
-                <span className="mono">AFFECTED SYSTEMS <strong>{selectedAnalysis?.affectedSystems.join(" / ").toUpperCase() ?? "ANALYSIS PENDING"}</strong></span>
+                <span className="mono"><HelpLabel label="AFFECTED SYSTEMS">{helpCopy.affectedSystems}</HelpLabel><strong>{selectedAnalysis?.affectedSystems.join(" / ").toUpperCase() ?? "ANALYSIS PENDING"}</strong></span>
                 <div className="workspace-event-actions">
                   <button type="button" onClick={onOpenPolicy}>OPEN POLICY <ArrowRight size={14} /></button>
                   {heldSet.has(selectedEvent.asset.toUpperCase()) ? <button type="button" onClick={onOpenExposure}>OPEN PERSONAL EXPOSURE <ArrowRight size={14} /></button> : null}

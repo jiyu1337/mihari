@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, Mail, Search, Wallet } from "lucide-react";
+import { HelpLabel } from "@/components/help-tip";
+import { helpCopy } from "@/lib/help-content";
 import { PUBLIC_WATCHLIST_ASSETS } from "@/lib/product-limits";
 import type { RobinhoodAsset } from "@/lib/robinhood";
 
@@ -159,6 +161,11 @@ export function OnboardingConsole() {
                 Create a personal profile with email or a wallet signature, or enter the public
                 monitor without an account. Wallet access never asks for transaction approval.
               </p>
+              <div className="setup-quick-help mono">
+                <HelpLabel label="EMAIL PROFILE">Sign in with email and password, then add verified wallets.</HelpLabel>
+                <HelpLabel label="WALLET PROFILE">A free message signature creates or opens the profile. No gas or transaction.</HelpLabel>
+                <HelpLabel label="PUBLIC MODE" align="end">No account. Monitor up to three assets in read-only mode.</HelpLabel>
+              </div>
             </div>
             <div className="identity-options">
               <Link className="identity-choice" href="/sign-in">
@@ -200,6 +207,7 @@ export function OnboardingConsole() {
                 Choose up to 3 assets for a public monitoring session. Create a profile to save a larger watchlist and map personal exposure. The dashboard will only show
                 event records when one of these assets has a corporate action.
               </p>
+              <div className="setup-quick-help mono"><HelpLabel label="WATCHLIST">{helpCopy.watchScope}</HelpLabel><HelpLabel label="EVENT RECORD" align="end">An official corporate action that matches a selected asset.</HelpLabel></div>
             </div>
             <div className="asset-catalog-toolbar">
               <label>
@@ -260,6 +268,7 @@ export function OnboardingConsole() {
                 Observe is the working production mode. Guard and Automate are shown as the next
                 product layers and cannot execute yet.
               </p>
+              <div className="setup-quick-help mono"><HelpLabel label="OBSERVE">Read-only monitoring and recommendations. Nothing executes.</HelpLabel><HelpLabel label="GUARD / AUTOMATE" align="end">{helpCopy.next}</HelpLabel></div>
             </div>
             <div className="mode-selector">
               {modes.map((item) => (

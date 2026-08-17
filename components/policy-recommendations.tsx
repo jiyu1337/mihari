@@ -12,7 +12,9 @@ import {
   ScanSearch,
   ShieldCheck,
 } from "lucide-react";
+import { HelpLabel } from "@/components/help-tip";
 import type { AnalysisResponse, PolicyRecommendation } from "@/lib/analysis";
+import { helpCopy } from "@/lib/help-content";
 import type { CorporateEvent } from "@/lib/product-data";
 
 type EventFeedResponse = {
@@ -124,13 +126,13 @@ export function PolicyRecommendations({
     <section className="workspace-view policy-view">
       <div className="workspace-title compact policy-title">
         <div><p className="mono">08 / POLICY RECOMMENDATIONS</p><h1>What should happen next.</h1></div>
-        <p>MIHARI converts a verified corporate action into a bounded review plan. It explains what to check and when the recommendation can be cleared. It never applies the policy automatically.</p>
+        <p>A clear checklist for reviewing a verified event. MIHARI recommends. You decide. Nothing runs automatically.</p>
       </div>
 
       <div className="policy-source-bar mono">
-        <span>SOURCE <strong>{feed?.mode === "live" ? "ROBINHOOD LIVE" : feed ? "FALLBACK" : "PENDING"}</strong></span>
-        <span>DECISION OWNER <strong>YOU</strong></span>
-        <span>EXECUTION <strong>NONE</strong></span>
+        <span><HelpLabel label="SOURCE">{helpCopy.dataMode}</HelpLabel><strong>{feed?.mode === "live" ? "ROBINHOOD LIVE" : feed ? "FALLBACK" : "PENDING"}</strong></span>
+        <span><HelpLabel label="DECISION OWNER">MIHARI prepares the review. You or the protocol operator approve any next step.</HelpLabel><strong>YOU</strong></span>
+        <span><HelpLabel label="EXECUTION" align="end">{helpCopy.policyRecommendation}</HelpLabel><strong>NONE</strong></span>
         <button type="button" onClick={() => void sync()} disabled={loading}><RefreshCw className={loading ? "spin" : ""} size={16} />REFRESH</button>
       </div>
 
@@ -165,7 +167,7 @@ export function PolicyRecommendations({
                 <>
                   <header>
                     <div><p className="mono">POLICY FILE / {selectedEvent.asset}</p><h2>{policy?.title ?? "Preparing recommendation."}</h2></div>
-                    <span className={`policy-priority mono ${policy?.priority ?? "pending"}`}>{policy ? `${policy.priority.toUpperCase()} PRIORITY` : analyzing === selectedEvent.id ? "ANALYZING" : "PENDING"}</span>
+                    <span className={`policy-priority mono ${policy?.priority ?? "pending"}`}><HelpLabel label={policy ? `${policy.priority.toUpperCase()} PRIORITY` : analyzing === selectedEvent.id ? "ANALYZING" : "PENDING"} as="strong" align="end">{helpCopy.priority}</HelpLabel></span>
                   </header>
 
                   <div className="policy-signal-flow">
@@ -181,7 +183,7 @@ export function PolicyRecommendations({
                       <div className="policy-summary-grid">
                         <section><span className="mono">WHY THIS MATTERS</span><p>{policy.rationale}</p></section>
                         <section><span className="mono">SAFE RESPONSE</span><p>{selectedAnalysis.recommendedAction}</p></section>
-                        <section><span className="mono">PRIORITY MEANS</span><p>{priorityExplanation(policy.priority)}</p></section>
+                        <section><HelpLabel label="PRIORITY MEANS">{helpCopy.priority}</HelpLabel><p>{priorityExplanation(policy.priority)}</p></section>
                       </div>
 
                       <div className="policy-conditions">
@@ -191,8 +193,8 @@ export function PolicyRecommendations({
                         </section>
                         <section>
                           <header><span className="mono">POLICY BOUNDARIES</span><strong>{readable(policy.operatorDecision)}</strong></header>
-                          <div><span className="mono">APPLY WHEN</span>{policy.applyWhen.map((condition) => <p key={condition}>{condition}</p>)}</div>
-                          <div><span className="mono">CLEAR WHEN</span>{policy.releaseWhen.map((condition) => <p key={condition}>{condition}</p>)}</div>
+                          <div><HelpLabel label="APPLY WHEN">{helpCopy.applyWhen}</HelpLabel>{policy.applyWhen.map((condition) => <p key={condition}>{condition}</p>)}</div>
+                          <div><HelpLabel label="CLEAR WHEN">{helpCopy.clearWhen}</HelpLabel>{policy.releaseWhen.map((condition) => <p key={condition}>{condition}</p>)}</div>
                         </section>
                       </div>
 

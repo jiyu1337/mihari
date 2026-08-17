@@ -573,6 +573,9 @@ a {
 
 .step-status {
   flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   padding: 0.35rem 0.45rem;
   border: 1px solid var(--ink);
   background: var(--white);
@@ -2284,6 +2287,203 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .workspace-position-status button,
 .workspace-event-status > span,
 .workspace-event-status button { font-size: max(0.68rem, 10.8px); }
+
+/* Shared plain-language help */
+.help-label {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+}
+
+.help-tip {
+  position: relative;
+  z-index: 8;
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  color: inherit;
+  font-family: var(--font-sans), sans-serif;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.help-tip:focus-within { z-index: 80; }
+
+.help-tip-trigger {
+  width: 24px;
+  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  color: currentColor;
+  background: transparent;
+  cursor: help;
+  opacity: 0.72;
+}
+
+.help-tip-trigger:hover,
+.help-tip-trigger:focus-visible {
+  border-color: currentColor;
+  opacity: 1;
+  outline: none;
+}
+
+.help-tip-popover {
+  position: absolute;
+  top: calc(100% + 9px);
+  left: 50%;
+  width: min(280px, calc(100vw - 32px));
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.8rem 0.85rem;
+  border: 1px solid var(--ink);
+  color: var(--paper);
+  background: var(--ink);
+  box-shadow: 6px 6px 0 var(--neon);
+  font-size: max(0.76rem, 12px);
+  line-height: 1.45;
+  letter-spacing: normal;
+  text-align: left;
+  text-transform: none;
+  transform: translate(-50%, 4px);
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease, transform 140ms ease, visibility 140ms ease;
+}
+
+.help-tip-popover::before {
+  position: absolute;
+  top: -6px;
+  left: calc(50% - 6px);
+  width: 11px;
+  height: 11px;
+  border-top: 1px solid var(--ink);
+  border-left: 1px solid var(--ink);
+  background: var(--ink);
+  content: "";
+  transform: rotate(45deg);
+}
+
+.help-tip-popover strong {
+  color: var(--neon) !important;
+  font: 0.68rem/1.2 var(--font-mono), monospace !important;
+  letter-spacing: 0.06em !important;
+  text-transform: uppercase !important;
+}
+
+.help-tip .help-tip-popover > span {
+  display: block;
+  color: var(--paper) !important;
+  font: max(0.76rem, 12px)/1.45 var(--font-sans), sans-serif !important;
+  letter-spacing: normal !important;
+  text-align: left !important;
+  text-transform: none !important;
+}
+
+.setup-quick-help {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1rem;
+  margin-top: 1rem;
+  color: var(--heather-3);
+  font-size: max(0.72rem, 11.5px);
+  letter-spacing: 0.04em;
+}
+
+.setup-quick-help .help-label { padding-right: 0.65rem; border-right: 1px solid var(--rule); }
+.setup-quick-help .help-label:last-child { padding-right: 0; border-right: 0; }
+
+.help-tip:hover .help-tip-popover,
+.help-tip:focus-within .help-tip-popover {
+  visibility: visible;
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.help-tip.start .help-tip-popover { left: -8px; transform: translate(0, 4px); }
+.help-tip.start:hover .help-tip-popover,
+.help-tip.start:focus-within .help-tip-popover { transform: translate(0, 0); }
+.help-tip.start .help-tip-popover::before { left: 15px; }
+.help-tip.end .help-tip-popover { right: -8px; left: auto; transform: translate(0, 4px); }
+.help-tip.end:hover .help-tip-popover,
+.help-tip.end:focus-within .help-tip-popover { transform: translate(0, 0); }
+.help-tip.end .help-tip-popover::before { right: 15px; left: auto; }
+
+@media (max-width: 560px) {
+  .help-tip-popover { width: min(250px, calc(100vw - 24px)); }
+  .help-tip.center .help-tip-popover { right: -12px; left: auto; transform: translate(0, 4px); }
+  .help-tip.center:hover .help-tip-popover,
+  .help-tip.center:focus-within .help-tip-popover { transform: translate(0, 0); }
+  .help-tip.center .help-tip-popover::before { right: 18px; left: auto; }
+  .setup-quick-help { display: grid; gap: 0.35rem; }
+  .setup-quick-help .help-label { padding: 0; border: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .help-tip-popover { transition: none; }
+}
+
+/* Keep contextual help independent from the host bar and card styles. */
+.console-strip p .help-label,
+.workspace-identity-bar > span .help-label,
+.workspace-event-status > span .help-label,
+.workspace-metrics .help-label,
+.protocol-source-bar > span .help-label,
+.risk-graph-source > span .help-label,
+.policy-source-bar > span .help-label {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+}
+
+.console-strip .help-tip > .help-tip-trigger,
+.workspace-identity-bar .help-tip > .help-tip-trigger,
+.workspace-event-status .help-tip > .help-tip-trigger,
+.workspace-metrics .help-tip > .help-tip-trigger,
+.protocol-source-bar .help-tip > .help-tip-trigger,
+.risk-graph-source .help-tip > .help-tip-trigger,
+.policy-source-bar .help-tip > .help-tip-trigger {
+  width: 24px;
+  height: 24px;
+  min-height: 24px;
+  flex: none;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  color: currentColor;
+  background: transparent;
+  font: inherit;
+  opacity: 0.72;
+}
+
+.console-strip .help-tip > .help-tip-trigger:hover,
+.console-strip .help-tip > .help-tip-trigger:focus-visible,
+.workspace-identity-bar .help-tip > .help-tip-trigger:hover,
+.workspace-identity-bar .help-tip > .help-tip-trigger:focus-visible,
+.workspace-event-status .help-tip > .help-tip-trigger:hover,
+.workspace-event-status .help-tip > .help-tip-trigger:focus-visible,
+.workspace-metrics .help-tip > .help-tip-trigger:hover,
+.workspace-metrics .help-tip > .help-tip-trigger:focus-visible,
+.protocol-source-bar .help-tip > .help-tip-trigger:hover,
+.protocol-source-bar .help-tip > .help-tip-trigger:focus-visible,
+.risk-graph-source .help-tip > .help-tip-trigger:hover,
+.risk-graph-source .help-tip > .help-tip-trigger:focus-visible,
+.policy-source-bar .help-tip > .help-tip-trigger:hover,
+.policy-source-bar .help-tip > .help-tip-trigger:focus-visible {
+  border-color: currentColor;
+  background: transparent;
+  opacity: 1;
+}
 
 /* Policy recommendations */
 .policy-title h1 { max-width: 980px; }

@@ -13,6 +13,8 @@ import {
   ShieldCheck,
   Wallet,
 } from "lucide-react";
+import { HelpLabel } from "@/components/help-tip";
+import { helpCopy } from "@/lib/help-content";
 import type { MappedPosition } from "@/lib/map-data";
 import type {
   ProtocolExposureResponse,
@@ -210,23 +212,23 @@ export function RiskGraph({
     <section className="workspace-view risk-graph-view">
       <div className="workspace-title compact">
         <div><p className="mono">06 / UNIFIED RISK GRAPH</p><h1>Where risk travels.</h1></div>
-        <p>MIHARI connects an official corporate action to the Stock Token and then to every verified direct or supported protocol position it can actually prove.</p>
+        <p>Follow an official event from the Stock Token to a wallet holding, watchlist signal or supported DeFi position.</p>
       </div>
 
       <div className="risk-graph-source mono">
-        <span><Database size={14} />EVENT SOURCE <strong>ROBINHOOD</strong></span>
-        <span><Network size={14} />GRAPH STATE <strong>{sourceStatus}</strong></span>
-        <span>PROTOCOLS <strong>{fullGraph ? `${checkedProtocols} CHECKED` : "LOCKED"}</strong></span>
+        <span><Database size={14} /><HelpLabel label="EVENT SOURCE">{helpCopy.dataMode}</HelpLabel><strong>ROBINHOOD</strong></span>
+        <span><Network size={14} /><HelpLabel label="GRAPH STATE">{helpCopy.partialSource}</HelpLabel><strong>{sourceStatus}</strong></span>
+        <span><HelpLabel label="PROTOCOLS" align="end">{helpCopy.protocolPaths}</HelpLabel><strong>{fullGraph ? `${checkedProtocols} CHECKED` : "LOCKED"}</strong></span>
         {fullGraph
           ? <button type="button" onClick={() => void scan()} disabled={loading}><RefreshCw className={loading ? "spin" : ""} size={14} />REBUILD GRAPH</button>
           : <button type="button" onClick={onOpenWallets}><LockKeyhole size={14} />UNLOCK FULL GRAPH</button>}
       </div>
 
       <div className="workspace-metrics risk-graph-metrics mono">
-        <div><span>ACTIVE SIGNALS</span><strong>{activeRiskNodes.length + watchlistSignalNodes.length}</strong></div>
-        <div><span>TRACKED ASSETS</span><strong>{graphNodes.length}</strong></div>
-        <div><span>DIRECT PATHS</span><strong>{directRiskPaths}</strong></div>
-        <div className={protocolRiskPaths ? "alert" : ""}><span>PROTOCOL PATHS</span><strong>{fullGraph ? protocolRiskPaths : "LOCKED"}</strong></div>
+        <div><HelpLabel label="ACTIVE SIGNALS">{helpCopy.activeSignals}</HelpLabel><strong>{activeRiskNodes.length + watchlistSignalNodes.length}</strong></div>
+        <div><HelpLabel label="TRACKED ASSETS">{helpCopy.trackedAssets}</HelpLabel><strong>{graphNodes.length}</strong></div>
+        <div><HelpLabel label="DIRECT PATHS">{helpCopy.directPaths}</HelpLabel><strong>{directRiskPaths}</strong></div>
+        <div className={protocolRiskPaths ? "alert" : ""}><HelpLabel label="PROTOCOL PATHS" align="end">{helpCopy.protocolPaths}</HelpLabel><strong>{fullGraph ? protocolRiskPaths : "LOCKED"}</strong></div>
       </div>
 
       <div className="risk-graph-legend">
@@ -234,7 +236,7 @@ export function RiskGraph({
         <ArrowRight size={18} />
         <article><ShieldCheck size={20} /><span><strong>Verified asset</strong><small>An official Stock Token contract or exact official symbol match.</small></span></article>
         <ArrowRight size={18} />
-        <article><Landmark size={20} /><span><strong>Proven exposure</strong><small>A direct wallet balance or a position returned by an active protocol adapter.</small></span></article>
+        <article><Landmark size={20} /><span><HelpLabel label="Proven exposure" as="strong" align="end">{helpCopy.provenExposure}</HelpLabel><small>A verified wallet balance or supported protocol position.</small></span></article>
       </div>
 
       {!fullGraph ? (
@@ -262,7 +264,7 @@ export function RiskGraph({
                 <header className="mono">
                   <span>PATH {String(index + 1).padStart(2, "0")}</span>
                   <span>{node.directPositions.length + node.protocolPositions.length} VERIFIED EXPOSURES</span>
-                  <strong>{eventStateLabel(event)}</strong>
+                  <HelpLabel label={eventStateLabel(event)} as="strong" align="end">{helpCopy.sourceStatus}</HelpLabel>
                 </header>
                 <div className="risk-graph-flow">
                   <section className="risk-event-node">

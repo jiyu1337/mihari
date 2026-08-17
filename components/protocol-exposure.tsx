@@ -13,6 +13,8 @@ import {
   ShieldCheck,
   Wallet,
 } from "lucide-react";
+import { HelpLabel, HelpTip } from "@/components/help-tip";
+import { helpCopy } from "@/lib/help-content";
 import type {
   ProtocolDefinition,
   ProtocolExposureResponse,
@@ -207,7 +209,7 @@ export function ProtocolExposure({
     <section className="workspace-view protocol-view">
       <div className="workspace-title compact">
         <div><p className="mono">07 / DEFI EXPOSURE</p><h1>Beyond your wallet.</h1></div>
-        <p>MIHARI checks supported lending, vault and liquidity protocols, then maps every recognized Stock Token position to official corporate actions.</p>
+        <p>See supported DeFi markets first. Holder access also checks whether your verified wallets own a recognized position.</p>
       </div>
 
       {!holderAccess ? (
@@ -219,17 +221,17 @@ export function ProtocolExposure({
       ) : null}
 
       <div className="protocol-source-bar mono">
-        <span><Landmark size={14} />ENGINE <strong>MULTI-PROTOCOL</strong></span>
-        <span><Database size={14} />SOURCE <strong>{sourceStatus}</strong></span>
-        <span>COVERAGE <strong>{holderAccess ? `${checkedProtocols} CHECKED / ${catalog.length} MAPPED` : `${catalog.length} PROTOCOLS`}</strong></span>
+        <span><Landmark size={14} /><HelpLabel label="ENGINE">MIHARI checks several supported protocol adapters in one scan.</HelpLabel><strong>MULTI-PROTOCOL</strong></span>
+        <span><Database size={14} /><HelpLabel label="SOURCE">{helpCopy.partialSource}</HelpLabel><strong>{sourceStatus}</strong></span>
+        <span><HelpLabel label="COVERAGE" align="end">Only protocols with active adapters are counted as checked.</HelpLabel><strong>{holderAccess ? `${checkedProtocols} CHECKED / ${catalog.length} MAPPED` : `${catalog.length} PROTOCOLS`}</strong></span>
         <button onClick={holderAccess ? () => void scan() : onOpenWallets} disabled={loading}>{holderAccess ? <RefreshCw className={loading ? "spin" : ""} size={14} /> : <LockKeyhole size={14} />}{holderAccess ? "SCAN AGAIN" : "UNLOCK SCAN"}</button>
       </div>
 
       <div className="workspace-metrics protocol-metrics mono">
-        <div><span>VERIFIED WALLETS</span><strong>{walletCount}</strong></div>
-        <div><span>PROTOCOL POSITIONS</span><strong>{snapshot?.positions.length ?? 0}</strong></div>
-        <div><span>INDICATIVE VALUE</span><strong>{formatMoney(totalValue)}</strong></div>
-        <div className={eventMatches ? "alert" : ""}><span>EVENT MATCHES</span><strong>{eventMatches}</strong></div>
+        <div><HelpLabel label="VERIFIED WALLETS">{helpCopy.verifiedWallets}</HelpLabel><strong>{walletCount}</strong></div>
+        <div><HelpLabel label="PROTOCOL POSITIONS">{helpCopy.protocolPosition}</HelpLabel><strong>{snapshot?.positions.length ?? 0}</strong></div>
+        <div><HelpLabel label="INDICATIVE VALUE">{helpCopy.indicativeValue}</HelpLabel><strong>{formatMoney(totalValue)}</strong></div>
+        <div className={eventMatches ? "alert" : ""}><HelpLabel label="EVENT MATCHES" align="end">{helpCopy.eventMatch}</HelpLabel><strong>{eventMatches}</strong></div>
       </div>
 
       <section className="protocol-scope">
@@ -256,7 +258,7 @@ export function ProtocolExposure({
         <header>
           <div>
             <p className="mono">MARKET COVERAGE / WATCHLIST</p>
-            <h2>Where these assets can trade.</h2>
+            <h2>Markets for monitored assets.</h2>
           </div>
           <span className="mono">{holderAccess ? `${discoveredMarkets.length} MARKETS FOUND` : "HOLDER SCAN"}</span>
         </header>
@@ -273,8 +275,9 @@ export function ProtocolExposure({
           <>
             <div className="protocol-market-sources mono">
               {snapshot?.marketScan.scans.map((source) => (
-                <span className={source.status} key={source.protocol} title={source.warning}>
+                <span className={source.status} key={source.protocol}>
                   {marketProtocolNames[source.protocol]} <strong>{source.status === "live" ? `${source.marketCount} FOUND` : source.status.toUpperCase()}</strong>
+                  <HelpTip label={`${marketProtocolNames[source.protocol]} source`} align="end">{source.warning ?? (source.status === "live" ? "The source responded successfully." : helpCopy.partialSource)}</HelpTip>
                 </span>
               ))}
             </div>
@@ -287,7 +290,7 @@ export function ProtocolExposure({
                 {visibleMarkets.map((market) => (
                   <article key={market.id}>
                     <div className="protocol-market-card-top mono">
-                      <span>{marketKindLabels[market.kind]}</span>
+                      <HelpLabel label={marketKindLabels[market.kind]}>{marketKindDescriptions[market.kind]}</HelpLabel>
                       <strong>{marketProtocolNames[market.protocol]}</strong>
                     </div>
                     <h3>{market.symbol} / {market.counterparty}</h3>
@@ -308,7 +311,7 @@ export function ProtocolExposure({
         ) : (
           <><div className="protocol-market-sources mono">
             {snapshot?.marketScan.scans.map((source) => (
-              <span className={source.status} key={source.protocol} title={source.warning}>{marketProtocolNames[source.protocol]} <strong>{source.status.toUpperCase()}</strong></span>
+              <span className={source.status} key={source.protocol}>{marketProtocolNames[source.protocol]} <strong>{source.status.toUpperCase()}</strong><HelpTip label={`${marketProtocolNames[source.protocol]} source`} align="end">{source.warning ?? helpCopy.partialSource}</HelpTip></span>
             ))}
           </div><div className="protocol-market-empty"><Database size={24} /><div><strong>No supported market found for this watchlist.</strong><p>The assets remain monitored for corporate actions. Market coverage and personal positions are separate checks.</p></div></div></>
         )}
@@ -331,7 +334,7 @@ export function ProtocolExposure({
               <article className={`protocol-coverage-card ${protocol.stage}`} key={protocol.id}>
                 <header className="mono">
                   <span>{protocol.category.toUpperCase()}</span>
-                  <strong>{label}</strong>
+                  <HelpLabel label={label} as="strong" align="end">{label === "LIVE" ? helpCopy.live : label === "PLANNED" ? helpCopy.next : helpCopy.partialSource}</HelpLabel>
                 </header>
                 <h2>{protocol.name}</h2>
                 <p>{protocol.description}</p>
@@ -368,7 +371,7 @@ export function ProtocolExposure({
         <section className="protocol-personal-positions">
           <header><p className="mono">YOUR POSITIONS / VERIFIED WALLETS</p><h2>Personal protocol exposure.</h2></header>
           <div className="protocol-position-table">
-          <header className="mono"><span>PROTOCOL POSITION</span><span>STOCK TOKEN</span><span>AMOUNT / VALUE</span><span>EVENT STATUS</span></header>
+          <header className="mono"><HelpLabel label="PROTOCOL POSITION">{helpCopy.protocolPosition}</HelpLabel><span>STOCK TOKEN</span><HelpLabel label="AMOUNT / VALUE">{helpCopy.indicativeValue}</HelpLabel><HelpLabel label="EVENT STATUS" align="end">{helpCopy.eventMatch}</HelpLabel></header>
           {snapshot.positions.map((position) => (
             <article className={position.hasCorporateAction ? "exposed" : ""} key={position.id}>
               <span>

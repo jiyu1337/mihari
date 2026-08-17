@@ -15,7 +15,9 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
+import { HelpLabel } from "@/components/help-tip";
 import type { AnalysisResponse } from "@/lib/analysis";
+import { helpCopy } from "@/lib/help-content";
 import { corporateEvents, type CorporateEvent } from "@/lib/product-data";
 import { PUBLIC_WATCHLIST_ASSETS } from "@/lib/product-limits";
 import type { MarketSnapshot } from "@/lib/robinhood";
@@ -219,9 +221,9 @@ export function GuardianConsole() {
         </header>
 
         <section className="console-strip mono" aria-label="System status">
-          <p><span>WATCH SCOPE</span><strong>{symbols.length} ASSETS</strong></p>
-          <p><span>DATA MODE</span><strong>{modeLabel}</strong></p>
-          <p><span>LAST SOURCE SYNC</span><strong>{syncing ? "SYNCING…" : formatSyncTime(fetchedAt)}</strong></p>
+          <p><HelpLabel label="WATCH SCOPE">{helpCopy.watchScope}</HelpLabel><strong>{symbols.length} ASSETS</strong></p>
+          <p><HelpLabel label="DATA MODE">{helpCopy.dataMode}</HelpLabel><strong>{modeLabel}</strong></p>
+          <p><HelpLabel label="LAST SOURCE SYNC">{helpCopy.lastSync}</HelpLabel><strong>{syncing ? "SYNCING…" : formatSyncTime(fetchedAt)}</strong></p>
           <button onClick={syncMarketData} disabled={syncing}>
             <RefreshCw className={syncing ? "spin" : ""} size={14} /> REFRESH
           </button>
@@ -294,8 +296,8 @@ export function GuardianConsole() {
             <article className="incident-file" aria-labelledby="incident-file-title">
               <div className="incident-record-bar mono" aria-label="Selected event metadata">
                 <p><span>SELECTED EVENT</span><strong>{selected.asset} / {selected.type}</strong></p>
-                <p><span>STATUS</span><strong className={`record-status ${selected.severity}`}>{selected.sourceStatus}</strong></p>
-                <p><span>RISK</span><strong>{selectedRisk.toUpperCase()}</strong></p>
+                <p><HelpLabel label="SOURCE STATUS">{helpCopy.sourceStatus}</HelpLabel><strong className={`record-status ${selected.severity}`}>{selected.sourceStatus}</strong></p>
+                <p><HelpLabel label="RISK">{helpCopy.risk}</HelpLabel><strong>{selectedRisk.toUpperCase()}</strong></p>
                 <p><span>RECORD ID</span><strong>{fileIndex(selected.id)}</strong></p>
               </div>
               <div className="file-body">
@@ -307,13 +309,9 @@ export function GuardianConsole() {
                   <div className="confidence-gauge">
                     <CircleGauge size={25} strokeWidth={1.4} />
                     <span className="mono">
-                      {selectedIsAnalyzing
-                        ? "AI STATUS"
-                        : selectedAnalysis?.mode === "deterministic"
-                          ? "RULE CONFIDENCE"
-                          : displayedConfidence === null
-                            ? "AI STATUS"
-                            : "AI CONFIDENCE"}
+                      <HelpLabel label={selectedAnalysis?.mode === "deterministic" ? "RULE CONFIDENCE" : "AI CONFIDENCE"} align="end">
+                        {selectedAnalysis?.mode === "deterministic" ? helpCopy.ruleBased : helpCopy.confidence}
+                      </HelpLabel>
                       <strong>
                         {selectedIsAnalyzing
                           ? "ANALYZING…"
@@ -345,8 +343,8 @@ export function GuardianConsole() {
 
                 <footer className="file-proof mono">
                   <div><Orbit size={18} /><span>DATA SOURCE<strong>{selected.source === "robinhood" ? "ROBINHOOD API" : "SIMULATION"}</strong></span></div>
-                  <div><ShieldCheck size={18} /><span>AFFECTED<strong>{selectedAnalysis ? selectedAnalysis.affectedSystems.join(" / ").toUpperCase() : selected.affected === null ? "INDEXING PENDING" : `${selected.affected} POSITIONS`}</strong></span></div>
-                  <div><FileCheck2 size={18} /><span>CHAIN PROOF<strong>{selected.proof ?? "NOT RECORDED"}</strong></span></div>
+                  <div><ShieldCheck size={18} /><span><HelpLabel label="AFFECTED SYSTEMS">{helpCopy.affectedSystems}</HelpLabel><strong>{selectedAnalysis ? selectedAnalysis.affectedSystems.join(" / ").toUpperCase() : selected.affected === null ? "INDEXING PENDING" : `${selected.affected} POSITIONS`}</strong></span></div>
+                  <div><FileCheck2 size={18} /><span><HelpLabel label="CHAIN PROOF" align="end">{helpCopy.chainProof}</HelpLabel><strong>{selected.proof ?? "NOT RECORDED"}</strong></span></div>
                 </footer>
               </div>
             </article>

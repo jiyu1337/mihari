@@ -10,7 +10,9 @@ import {
 } from "lucide-react";
 import { BrandMark } from "@/components/brand-mark";
 import { EventDiagram } from "@/components/event-diagram";
+import { HelpTip } from "@/components/help-tip";
 import { SiteHeader } from "@/components/site-header";
+import { helpCopy } from "@/lib/help-content";
 import { protectionSteps } from "@/lib/product-data";
 
 export default function Home() {
@@ -35,8 +37,8 @@ export default function Home() {
         </div>
         <div className="hero-sidecopy">
           <p>
-            MIHARI detects corporate actions, maps wallet and DeFi exposure and turns
-            verified events into reviewable policy recommendations for Robinhood Chain.
+            MIHARI watches official Robinhood Stock Token events, finds the wallet and DeFi
+            positions they may reach, and explains what you should review. It never moves funds.
           </p>
           <Link className="primary-action" href="/launch">
             Start monitoring <ArrowRight size={18} />
@@ -99,8 +101,8 @@ export default function Home() {
           <p className="section-kicker mono">SYSTEM LOGIC / 作動原理</p>
           <h2 id="system-title">One event. Four controlled responses.</h2>
           <p>
-            AI provides judgment and context. Onchain policy provides limits. The separation
-            is what makes automation useful without giving a model unchecked control.
+            MIHARI reads the official event, finds affected positions and prepares a review
+            plan. You or the protocol operator always remain in control.
           </p>
         </div>
         <ol className="system-steps">
@@ -110,7 +112,12 @@ export default function Home() {
               <div>
                 <div className="step-meta mono">
                   <p className="step-label">{step.label}</p>
-                  <span className={`step-status ${step.status.toLowerCase()}`}>{step.status}</span>
+                  <span className={`step-status ${step.status.toLowerCase()}`}>
+                    {step.status}
+                    <HelpTip label={`${step.status} status`} align="end">
+                      {step.status === "LIVE" ? helpCopy.live : step.status === "ADVISORY" ? helpCopy.advisory : helpCopy.next}
+                    </HelpTip>
+                  </span>
                 </div>
                 <h3>{step.title}</h3>
                 <p>{step.body}</p>
@@ -125,8 +132,8 @@ export default function Home() {
           <p className="section-kicker mono">CHAIN-NATIVE BY DESIGN / 検証可能</p>
           <h2 id="protocol-title">Not another alert bot.</h2>
           <p>
-            Monitoring happens where the official data lives. Protection and proof happen
-            where positions live: on Robinhood Chain.
+            Robinhood supplies the event data. MIHARI follows that event into the positions
+            it can verify on Robinhood Chain.
           </p>
         </div>
         <div className="protocol-grid">
@@ -140,7 +147,7 @@ export default function Home() {
             <BrandMark className="protocol-mark" />
             <span className="protocol-code mono">INTELLIGENCE / 02</span>
             <h3>Explainable AI analysis</h3>
-            <p>Impact, confidence, affected systems and a bounded response proposal.</p>
+            <p>Plain-language impact, evidence confidence and a safe review proposal.</p>
           </article>
           <article>
             <Fingerprint size={24} strokeWidth={1.5} />
@@ -160,14 +167,14 @@ export default function Home() {
       <section className="access-section">
         <div className="access-label mono">
           <span>ACCESS PLATE</span>
-          <span>01 — PUBLIC</span>
+          <span>01 / PUBLIC</span>
         </div>
         <div className="access-copy">
           <p className="section-kicker mono">START WITHOUT SPENDING / 無料監視</p>
           <h2>Observe first. Automate when you are ready.</h2>
           <p>
-            Anyone can begin with read-only monitoring. Funds are only needed when a user
-            explicitly approves a future onchain action and pays network gas.
+            Anyone can start with read-only monitoring. MIHARI does not request token approvals
+            or transactions in Observe mode.
           </p>
           <Link className="primary-action primary-action-dark" href="/launch">
             Configure your watch <ArrowRight size={18} />
