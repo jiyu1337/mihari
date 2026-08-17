@@ -42,6 +42,7 @@ export const analysisSchema = z.object({
 
 export type AnalysisOutput = z.infer<typeof analysisSchema>;
 export type PolicyRecommendation = z.infer<typeof policyRecommendationSchema>;
+export type PolicySystem = z.infer<typeof policySystemSchema>;
 
 export type AnalysisResponse = AnalysisOutput & {
   mode: "ai" | "deterministic";

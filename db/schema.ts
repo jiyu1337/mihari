@@ -14,6 +14,7 @@ import {
 export const eventSeverity = pgEnum("event_severity", ["low", "medium", "high", "critical"]);
 export const policyMode = pgEnum("policy_mode", ["observe", "guard", "automate"]);
 export const eventStatus = pgEnum("event_status", ["detected", "reviewed", "actioned", "resolved"]);
+export const guardActionStatus = pgEnum("guard_action_status", ["draft", "approved", "dismissed"]);
 
 export const accounts = pgTable("accounts", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -103,3 +104,23 @@ export const policyReceipts = pgTable("policy_receipts", {
   executedAt: timestamp("executed_at", { withTimezone: true }),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 });
+
+export const guardActions = pgTable("guard_actions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  accountId: uuid("account_id").references(() => accounts.id, { onDelete: "cascade" }).notNull(),
+  corporateActionId: uuid("corporate_action_id").references(() => corporateActions.id, { onDelete: "restrict" }).notNull(),
+  sourceEventId: text("source_event_id").notNull(),
+  sourceHash: text("source_hash").notNull(),
+  symbol: text("symbol").notNull(),
+  intent: text("intent").notNull(),
+  preview: jsonb("preview").$type<Record<string, unknown>>().notNull(),
+  status: guardActionStatus("status").default("draft").notNull(),
+  approvalNote: text("approval_note"),
+  decisionHash: text("decision_hash"),
+  approvedAt: timestamp("approved_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex("guard_actions_account_source_intent_idx").on(table.accountId, table.sourceHash, table.intent),
+  index("guard_actions_account_created_idx").on(table.accountId, table.createdAt),
+]);
