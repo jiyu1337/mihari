@@ -125,7 +125,7 @@ export async function POST(request: Request) {
   }
 
   const sourceHash = guardHash(event.sourcePayload);
-  const preview = buildGuardActionPreview(event);
+  const preview = buildGuardActionPreview(event, access.position);
   const database = getDatabase();
   const [storedEvent] = await database
     .insert(corporateActions)

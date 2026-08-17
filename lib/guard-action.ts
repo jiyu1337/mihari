@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { z } from "zod";
 import type { PolicyRecommendation, PolicySystem } from "@/lib/analysis";
 import { buildDeterministicPolicy } from "@/lib/policy-recommendation";
+import type { MappedPosition } from "@/lib/map-data";
 import type { CorporateEvent } from "@/lib/product-data";
 
 export const guardActionPreviewSchema = z.object({
@@ -25,6 +26,14 @@ export const guardActionPreviewSchema = z.object({
   target: z.literal("MIHARI POLICY REGISTRY"),
   chainId: z.literal(4663),
   execution: z.literal("preview_only"),
+  evidence: z.object({
+    type: z.literal("verified_direct_holding"),
+    wallet: z.string().min(42).max(42),
+    symbol: z.string().min(1).max(24),
+    contractAddress: z.string().min(42).max(42),
+    balance: z.string().min(1).max(96),
+    capturedAt: z.string().datetime(),
+  }),
 });
 
 export type GuardActionPreview = z.infer<typeof guardActionPreviewSchema>;
@@ -105,7 +114,7 @@ function actionSteps(policy: PolicyRecommendation) {
   }
 }
 
-export function buildGuardActionPreview(event: CorporateEvent): GuardActionPreview {
+export function buildGuardActionPreview(event: CorporateEvent, position: MappedPosition): GuardActionPreview {
   const scope = systemsForEvent(event);
   const policy = buildDeterministicPolicy(event, { affectedSystems: scope, risk: riskForEvent(event) });
 
@@ -129,6 +138,14 @@ export function buildGuardActionPreview(event: CorporateEvent): GuardActionPrevi
     target: "MIHARI POLICY REGISTRY",
     chainId: 4663,
     execution: "preview_only",
+    evidence: {
+      type: "verified_direct_holding",
+      wallet: position.wallet,
+      symbol: position.symbol,
+      contractAddress: position.contractAddress,
+      balance: position.balance,
+      capturedAt: new Date().toISOString(),
+    },
   });
 }
 

@@ -187,6 +187,12 @@ export function GuardWorkflow({ event, held, holderAccess, holderThreshold }: Gu
         <span><HelpLabel label="SCOPE">Only the listed systems are part of this review.</HelpLabel><strong>{action.preview.scope.join(" / ").toUpperCase()}</strong></span>
         <span><HelpLabel label="EXECUTION">{helpCopy.executionPreview}</HelpLabel><strong>PREVIEW ONLY</strong></span>
       </div>
+      <div className="guard-evidence-strip">
+        <span className="mono">VERIFIED HOLDING</span>
+        <strong>{action.preview.evidence.balance} {action.preview.evidence.symbol}</strong>
+        <span className="mono">{action.preview.evidence.wallet.slice(0, 8)}...{action.preview.evidence.wallet.slice(-6)}</span>
+        <span className="mono">CONTRACT {action.preview.evidence.contractAddress.slice(0, 8)}...{action.preview.evidence.contractAddress.slice(-6)}</span>
+      </div>
       <div className="guard-preview-grid">
         <section><h4>ACTION STEPS</h4><ol>{action.preview.actionSteps.map((step) => <li key={step}><CheckCircle2 size={18} /><span>{step}</span></li>)}</ol></section>
         <section><h4>SAFETY BOUNDARIES</h4><ul>{action.preview.safetyBoundaries.map((boundary) => <li key={boundary}><LockKeyhole size={18} /><span>{boundary}</span></li>)}</ul></section>

@@ -94,6 +94,11 @@ export function GuardDecisionHistory() {
             <div><HelpLabel label="SOURCE HASH">Identifies the exact official event payload used to prepare this decision.</HelpLabel><code>{selected.sourceHash}</code></div>
             <div><HelpLabel label="DECISION HASH">{helpCopy.decisionReceipt}</HelpLabel><code>{selected.decisionHash ?? "NOT CREATED"}</code></div>
           </div>
+          <div className="guard-receipt-evidence">
+            <div><span className="mono">VERIFIED WALLET</span><code>{selected.preview.evidence.wallet}</code></div>
+            <div><span className="mono">HOLDING SNAPSHOT</span><strong>{selected.preview.evidence.balance} {selected.preview.evidence.symbol}</strong><small>{new Date(selected.preview.evidence.capturedAt).toLocaleString()}</small></div>
+            <div><span className="mono">STOCK TOKEN CONTRACT</span><code>{selected.preview.evidence.contractAddress}</code></div>
+          </div>
           <div className="guard-receipt-detail-grid">
             <section><h4>ACTION STEPS</h4><ol>{selected.preview.actionSteps.map((step) => <li key={step}>{step}</li>)}</ol></section>
             <section><h4>SAFETY BOUNDARIES</h4><ul>{selected.preview.safetyBoundaries.map((boundary) => <li key={boundary}>{boundary}</li>)}</ul></section>
