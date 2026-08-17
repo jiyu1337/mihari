@@ -1945,9 +1945,9 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .workspace-risk-file > header h2 { margin: 0; font-size: clamp(2rem, 4vw, 4rem); line-height: 0.95; letter-spacing: -0.06em; }
 .workspace-risk-file > header button { width: 40px; height: 40px; display: grid; place-items: center; border: 1px solid var(--ink); background: transparent; cursor: pointer; }
 .workspace-risk-meta { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--ink); }
-.workspace-risk-meta span { min-height: 70px; display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem; padding: 0.8rem; border-right: 1px solid var(--ink); color: var(--heather-3); font-size: 0.43rem; }
-.workspace-risk-meta span:last-child { border-right: 0; }
-.workspace-risk-meta strong { color: var(--ink); font-size: 0.52rem; }
+.workspace-risk-meta > span { min-height: 70px; display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem; padding: 0.8rem; border-right: 1px solid var(--ink); color: var(--heather-3); font-size: 0.43rem; }
+.workspace-risk-meta > span:last-child { border-right: 0; }
+.workspace-risk-meta > span > strong { color: var(--ink); font-size: 0.52rem; }
 .workspace-risk-analysis { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .workspace-risk-analysis section { min-width: 0; min-height: 220px; padding: 1.2rem; border-right: 1px solid var(--ink); }
 .workspace-risk-analysis section:last-child { border-right: 0; }
@@ -1955,9 +1955,9 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .workspace-risk-analysis span { font-size: 0.46rem; letter-spacing: 0.06em; }
 .workspace-risk-analysis p { margin: 3rem 0 0; overflow-wrap: anywhere; font-size: 1rem; line-height: 1.5; }
 .workspace-risk-file > footer { display: grid; grid-template-columns: 0.7fr 0.7fr 1.6fr; border-top: 1px solid var(--ink); }
-.workspace-risk-file > footer span { min-height: 68px; display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem; padding: 0.8rem; border-right: 1px solid var(--ink); color: var(--heather-3); font-size: 0.43rem; }
-.workspace-risk-file > footer span:last-child { border-right: 0; }
-.workspace-risk-file > footer strong { color: var(--ink); font-size: 0.5rem; }
+.workspace-risk-file > footer > span { min-height: 68px; display: flex; flex-direction: column; justify-content: space-between; gap: 0.5rem; padding: 0.8rem; border-right: 1px solid var(--ink); color: var(--heather-3); font-size: 0.43rem; }
+.workspace-risk-file > footer > span:last-child { border-right: 0; }
+.workspace-risk-file > footer > span > strong { color: var(--ink); font-size: 0.5rem; }
 .workspace-risk-error { margin: 0; padding: 0.8rem; border-top: 1px solid var(--ink); color: var(--paper); background: #8c250f; font-size: 0.48rem; }
 .workspace-event-status { min-height: 62px; display: grid; grid-template-columns: 1fr 1fr 1fr 128px; border-bottom: 1px solid var(--ink); }
 .workspace-event-status > span { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0 1rem; border-right: 1px solid var(--ink); color: var(--heather-3); font-size: 0.45rem; }
@@ -2783,10 +2783,10 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
   .workspace-risk-analysis section { border-right: 0; border-bottom: 1px solid var(--ink); }
   .workspace-risk-analysis section:last-child { border-bottom: 0; }
   .workspace-risk-meta { grid-template-columns: 1fr 1fr; }
-  .workspace-risk-meta span:nth-child(2) { border-right: 0; }
+  .workspace-risk-meta > span:nth-child(2) { border-right: 0; }
   .workspace-risk-file > footer { grid-template-columns: 1fr; }
-  .workspace-risk-file > footer span { border-right: 0; border-bottom: 1px solid var(--ink); }
-  .workspace-risk-file > footer span:last-child { border-bottom: 0; }
+  .workspace-risk-file > footer > span { border-right: 0; border-bottom: 1px solid var(--ink); }
+  .workspace-risk-file > footer > span:last-child { border-bottom: 0; }
   .workspace-email-link { align-items: flex-start; flex-direction: column; }
   .workspace-event-status { grid-template-columns: 1fr 1fr 76px; }
   .workspace-event-status > span:nth-child(3) { display: none; }
