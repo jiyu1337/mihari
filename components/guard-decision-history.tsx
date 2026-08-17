@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { CheckCircle2, Clock3, FileKey2, LoaderCircle, XCircle } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock3, FileKey2, LoaderCircle, X, XCircle } from "lucide-react";
 import { HelpLabel } from "@/components/help-tip";
 import type { GuardActionRecord } from "@/lib/guard-action";
 import { helpCopy } from "@/lib/help-content";
@@ -22,6 +22,7 @@ export function GuardDecisionHistory() {
   const [actions, setActions] = useState<GuardActionRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [warning, setWarning] = useState("");
+  const [selectedId, setSelectedId] = useState("");
 
   const sync = useCallback(async () => {
     setLoading(true);
@@ -58,6 +59,8 @@ export function GuardDecisionHistory() {
     );
   }
 
+  const selected = actions.find((action) => action.id === selectedId) ?? null;
+
   return (
     <section className="guard-history">
       <header>
@@ -71,9 +74,33 @@ export function GuardDecisionHistory() {
             <div><span className="mono">ASSET / INTENT</span><strong>{action.symbol} / {action.intent.replaceAll("_", " ").toUpperCase()}</strong></div>
             <div><span className="mono">RECORDED</span><strong>{new Date(action.approvedAt ?? action.updatedAt).toLocaleString()}</strong></div>
             <div><HelpLabel label="DECISION RECEIPT" align="end">{helpCopy.decisionReceipt}</HelpLabel><strong className="mono">{action.decisionHash ? `${action.decisionHash.slice(0, 10)}...${action.decisionHash.slice(-8)}` : "NOT CREATED"}</strong></div>
+            <button type="button" onClick={() => setSelectedId(action.id)}>OPEN <ArrowRight size={16} /></button>
           </article>
         ))}
       </div>
+      {selected ? (
+        <article className="guard-receipt-inspector">
+          <header>
+            <div><span className="mono">PRIVATE RECEIPT / {selected.symbol}</span><h3>{selected.preview.title}</h3></div>
+            <button type="button" aria-label="Close receipt" onClick={() => setSelectedId("")}><X size={20} /></button>
+          </header>
+          <div className="guard-receipt-facts">
+            <div><span className="mono">STATUS</span><strong>{selected.status.toUpperCase()}</strong></div>
+            <div><span className="mono">CHAIN</span><strong>ROBINHOOD / {selected.preview.chainId}</strong></div>
+            <div><span className="mono">EXECUTION</span><strong>NOT SUBMITTED</strong></div>
+            <div><span className="mono">SCOPE</span><strong>{selected.preview.scope.join(" / ").toUpperCase()}</strong></div>
+          </div>
+          <div className="guard-receipt-hashes">
+            <div><HelpLabel label="SOURCE HASH">Identifies the exact official event payload used to prepare this decision.</HelpLabel><code>{selected.sourceHash}</code></div>
+            <div><HelpLabel label="DECISION HASH">{helpCopy.decisionReceipt}</HelpLabel><code>{selected.decisionHash ?? "NOT CREATED"}</code></div>
+          </div>
+          <div className="guard-receipt-detail-grid">
+            <section><h4>ACTION STEPS</h4><ol>{selected.preview.actionSteps.map((step) => <li key={step}>{step}</li>)}</ol></section>
+            <section><h4>SAFETY BOUNDARIES</h4><ul>{selected.preview.safetyBoundaries.map((boundary) => <li key={boundary}>{boundary}</li>)}</ul></section>
+          </div>
+          <footer><span className="mono">OPERATOR NOTE</span><p>{selected.approvalNote || "No operator note was added."}</p></footer>
+        </article>
+      ) : null}
       {warning ? <p className="guard-error mono">{warning}</p> : null}
     </section>
   );
