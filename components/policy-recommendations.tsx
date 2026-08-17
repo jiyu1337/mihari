@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { HelpLabel } from "@/components/help-tip";
 import { GuardWorkflow } from "@/components/guard-workflow";
+import { GuardDecisionHistory } from "@/components/guard-decision-history";
 import type { AnalysisResponse, PolicyRecommendation } from "@/lib/analysis";
 import { helpCopy } from "@/lib/help-content";
 import type { CorporateEvent } from "@/lib/product-data";
@@ -229,6 +230,8 @@ export function PolicyRecommendations({
           <button type="button" onClick={onOpenEvents}>OPEN EVENT REGISTER</button>
         </div>
       )}
+
+      <GuardDecisionHistory />
 
       <div className="policy-boundary">
         <span className="mono">PRODUCT BOUNDARY</span>

@@ -489,7 +489,7 @@ export default function DocsPage() {
               Robinhood source and the affected Stock Token is held in a verified wallet.
               Watchlist-only assets remain research signals.
             </p>
-            <div className="docs-flow docs-workflow">
+            <div className="docs-flow">
               <div><Database size={20} /><span className="mono">01 / REVERIFY</span><strong>Read the event again</strong><p>The server fetches the official event again and creates a source hash. Browser text is never accepted as evidence.</p></div>
               <div><Wallet size={20} /><span className="mono">02 / PROVE SCOPE</span><strong>Check access and holding</strong><p>The server confirms MHR Holder access and an actual Stock Token balance in a verified wallet.</p></div>
               <div><ListChecks size={20} /><span className="mono">03 / PREVIEW</span><strong>Show every boundary</strong><p>The user sees the intended action, systems in scope, checks, action steps and closing conditions before approval.</p></div>

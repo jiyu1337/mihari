@@ -91,6 +91,7 @@ export function GuardWorkflow({ event, held, holderAccess, holderThreshold }: Gu
       const payload = await response.json() as GuardResponse;
       if (!response.ok || !payload.action) throw new Error(payload.error ?? "Could not prepare Guard action");
       setActions((current) => [payload.action!, ...current.filter((item) => item.id !== payload.action!.id)]);
+      window.dispatchEvent(new Event("mihari:guard-updated"));
       setChecks([false, false, false]);
       setConfirmation("");
     } catch (requestError) {
@@ -113,6 +114,7 @@ export function GuardWorkflow({ event, held, holderAccess, holderThreshold }: Gu
       const payload = await response.json() as GuardResponse;
       if (!response.ok || !payload.action) throw new Error(payload.error ?? "Could not record Guard decision");
       setActions((current) => current.map((item) => item.id === payload.action!.id ? payload.action! : item));
+      window.dispatchEvent(new Event("mihari:guard-updated"));
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : "Could not record Guard decision");
     } finally {
