@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ArrowRight, CheckCircle2, Clock3, Download, FileKey2, LoaderCircle, X, XCircle } from "lucide-react";
+import { ArrowRight, CheckCircle2, Clock3, Download, FileKey2, LoaderCircle, Trash2, X, XCircle } from "lucide-react";
 import { HelpLabel } from "@/components/help-tip";
 import type { GuardActionRecord } from "@/lib/guard-action";
 import { helpCopy } from "@/lib/help-content";
@@ -23,6 +23,7 @@ export function GuardDecisionHistory() {
   const [loading, setLoading] = useState(true);
   const [warning, setWarning] = useState("");
   const [selectedId, setSelectedId] = useState("");
+  const [deletingId, setDeletingId] = useState("");
 
   function exportReceipt(action: GuardActionRecord) {
     const receipt = {
@@ -47,6 +48,30 @@ export function GuardDecisionHistory() {
     anchor.download = `mihari-guard-${action.symbol.toLowerCase()}-${action.id.slice(0, 8)}.json`;
     anchor.click();
     URL.revokeObjectURL(url);
+  }
+
+  async function deleteRecord(action: GuardActionRecord) {
+    const confirmed = window.confirm(`Delete the ${action.symbol} Guard record? This cannot be undone.`);
+    if (!confirmed) return;
+
+    setDeletingId(action.id);
+    setWarning("");
+    try {
+      const response = await fetch("/api/profile/guard-actions", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: action.id }),
+      });
+      const payload = await response.json() as { deleted?: string; error?: string };
+      if (!response.ok) throw new Error(payload.error ?? "Could not delete Guard record");
+      setActions((current) => current.filter((record) => record.id !== action.id));
+      setSelectedId("");
+      window.dispatchEvent(new CustomEvent("mihari:guard-updated"));
+    } catch (requestError) {
+      setWarning(requestError instanceof Error ? requestError.message : "Could not delete Guard record");
+    } finally {
+      setDeletingId("");
+    }
   }
 
   const sync = useCallback(async () => {
@@ -109,7 +134,8 @@ export function GuardDecisionHistory() {
             <div><span className="mono">PRIVATE RECEIPT / {selected.symbol}</span><h3>{selected.preview.title}</h3></div>
             <div className="guard-receipt-controls">
               <button type="button" onClick={() => exportReceipt(selected)}><Download size={18} />EXPORT JSON</button>
-              <button type="button" aria-label="Close receipt" onClick={() => setSelectedId("")}><X size={20} /></button>
+              <button className="danger" type="button" disabled={deletingId === selected.id} onClick={() => void deleteRecord(selected)}><Trash2 size={18} />{deletingId === selected.id ? "DELETING" : "DELETE RECORD"}</button>
+              <button className="close" type="button" aria-label="Close receipt" onClick={() => setSelectedId("")}><X size={20} /></button>
             </div>
           </header>
           <div className="guard-receipt-facts">

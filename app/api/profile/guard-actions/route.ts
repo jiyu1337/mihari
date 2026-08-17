@@ -28,6 +28,10 @@ const decisionSchema = z.object({
   note: z.string().trim().max(280).optional().default(""),
 });
 
+const deleteSchema = z.object({
+  id: z.string().uuid(),
+});
+
 function json(body: unknown, status = 200) {
   return Response.json(body, {
     status,
@@ -262,4 +266,24 @@ export async function PATCH(request: Request) {
       chainStatus: "not_submitted",
     },
   });
+}
+
+export async function DELETE(request: Request) {
+  const account = await getAuthenticatedAccount();
+  if (!account) return json({ error: "Unauthorized" }, 401);
+  if (!getDatabaseUrl()) return json({ error: "Decision storage is unavailable" }, 503);
+
+  const parsed = deleteSchema.safeParse(await request.json().catch(() => null));
+  if (!parsed.success) return json({ error: "Invalid Guard record request" }, 400);
+
+  const [deleted] = await getDatabase()
+    .delete(guardActions)
+    .where(and(
+      eq(guardActions.id, parsed.data.id),
+      eq(guardActions.accountId, account.id),
+    ))
+    .returning({ id: guardActions.id });
+
+  if (!deleted) return json({ error: "Guard record not found" }, 404);
+  return json({ deleted: deleted.id });
 }
