@@ -26,6 +26,8 @@ export type ProductEntitlements = {
     officialEvents: true;
     protocolExposure: boolean;
     fullRiskGraph: boolean;
+    guardActions: boolean;
+    privateDecisionReceipts: boolean;
   };
 };
 
@@ -61,6 +63,8 @@ export function entitlementsFromHoldings(holdings: MhrHolding[]): ProductEntitle
       officialEvents: true,
       protocolExposure: holder,
       fullRiskGraph: holder,
+      guardActions: holder,
+      privateDecisionReceipts: holder,
     },
   };
 }

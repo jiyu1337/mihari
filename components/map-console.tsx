@@ -382,7 +382,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
           <div className="workspace-access-banner mono">
             <strong>OBSERVER ACCESS</strong>
             <span>10 WATCHLIST ASSETS / DIRECT HOLDINGS + GRAPH</span>
-            <span>HOLD {formatTokenThreshold(entitlements?.holderThreshold)} MHR TO UNLOCK DEFI SCANNING, 30 ASSETS AND 5 WALLETS</span>
+            <span>HOLD {formatTokenThreshold(entitlements?.holderThreshold)} MHR TO UNLOCK DEFI, GUARD, 30 ASSETS AND 5 WALLETS</span>
             <button type="button" onClick={() => setView("wallets")}>CHECK STATUS</button>
           </div>
         ) : null}
@@ -406,10 +406,10 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
                   <p className="mono">CURRENT ACCESS</p>
                   <h2>{isHolder ? "$MHR Holder" : holderCheckUnavailable ? "Verification unavailable" : "Observer"}</h2>
                   <p>{isHolder
-                    ? "Personal DeFi scanning across up to five verified wallets and protocol paths in the Risk Graph are active."
+                    ? "Personal DeFi scanning, the full Risk Graph and Guard decision receipts are active across up to five verified wallets."
                     : holderCheckUnavailable
                       ? "Direct holdings, official events and watchlist research remain active. MIHARI could not verify the current MHR balance, so personal DeFi scanning stays locked until the balance source responds."
-                      : `Direct holdings, official events and watchlist research are active. Hold ${formatTokenThreshold(entitlements?.holderThreshold)} MHR to unlock personal DeFi scans and higher limits.`}</p>
+                      : `Direct holdings, official events and watchlist research are active. Hold ${formatTokenThreshold(entitlements?.holderThreshold)} MHR to unlock personal DeFi scans, Guard actions and higher limits.`}</p>
                 </div>
               </div>
               <div className="workspace-access-limits">
@@ -594,7 +594,7 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
             <div className="workspace-profile-grid">
               <article><CircleUserRound size={25} /><span className="mono">PRIMARY ACCESS</span><h2>{profile?.account.primaryMethod === "wallet" ? "Wallet signature" : "Email and password"}</h2><p>{profile?.account.email ?? profile?.wallets[0]?.address ?? "MIHARI profile"}</p></article>
               <article><Activity size={25} /><span className="mono">ADD ACCESS METHOD</span><h2>{profile?.account.email ? "Email connected" : "Add recovery email"}</h2><p>{profile?.account.email ? "You can access this profile by email and linked wallet." : "Connect email access without losing this wallet profile."}</p>{profile?.account.email ? <button onClick={() => setView("wallets")}>MANAGE WALLETS</button> : <Link href="/sign-in?redirect_url=/map">ADD EMAIL ACCESS <ArrowRight size={14} /></Link>}</article>
-              <article><FileCheck2 size={25} /><span className="mono">PRODUCT ACCESS</span><h2>{isHolder ? "$MHR Holder" : "Observer"}</h2><p>{isHolder ? "Higher limits, multi-wallet DeFi scanning and protocol paths in the Risk Graph are unlocked." : `Direct holdings and watchlist signals are active. Hold ${formatTokenThreshold(entitlements?.holderThreshold)} MHR to unlock personal DeFi scans and higher limits.`}</p></article>
+              <article><FileCheck2 size={25} /><span className="mono">PRODUCT ACCESS</span><h2>{isHolder ? "$MHR Holder" : "Observer"}</h2><p>{isHolder ? "Higher limits, multi-wallet DeFi scanning, the full Risk Graph and Guard decision receipts are unlocked." : `Direct holdings and watchlist signals are active. Hold ${formatTokenThreshold(entitlements?.holderThreshold)} MHR to unlock personal DeFi scans, Guard actions and higher limits.`}</p></article>
             </div>
           </section>
         ) : null}
