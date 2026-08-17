@@ -36,6 +36,7 @@ const statusRows = [
   ["Policy Recommendations", "Beta", "Turns a verified event into a structured operator review plan with checks, boundaries and clear conditions."],
   ["Guard Action Preview", "Beta", "Lets MHR Holders prepare and explicitly approve a bounded response for an official event matched to a verified wallet holding."],
   ["Private decision receipts", "Beta", "Stores a private audit hash for the verified event, reviewed preview and operator decision without submitting a transaction."],
+  ["Share Signal", "Live", "Creates a privacy-safe public risk summary and branded X card without exposing wallet addresses, balances or private receipt data."],
   ["MHR Holder access", "Beta", "Unlocks larger limits, personal DeFi scanning and protocol paths in the Risk Graph after an onchain balance check."],
   ["Protocol coverage registry", "Live", "Separates active adapters from planned Robinhood Chain integrations."],
   ["Protocol execution", "Next", "Guard approval remains private and does not pause protocols, move funds or submit a transaction today."],
@@ -53,7 +54,7 @@ export default function DocsPage() {
       <SiteHeader />
       <div className="docs-shell">
         <aside className="docs-sidebar">
-          <p className="mono">MIHARI DOCS / v0.4</p>
+          <p className="mono">MIHARI DOCS / v0.5</p>
           <nav aria-label="Documentation sections">
             <a href="#overview">Overview</a>
             <a href="#how-it-works">User workflow</a>
@@ -70,6 +71,7 @@ export default function DocsPage() {
             <a href="#defi-exposure">DeFi Exposure</a>
             <a href="#policy-recommendations">Policy Recommendations</a>
             <a href="#guard-actions">Guard Actions</a>
+            <a href="#share-signal">Share Signal</a>
             <a href="#status">What works today</a>
             <a href="#terms">Key terms</a>
           </nav>
@@ -510,8 +512,28 @@ export default function DocsPage() {
             </div>
           </section>
 
+          <section className="docs-section" id="share-signal">
+            <p className="docs-kicker mono">15 / SHARE SIGNAL</p>
+            <h2>Share the warning, not your private data.</h2>
+            <p>
+              Share Signal turns a MIHARI finding into a short public post and a branded preview
+              card for X. It is available from watchlist events, personal risk files and Guard
+              decision history. The user always reviews the post before publishing it.
+            </p>
+            <div className="docs-result-grid">
+              <div><span className="mono">PUBLIC CONTEXT</span><strong>A useful risk summary</strong><p>The card can show the Stock Token symbol, corporate-action type, review level, signal context and systems that may need attention.</p></div>
+              <div><span className="mono">PRIVATE BY DESIGN</span><strong>Personal data stays out</strong><p>Wallet addresses, token balances, email addresses, private receipt hashes and internal evidence snapshots are never added to the share URL or card.</p></div>
+              <div><span className="mono">THREE CONTEXTS</span><strong>Holding, watchlist or Guard</strong><p>The wording clearly separates verified exposure from a research signal and from a recorded Guard decision.</p></div>
+              <div><span className="mono">USER CONTROL</span><strong>Nothing posts automatically</strong><p>MIHARI opens an X composer with prepared text. The user can edit, cancel or publish it.</p></div>
+            </div>
+            <div className="docs-callout">
+              <strong>A shared signal is not proof of ownership or loss.</strong>
+              <p>It is a public summary of a MIHARI review context. The private workspace remains the source for verified holdings, evidence and decision receipts.</p>
+            </div>
+          </section>
+
           <section className="docs-section" id="status">
-            <p className="docs-kicker mono">15 / PRODUCT STATUS</p>
+            <p className="docs-kicker mono">16 / PRODUCT STATUS</p>
             <h2>What works today - and what does not.</h2>
             <div className="status-table">
               {statusRows.map(([feature, status, explanation]) => (
@@ -525,7 +547,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="terms">
-            <p className="docs-kicker mono">16 / KEY TERMS</p>
+            <p className="docs-kicker mono">17 / KEY TERMS</p>
             <h2>A short glossary.</h2>
             <dl className="docs-glossary">
               <div><dt>NAV</dt><dd>Net Asset Value: the calculated value of assets held by a vault or fund, minus its liabilities.</dd></div>

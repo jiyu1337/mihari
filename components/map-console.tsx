@@ -36,12 +36,14 @@ import { PolicyRecommendations } from "@/components/policy-recommendations";
 import { ProfileSignOut } from "@/components/profile-sign-out";
 import { ProtocolExposure } from "@/components/protocol-exposure";
 import { RiskGraph } from "@/components/risk-graph";
+import { ShareSignalButton } from "@/components/share-signal";
 import type { AnalysisResponse } from "@/lib/analysis";
 import type { ProductEntitlements } from "@/lib/entitlements";
 import { helpCopy } from "@/lib/help-content";
 import type { MappedPosition, MhrHolding } from "@/lib/map-data";
 import { MHR_CONTRACT_ADDRESS } from "@/lib/token";
 import type { CorporateEvent } from "@/lib/product-data";
+import { normalizeShareRisk } from "@/lib/share-signal";
 import type { RobinhoodAsset } from "@/lib/robinhood";
 import { timedFetch, walletRequest, type EthereumProvider } from "@/lib/wallet-client";
 
@@ -564,7 +566,16 @@ export function MapConsole({ authUnavailable = false }: MapConsoleProps) {
               <article className="workspace-risk-file" ref={riskFileRef} aria-label={`${openRiskPosition.symbol} personal risk file`}>
                 <header>
                   <div><p className="mono">PERSONAL RISK FILE / OFFICIAL EVENT MATCH</p><h2>{openRiskPosition.symbol} touches your wallet.</h2></div>
-                  <button type="button" aria-label="Close personal risk file" onClick={() => setOpenRiskSymbol("")}><X size={18} /></button>
+                  <div className="workspace-risk-header-actions">
+                    <ShareSignalButton
+                      symbol={openRiskPosition.symbol}
+                      eventType={openRiskEvent.type}
+                      risk={normalizeShareRisk(openRiskAnalysis?.risk ?? eventRiskLabel(openRiskEvent))}
+                      context="holding"
+                      systems={openRiskAnalysis?.affectedSystems ?? []}
+                    />
+                    <button className="close" type="button" aria-label="Close personal risk file" onClick={() => setOpenRiskSymbol("")}><X size={18} /></button>
+                  </div>
                 </header>
                 <div className="workspace-risk-meta mono">
                   <span>POSITION <strong>{Number(openRiskPosition.balance).toLocaleString(undefined, { maximumFractionDigits: 6 })} {openRiskPosition.symbol}</strong></span>

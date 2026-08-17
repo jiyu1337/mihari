@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { AlertTriangle, ArrowRight, LoaderCircle, RefreshCw, ShieldCheck } from "lucide-react";
 import { HelpLabel } from "@/components/help-tip";
+import { ShareSignalButton } from "@/components/share-signal";
 import type { AnalysisResponse } from "@/lib/analysis";
 import { helpCopy } from "@/lib/help-content";
 import type { CorporateEvent } from "@/lib/product-data";
+import { normalizeShareRisk } from "@/lib/share-signal";
 
 type EventFeedResponse = {
   mode: "live" | "fallback";
@@ -154,6 +156,13 @@ export function ProfileEvents({ heldSymbols, watchlistLimit, onOpenExposure, onO
               <footer>
                 <span className="mono"><HelpLabel label="AFFECTED SYSTEMS">{helpCopy.affectedSystems}</HelpLabel><strong>{selectedAnalysis?.affectedSystems.join(" / ").toUpperCase() ?? "ANALYSIS PENDING"}</strong></span>
                 <div className="workspace-event-actions">
+                  <ShareSignalButton
+                    symbol={selectedEvent.asset}
+                    eventType={selectedEvent.type}
+                    risk={normalizeShareRisk(riskLabel(selectedEvent, selectedAnalysis))}
+                    context={heldSet.has(selectedEvent.asset.toUpperCase()) ? "holding" : "watchlist"}
+                    systems={selectedAnalysis?.affectedSystems ?? []}
+                  />
                   <button type="button" onClick={onOpenPolicy}>OPEN POLICY <ArrowRight size={14} /></button>
                   {heldSet.has(selectedEvent.asset.toUpperCase()) ? <button type="button" onClick={onOpenExposure}>OPEN PERSONAL EXPOSURE <ArrowRight size={14} /></button> : null}
                 </div>

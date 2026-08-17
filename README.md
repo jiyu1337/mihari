@@ -82,6 +82,7 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Policy Recommendations | `BETA` | Converts verified events into structured advisory plans with priority, scope, required checks, apply conditions and clear conditions |
 | Guard Action Preview | `BETA` | Lets MHR Holders prepare a bounded action for an official event matched to a verified wallet holding |
 | Private decision receipts | `BETA` | Records the event hash, reviewed preview and explicit operator decision in the private MIHARI workspace |
+| Share Signal | `LIVE` | Creates a public X post and branded risk card without exposing wallet addresses, balances or private receipt data |
 | MHR Holder access | `BETA` | Unlocks larger limits, personal DeFi scanning and protocol paths in the Risk Graph after an onchain balance check |
 | Ecosystem coverage registry | `LIVE` | Shows which Robinhood Chain sources are checked today and which adapters remain planned |
 | Protocol execution | `NEXT` | Guard approval does not submit a protocol transaction or move funds today |
@@ -245,6 +246,7 @@ scripts/              Database and maintenance scripts
 - Never commit `.env` or `.env.local`.
 - Never expose API keys, database credentials or wallet private keys to the browser.
 - MIHARI will never ask for a seed phrase or private key.
+- Share Signal includes only public risk context. It excludes wallet addresses, balances, email addresses, private receipt hashes and internal evidence snapshots.
 - Report suspected credential leaks privately before opening a public issue.
 
 ## Disclaimer

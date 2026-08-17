@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { ArrowRight, CheckCircle2, Clock3, Download, FileKey2, LoaderCircle, Trash2, X, XCircle } from "lucide-react";
 import { HelpLabel } from "@/components/help-tip";
+import { ShareSignalButton } from "@/components/share-signal";
 import type { GuardActionRecord } from "@/lib/guard-action";
 import { helpCopy } from "@/lib/help-content";
 
@@ -133,6 +134,13 @@ export function GuardDecisionHistory() {
           <header>
             <div><span className="mono">PRIVATE RECEIPT / {selected.symbol}</span><h3>{selected.preview.title}</h3></div>
             <div className="guard-receipt-controls">
+              <ShareSignalButton
+                symbol={selected.symbol}
+                eventType="GUARD DECISION"
+                risk={selected.preview.priority === "urgent" ? "high" : selected.preview.priority === "review" ? "medium" : "low"}
+                context="guard"
+                systems={selected.preview.scope}
+              />
               <button type="button" onClick={() => exportReceipt(selected)}><Download size={18} />EXPORT JSON</button>
               <button className="danger" type="button" disabled={deletingId === selected.id} onClick={() => void deleteRecord(selected)}><Trash2 size={18} />{deletingId === selected.id ? "DELETING" : "DELETE RECORD"}</button>
               <button className="close" type="button" aria-label="Close receipt" onClick={() => setSelectedId("")}><X size={20} /></button>
