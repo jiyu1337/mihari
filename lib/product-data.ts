@@ -72,26 +72,30 @@ export const corporateEvents: CorporateEvent[] = [
 export const protectionSteps = [
   {
     index: "01",
+    status: "LIVE",
     label: "OBSERVE / 監視",
     title: "Read the official event",
     body: "Asset metadata, corporate actions and prices are normalized into one incident record.",
   },
   {
     index: "02",
+    status: "LIVE",
     label: "INTERPRET / 解釈",
     title: "AI maps the consequences",
     body: "The agent explains affected positions, timing risk and the safest permitted response.",
   },
   {
     index: "03",
+    status: "ADVISORY",
     label: "ENFORCE / 実行",
-    title: "Policy controls the action",
-    body: "Deterministic rules pause, restrict or rebalance connected onchain systems.",
+    title: "Policy defines the review",
+    body: "Structured rules define checks, boundaries and operator decisions. Nothing executes automatically.",
   },
   {
     index: "04",
+    status: "NEXT",
     label: "PROVE / 証明",
     title: "Robinhood Chain keeps the receipt",
-    body: "The event hash, policy decision and execution proof become independently auditable.",
+    body: "Approved Guard actions will create an auditable record of the event, decision and execution.",
   },
 ];

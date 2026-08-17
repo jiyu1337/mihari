@@ -156,27 +156,30 @@ export function OnboardingConsole() {
               <p className="section-kicker mono">01 / IDENTITY LAYER</p>
               <h1>Choose your access.</h1>
               <p>
-                Wallet connection is a read-only identity today. MIHARI requests an account
-                and switches to Robinhood Chain, but never asks for transaction approval here.
+                Create a personal profile with email or a wallet signature, or enter the public
+                monitor without an account. Wallet access never asks for transaction approval.
               </p>
             </div>
             <div className="identity-options">
               <Link className="identity-choice" href="/sign-in">
-                <span className="choice-index mono">A-01 / PERSONAL MAP</span>
+                <span className="choice-index mono">A-01 / EMAIL ACCESS</span>
+                <span className="choice-status mono">PROFILE</span>
                 <Mail size={28} strokeWidth={1.4} />
-                <strong>Sign in with email</strong>
-                <small>Save watchlists, link wallets and map your positions</small>
+                <strong>Continue with email</strong>
+                <small>Sign in or create a profile, then link wallets and save your monitoring scope</small>
                 <ArrowRight size={18} />
               </Link>
-              <Link className="identity-choice" href="/sign-in?redirect_url=/map">
-                <span className="choice-index mono">A–01 / CHAIN 4663</span>
+              <Link className="identity-choice" href="/map">
+                <span className="choice-index mono">A-02 / WALLET ACCESS</span>
+                <span className="choice-status mono">PROFILE</span>
                 <Wallet size={28} strokeWidth={1.4} />
-                <strong>Link wallet to profile</strong>
-                <small>Sign in first, then verify ownership with a free message signature</small>
+                <strong>Continue with wallet</strong>
+                <small>Create or open your MIHARI profile with a free message signature</small>
                 <ArrowRight size={18} />
               </Link>
               <button className="identity-choice" onClick={() => setStep(2)}>
-                <span className="choice-index mono">A–02 / NO WALLET</span>
+                <span className="choice-index mono">A-03 / PUBLIC ACCESS</span>
+                <span className="choice-status mono">3 ASSETS</span>
                 <span className="readonly-glyph mono">R/O</span>
                 <strong>Continue read-only</strong>
                 <small>No funds, signature or transaction permissions</small>

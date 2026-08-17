@@ -561,6 +561,30 @@ a {
   letter-spacing: 0.1em;
 }
 
+.step-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 0 0 0.9rem;
+}
+
+.step-meta .step-label { margin: 0; }
+
+.step-status {
+  flex: none;
+  padding: 0.35rem 0.45rem;
+  border: 1px solid var(--ink);
+  background: var(--white);
+  font-size: 0.54rem;
+  letter-spacing: 0.08em;
+}
+
+.step-status.live { background: var(--neon); }
+.step-status.advisory { background: #ffd33d; }
+.step-status.next { color: var(--heather-3); border-color: var(--heather-3); }
+.system-steps li:hover .step-status { background: var(--white); }
+
 .system-steps h3,
 .protocol-grid h3 {
   margin: 0 0 0.5rem;
@@ -914,6 +938,19 @@ a {
   font-size: 0.56rem;
   letter-spacing: 0.1em;
 }
+
+.choice-status {
+  position: absolute;
+  top: 1.45rem;
+  right: 1.5rem;
+  padding: 0.3rem 0.4rem;
+  border: 1px solid var(--ink);
+  background: var(--white);
+  font-size: 0.52rem;
+  letter-spacing: 0.08em;
+}
+
+.identity-choice:hover .choice-status { background: var(--paper); }
 
 .setup-error {
   margin: 1.2rem 0 0;
@@ -2238,6 +2275,15 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .protocol-empty button,
 .risk-graph-empty button { font-size: max(0.68rem, 10.8px); }
 .workspace-event-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.workspace-mhr-status > span,
+.workspace-mhr-status > strong,
+.workspace-mhr-status > small,
+.workspace-mhr-status > a,
+.workspace-position-status small,
+.workspace-position-status button,
+.workspace-event-status > span,
+.workspace-event-status button { font-size: max(0.68rem, 10.8px); }
 
 /* Policy recommendations */
 .policy-title h1 { max-width: 980px; }

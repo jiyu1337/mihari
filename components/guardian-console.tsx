@@ -194,7 +194,7 @@ export function GuardianConsole() {
         <nav aria-label="Guardian console">
           <Link className="active" href="/app"><Activity size={17} />Events</Link>
           <Link href="/map"><Orbit size={17} />Map <small>NEW</small></Link>
-          <Link href="/docs#status"><ShieldCheck size={17} />Policies <small>SOON</small></Link>
+          <Link href="/map"><ShieldCheck size={17} />Policies <small>LIVE</small></Link>
           <Link href="/docs#status"><FileCheck2 size={17} />Proofs <small>SOON</small></Link>
           <Link href="/docs"><Orbit size={17} />Docs</Link>
           <Link href="/launch"><Settings2 size={17} />Setup</Link>

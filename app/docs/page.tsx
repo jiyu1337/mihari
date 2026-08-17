@@ -51,7 +51,7 @@ export default function DocsPage() {
       <SiteHeader />
       <div className="docs-shell">
         <aside className="docs-sidebar">
-          <p className="mono">MIHARI DOCS / v0.2</p>
+          <p className="mono">MIHARI DOCS / v0.3</p>
           <nav aria-label="Documentation sections">
             <a href="#overview">Overview</a>
             <a href="#how-it-works">User workflow</a>

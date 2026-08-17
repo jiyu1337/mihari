@@ -35,8 +35,8 @@ export default function Home() {
         </div>
         <div className="hero-sidecopy">
           <p>
-            MIHARI detects corporate actions, interprets portfolio impact and prepares
-            auditable protection responses for Robinhood Chain.
+            MIHARI detects corporate actions, maps wallet and DeFi exposure and turns
+            verified events into reviewable policy recommendations for Robinhood Chain.
           </p>
           <Link className="primary-action" href="/launch">
             Start monitoring <ArrowRight size={18} />
@@ -108,7 +108,10 @@ export default function Home() {
             <li key={step.index}>
               <span className="step-number mono">{step.index}</span>
               <div>
-                <p className="step-label mono">{step.label}</p>
+                <div className="step-meta mono">
+                  <p className="step-label">{step.label}</p>
+                  <span className={`step-status ${step.status.toLowerCase()}`}>{step.status}</span>
+                </div>
                 <h3>{step.title}</h3>
                 <p>{step.body}</p>
               </div>
@@ -143,7 +146,7 @@ export default function Home() {
             <Fingerprint size={24} strokeWidth={1.5} />
             <span className="protocol-code mono">CHAIN / 03</span>
             <h3>Policy and proof</h3>
-            <p>Guardrails, execution receipts and event attestations on Robinhood Chain.</p>
+            <p>Policy recommendations are live. Approval-based execution receipts and event attestations come next.</p>
           </article>
           <article>
             <Database size={24} strokeWidth={1.5} />
