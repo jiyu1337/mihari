@@ -13,6 +13,11 @@ export async function GET() {
     status: "public_beta",
     description: "Read-only Robinhood Stock Token risk context for dashboards, research tools and protocol integrations.",
     documentation: "https://mihari.pro/developers",
+    agentIntegration: {
+      openapi: "https://mihari.pro/api/v1/openapi.json",
+      manifest: "https://mihari.pro/api/v1/agent-manifest",
+      llms: "https://mihari.pro/llms.txt",
+    },
     endpoints: [
       { method: "GET", path: "/api/v1/catalog", description: "Active Robinhood Stock Token catalog and contract metadata." },
       { method: "GET", path: "/api/v1/events", description: "Official corporate-action records." },
