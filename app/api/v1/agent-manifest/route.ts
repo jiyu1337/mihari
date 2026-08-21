@@ -7,8 +7,9 @@ export async function GET() {
     name: "MIHARI Stock Token Risk Agent Tools",
     version: "2026-08-21",
     openapi: "https://mihari.pro/api/v1/openapi.json",
+    mcp: "https://mihari.pro/mcp",
     documentation: "https://mihari.pro/developers",
-    intendedFor: ["AI agents", "research copilots", "risk dashboards", "protocol monitoring tools"],
+    intendedFor: ["MCP clients", "AI agents", "research copilots", "risk dashboards", "protocol monitoring tools"],
     tools: [
       { name: "getRiskFeed", endpoint: "/api/v1/risk-feed?symbols={symbols}", useWhen: "A user asks about current corporate-action risk for up to 10 Stock Tokens." },
       { name: "getQuoteIntegrity", endpoint: "/api/v1/quote-integrity?symbols={symbols}", useWhen: "A user needs to understand whether a raw price and multiplier state need review." },

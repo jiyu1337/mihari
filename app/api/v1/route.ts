@@ -17,6 +17,7 @@ export async function GET() {
       openapi: "https://mihari.pro/api/v1/openapi.json",
       manifest: "https://mihari.pro/api/v1/agent-manifest",
       llms: "https://mihari.pro/llms.txt",
+      mcp: "https://mihari.pro/mcp",
     },
     endpoints: [
       { method: "GET", path: "/api/v1/catalog", description: "Active Robinhood Stock Token catalog and contract metadata." },

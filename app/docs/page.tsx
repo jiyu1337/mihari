@@ -37,7 +37,7 @@ const statusRows = [
   ["Guard Action Preview", "Beta", "Lets MHR Holders prepare and explicitly approve a bounded response for an official event matched to a verified wallet holding."],
   ["Private decision receipts", "Beta", "Stores a private audit hash for the verified event, reviewed preview and operator decision without submitting a transaction."],
   ["Share Signal", "Live", "Creates a privacy-safe public risk summary and branded X card without exposing wallet addresses, balances or private receipt data."],
-  ["MIHARI Intelligence API", "Beta", "Provides read-only event intelligence, quote integrity, public market dependencies and signed webhooks for external apps. No profile, wallet or private receipt data is exposed."],
+  ["MIHARI Intelligence API", "Beta", "Provides read-only event intelligence, quote integrity, public market dependencies, signed webhooks and an MCP server for external apps and agents. No profile, wallet or private receipt data is exposed."],
   ["MHR Holder access", "Beta", "Unlocks larger limits, personal DeFi scanning and protocol paths in the Risk Graph after an onchain balance check."],
   ["Protocol coverage registry", "Live", "Separates active adapters from planned Robinhood Chain integrations."],
   ["Protocol execution", "Next", "Guard approval remains private and does not pause protocols, move funds or submit a transaction today."],
@@ -226,6 +226,7 @@ export default function DocsPage() {
               <div><span className="mono">ADVISORY ONLY</span><strong>Keep your controls</strong><p>API recommendations never move funds, request approvals or submit a transaction. Integrations remain responsible for their own decisions.</p></div>
               <div><span className="mono">GET /COVERAGE</span><strong>Read adapter availability</strong><p>Returns the MIHARI registry for active, beta and planned protocol adapters. It never reveals individual protocol positions.</p></div>
               <div><span className="mono">SIGNED WEBHOOKS</span><strong>Receive official event changes</strong><p>Approved integrations can subscribe to normalized corporate-action updates. Payloads are HMAC-SHA256 signed and include a revision fingerprint for safe deduplication.</p></div>
+              <div><span className="mono">REMOTE MCP</span><strong>Use MIHARI as agent tools</strong><p>Connect a compatible agent to <code>https://mihari.pro/mcp</code> for read-only risk feed, quote integrity, market dependencies and Stock Token tools.</p></div>
             </div>
             <div className="docs-callout">
               <strong>Public reads, signed webhooks for approved integrations.</strong>

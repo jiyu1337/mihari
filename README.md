@@ -118,6 +118,10 @@ MIHARI is intentionally hybrid. Official market data and AI inference run offcha
 
 The public v1 API makes the same official corporate-action context used by MIHARI available to dashboards and early Robinhood Chain integrations.
 
+### MCP for AI agents
+
+MIHARI also runs a remote, read-only Model Context Protocol server at `https://mihari.pro/mcp`. Compatible clients can use four tools directly: risk feed, quote integrity, public market dependencies and Stock Token lookup. It uses JSON-RPC Streamable HTTP and has no access to MIHARI accounts, wallet addresses, balances or transaction execution.
+
 | Endpoint | Returns |
 | --- | --- |
 | `GET /api/v1` | Machine-readable public-beta API index, endpoints and safety boundary. |

@@ -88,13 +88,31 @@ export default function DevelopersPage() {
         <h2>Use it in an app, workflow or agent.</h2>
         <div className="developers-principles">
           <article><Braces size={22} /><strong>REST integration</strong><p>Call selected endpoints directly from a dashboard, bot or backend. Public read access is available during beta.</p><code>https://mihari.pro/api/v1</code></article>
-          <article><ShieldCheck size={22} /><strong>Agent tools</strong><p>Import the OpenAPI document into an agent framework, or give an agent the MIHARI manifest and operating rules.</p><code>/api/v1/openapi.json</code><code>/api/v1/agent-manifest</code></article>
+          <article><ShieldCheck size={22} /><strong>Agent tools</strong><p>Import the OpenAPI document into an agent framework, use the MIHARI manifest, or connect a compatible remote MCP client.</p><code>/api/v1/openapi.json</code><code>/api/v1/agent-manifest</code><code>/mcp</code></article>
           <article><Database size={22} /><strong>Webhook workflow</strong><p>Approved integrations can receive signed official event revisions. This is for backend automation, not a user wallet connection.</p><code>/api/v1/webhooks</code></article>
         </div>
       </section>
 
+      <section className="developers-section developers-boundary">
+        <div>
+          <Braces size={24} />
+          <p className="mono">02 / MCP SERVER</p>
+          <h2>Give an agent MIHARI tools directly.</h2>
+        </div>
+        <div>
+          <p>
+            Connect a compatible MCP client to <code>https://mihari.pro/mcp</code>. The remote server exposes four read-only tools:
+            risk feed, quote integrity, public market dependencies and one Stock Token lookup.
+          </p>
+          <p>
+            The server uses standard JSON-RPC Streamable HTTP. It has no wallet tool, no transaction tool and no access to MIHARI profiles.
+            It is deliberately limited to research and risk-assistant workflows.
+          </p>
+        </div>
+      </section>
+
       <section className="developers-section" id="endpoints">
-        <p className="mono">02 / ENDPOINTS</p>
+        <p className="mono">03 / ENDPOINTS</p>
         <h2>One risk feed. Seven supporting views.</h2>
         <div className="developers-endpoints">
           {endpoints.map((endpoint) => (
@@ -108,7 +126,7 @@ export default function DevelopersPage() {
       </section>
 
       <section className="developers-section developers-examples">
-        <p className="mono">03 / EXAMPLES</p>
+        <p className="mono">04 / EXAMPLES</p>
         <h2>Start from a live event.</h2>
         <div className="developers-code-grid">
           <article>
@@ -141,7 +159,7 @@ export default function DevelopersPage() {
       <section className="developers-section developers-boundary">
         <div>
           <Braces size={24} />
-          <p className="mono">04 / BETA BOUNDARY</p>
+          <p className="mono">05 / BETA BOUNDARY</p>
           <h2>Open, limited and intentionally conservative.</h2>
         </div>
         <div>
