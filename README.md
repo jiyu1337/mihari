@@ -1,37 +1,31 @@
-<div align="center">
-  <img src="./docs/assets/readme-banner.svg" alt="MIHARI: AI corporate-action intelligence for tokenized stocks" width="100%" />
+# MIHARI
 
-  <br />
+> **FIELD MANUAL 01**<br>
+> Corporate-action intelligence for tokenized stocks on Robinhood Chain.
 
-  [![Production Beta](https://img.shields.io/badge/status-production_beta-CCFF00?style=flat-square&labelColor=0B0B09&color=CCFF00)](https://mihari.pro)
-  [![Robinhood Chain](https://img.shields.io/badge/Robinhood_Chain-4663-CCFF00?style=flat-square&labelColor=0B0B09)](https://robinhoodchain.blockscout.com)
-  [![Next.js](https://img.shields.io/badge/Next.js-16-ffffff?style=flat-square&logo=nextdotjs&logoColor=white&labelColor=0B0B09)](https://nextjs.org)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-6-3178C6?style=flat-square&logo=typescript&logoColor=white&labelColor=0B0B09)](https://www.typescriptlang.org)
-  [![$MHR](https://img.shields.io/badge/token-%24MHR-CCFF00?style=flat-square&labelColor=0B0B09)](https://robinhoodchain.blockscout.com/address/0x92150e06BAc43011cBe099b2830D947Ee3099809)
+<img src="./docs/assets/readme-banner.svg" alt="MIHARI: AI corporate-action intelligence for tokenized stocks" width="100%" />
 
-  <h3>AI safety infrastructure for tokenized stocks.</h3>
+| Operational status | Chain | Build |
+| --- | --- | --- |
+| [![Production Beta](https://img.shields.io/badge/STATUS-PRODUCTION_BETA-CCFF00?style=flat-square&labelColor=0B0B09&color=CCFF00)](https://mihari.pro) | [![Robinhood Chain](https://img.shields.io/badge/NETWORK-ROBINHOOD_CHAIN_4663-CCFF00?style=flat-square&labelColor=0B0B09)](https://robinhoodchain.blockscout.com) | [![Next.js](https://img.shields.io/badge/NEXT.JS-16-ffffff?style=flat-square&logo=nextdotjs&logoColor=white&labelColor=0B0B09)](https://nextjs.org) [![TypeScript](https://img.shields.io/badge/TYPESCRIPT-6-3178C6?style=flat-square&logo=typescript&logoColor=white&labelColor=0B0B09)](https://www.typescriptlang.org) [![$MHR](https://img.shields.io/badge/TOKEN-%24MHR-CCFF00?style=flat-square&labelColor=0B0B09)](https://robinhoodchain.blockscout.com/address/0x92150e06BAc43011cBe099b2830D947Ee3099809) |
 
-  <p>
-    MIHARI monitors official Robinhood Stock Token data, detects corporate actions,<br />
-    maps potential DeFi impact and recommends a bounded response.
-  </p>
+### Mission
 
-  <p>
-    <a href="https://mihari.pro"><strong>Live product</strong></a>
-    ·
-    <a href="https://mihari.pro/launch"><strong>Launch app</strong></a>
-    ·
-    <a href="https://mihari.pro/docs"><strong>Documentation</strong></a>
-    ·
-    <a href="https://mihari.pro/developers"><strong>Intelligence API</strong></a>
-    ·
-    <a href="#quick-start"><strong>Quick start</strong></a>
-  </p>
-</div>
+**AI safety infrastructure for tokenized stocks.**
+
+MIHARI monitors official Robinhood Stock Token data, detects corporate actions, maps potential DeFi impact and recommends a bounded response.
+
+| Enter the system | Read the manual | Build with MIHARI |
+| --- | --- | --- |
+| [Live product](https://mihari.pro) · [Launch app](https://mihari.pro/launch) | [Documentation](https://mihari.pro/docs) · [Quick start](#quick-start) | [Intelligence API](https://mihari.pro/developers) |
+
+```text
+OFFICIAL EVENT  ->  POSITION CONTEXT  ->  EXPLAINED RISK  ->  BOUNDED RESPONSE
+```
 
 ---
 
-## Why MIHARI
+## 01 / Why MIHARI
 
 Tokenized stocks make equities composable across DeFi. Corporate actions become composable too.
 
@@ -43,7 +37,7 @@ MIHARI turns each official event into an explainable **Incident File**:
 
 MIHARI currently monitors and recommends. It does not move funds or execute transactions automatically.
 
-## Product workflow
+## 02 / Product workflow
 
 | Step | User action | What MIHARI does |
 | :---: | --- | --- |
@@ -58,7 +52,9 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | `09` | Prepare a Guard Action | Rebuilds the bounded response from the latest official event and shows the exact scope and safety limits |
 | `10` | Record a Guard Decision | Requires explicit confirmation and stores a private audit receipt without submitting a transaction |
 
-## What is live
+## 03 / Capability register
+
+> The register below separates features already operating in the product from beta systems and intentionally locked future work.
 
 | Capability | Status | Description |
 | --- | :---: | --- |
@@ -91,7 +87,7 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Protocol execution | `NEXT` | Guard approval does not submit a protocol transaction or move funds today |
 | Onchain proofs | `NEXT` | Production attestations require audited contracts |
 
-## System architecture
+## 04 / System architecture
 
 ```mermaid
 flowchart LR
@@ -114,7 +110,7 @@ flowchart LR
 
 MIHARI is intentionally hybrid. Official market data and AI inference run offchain; future policy configuration, execution receipts and attestations are designed for Robinhood Chain.
 
-## MIHARI Intelligence API
+## 05 / MIHARI Intelligence API
 
 The public v1 API makes the same official corporate-action context used by MIHARI available to dashboards and early Robinhood Chain integrations.
 
@@ -148,7 +144,7 @@ Events include a source fingerprint, revision identifier and deduplication key s
 
 v1 read endpoints are open during beta. Signed webhook management requires a server-only `MIHARI_API_ADMIN_KEY`; the scheduled dispatcher requires `CRON_SECRET`. Webhook payloads contain only normalized official event data and revisions. Simulated fallback data, MIHARI accounts, linked wallets, balances, private Guard receipts and account-specific analyses are never exposed. API output is advisory only and never submits a transaction. See [mihari.pro/developers](https://mihari.pro/developers) for examples and boundaries.
 
-## $MHR
+## 06 / $MHR access system
 
 > [!IMPORTANT]
 > Always verify the contract address before interacting. Planned utility features are not all active today.
@@ -178,7 +174,7 @@ Planned utility is designed around product use:
 
 Holder access currently requires at least `1,000,000 MHR` across verified wallets. The threshold is configurable with `MHR_HOLDER_THRESHOLD`. Every restriction is enforced by the server. Cached AI analysis is reused and does not consume another request.
 
-## Roadmap
+## 07 / Roadmap
 
 | Phase | Status | Focus |
 | --- | :---: | --- |
@@ -189,7 +185,7 @@ Holder access currently requires at least `1,000,000 MHR` across verified wallet
 
 Each phase ships only after its data sources, permissions and security assumptions can be verified in production.
 
-## Tech stack
+## 08 / Tech stack
 
 | Layer | Technology |
 | --- | --- |
@@ -202,7 +198,7 @@ Each phase ships only after its data sources, permissions and security assumptio
 | Contracts | Solidity, OpenZeppelin |
 | Hosting | Vercel |
 
-## Quick start
+## 09 / Quick start
 
 ### Requirements
 
@@ -254,7 +250,7 @@ npm run contracts:compile # Compile the Solidity contracts
 
 </details>
 
-## Repository map
+## 10 / Repository map
 
 ```text
 app/                  Next.js pages and server routes
@@ -266,7 +262,7 @@ lib/                  Robinhood, AI and product-domain logic
 scripts/              Database and maintenance scripts
 ```
 
-## Documentation
+## 11 / Documentation
 
 - [Public product documentation](https://mihari.pro/docs)
 - [Technical and trust architecture](./docs/ARCHITECTURE.md)
@@ -275,7 +271,7 @@ scripts/              Database and maintenance scripts
 - [Robinhood Chain contracts](./contracts/README.md)
 - [Content and demo plan](./docs/CONTENT-PLAN.md)
 
-## Security
+## 12 / Security
 
 > [!WARNING]
 > The Solidity contracts in this repository are unaudited reference implementations. Do not use them to secure production funds.
@@ -286,7 +282,7 @@ scripts/              Database and maintenance scripts
 - Share Signal includes only public risk context. It excludes wallet addresses, balances, email addresses, private receipt hashes and internal evidence snapshots.
 - Report suspected credential leaks privately before opening a public issue.
 
-## Disclaimer
+## 13 / Disclaimer
 
 MIHARI is an independent software project. It is not a broker, financial adviser or investment service. Product analysis is informational and does not guarantee financial outcomes.
 
