@@ -37,6 +37,7 @@ const statusRows = [
   ["Guard Action Preview", "Beta", "Lets MHR Holders prepare and explicitly approve a bounded response for an official event matched to a verified wallet holding."],
   ["Private decision receipts", "Beta", "Stores a private audit hash for the verified event, reviewed preview and operator decision without submitting a transaction."],
   ["Share Signal", "Live", "Creates a privacy-safe public risk summary and branded X card without exposing wallet addresses, balances or private receipt data."],
+  ["MIHARI Intelligence API", "Beta", "Provides read-only event intelligence, quote integrity, public market dependencies, signed webhooks and an MCP server for external apps and agents. No profile, wallet or private receipt data is exposed."],
   ["MHR Holder access", "Beta", "Unlocks larger limits, personal DeFi scanning and protocol paths in the Risk Graph after an onchain balance check."],
   ["Protocol coverage registry", "Live", "Separates active adapters from planned Robinhood Chain integrations."],
   ["Protocol execution", "Next", "Guard approval remains private and does not pause protocols, move funds or submit a transaction today."],
@@ -54,7 +55,7 @@ export default function DocsPage() {
       <SiteHeader />
       <div className="docs-shell">
         <aside className="docs-sidebar">
-          <p className="mono">MIHARI DOCS / v0.5</p>
+          <p className="mono">MIHARI DOCS / v0.6</p>
           <nav aria-label="Documentation sections">
             <a href="#overview">Overview</a>
             <a href="#how-it-works">User workflow</a>
@@ -62,6 +63,7 @@ export default function DocsPage() {
             <a href="#assets-events">Assets vs events</a>
             <a href="#ai">AI analysis</a>
             <a href="#data-sources">Live data</a>
+            <a href="#intelligence-api">Intelligence API</a>
             <a href="#wallet">Wallet connection</a>
             <a href="#access">Product access</a>
             <a href="#map">MIHARI MAP</a>
@@ -201,8 +203,39 @@ export default function DocsPage() {
             </div>
           </section>
 
+          <section className="docs-section" id="intelligence-api">
+            <p className="docs-kicker mono">06 / INTELLIGENCE API</p>
+            <h2>Use MIHARI context in another product.</h2>
+            <p>
+              MIHARI Intelligence API is a public read-only beta for teams building on Robinhood
+              Chain. It returns official Stock Token corporate-action context plus a structured
+              MIHARI interpretation, multiplier-aware quote integrity and public market dependency context. It is for dashboards, research tools and early integrations,
+              not for executing an action on behalf of a user.
+            </p>
+            <div className="docs-result-grid">
+              <div><span className="mono">GET /API/V1</span><strong>Read the API index</strong><p>Returns the version, public-beta safety boundary, documentation link and all available endpoints in one machine-readable response.</p></div>
+              <div><span className="mono">GET /CATALOG</span><strong>Read the live asset universe</strong><p>Returns active official Stock Tokens with deployments, contract metadata, multiplier state and tradability context.</p></div>
+              <div><span className="mono">GET /RISK-FEED</span><strong>Integration-ready risk context</strong><p>For 1 to 10 selected symbols, returns official contract, raw and multiplier-adjusted quote context, multiplier state, normalized event details, risk level and policy recommendation in one feed.</p></div>
+              <div><span className="mono">GET /QUOTE-INTEGRITY</span><strong>Keep quote context consistent</strong><p>Shows the raw quote and multiplier-adjusted token context separately, then flags pending multipliers, halted markets and stale source timestamps.</p></div>
+              <div><span className="mono">GET /DEPENDENCIES</span><strong>Read public market context</strong><p>For up to five symbols, returns publicly discovered supported markets. It is venue coverage, not proof of a personal wallet position.</p></div>
+              <div><span className="mono">GET /EVENTS</span><strong>Read official event records</strong><p>Returns current official Robinhood corporate actions across the active catalog or a selected set of symbols.</p></div>
+              <div><span className="mono">GET /ASSETS/{`{SYMBOL}`}</span><strong>Read one Stock Token</strong><p>Returns active deployment data, multiplier context, available price fields and matching official corporate actions.</p></div>
+              <div><span className="mono">GET /ANALYSIS</span><strong>Read MIHARI interpretation</strong><p>Returns cached AI interpretation when available or the same deterministic policy logic used inside MIHARI.</p></div>
+              <div><span className="mono">OFFICIAL SOURCE ONLY</span><strong>No simulated data</strong><p>The API responds only when the Robinhood source is live. It returns an unavailable response instead of exposing fallback examples.</p></div>
+              <div><span className="mono">NO PRIVATE DATA</span><strong>Safe integration boundary</strong><p>Profiles, wallet addresses, balances, private Guard receipts and personal risk files are never exposed by the public API.</p></div>
+              <div><span className="mono">ADVISORY ONLY</span><strong>Keep your controls</strong><p>API recommendations never move funds, request approvals or submit a transaction. Integrations remain responsible for their own decisions.</p></div>
+              <div><span className="mono">GET /COVERAGE</span><strong>Read adapter availability</strong><p>Returns the MIHARI registry for active, beta and planned protocol adapters. It never reveals individual protocol positions.</p></div>
+              <div><span className="mono">SIGNED WEBHOOKS</span><strong>Receive official event changes</strong><p>Approved integrations can subscribe to normalized corporate-action updates. Payloads are HMAC-SHA256 signed and include a revision fingerprint for safe deduplication.</p></div>
+              <div><span className="mono">REMOTE MCP</span><strong>Use MIHARI as agent tools</strong><p>Connect a compatible agent to <code>https://mihari.pro/mcp</code> for read-only risk feed, quote integrity, market dependencies and Stock Token tools.</p></div>
+            </div>
+            <div className="docs-callout">
+              <strong>Public reads, signed webhooks for approved integrations.</strong>
+              <p>Read endpoints do not need a key during beta. Events include revision and deduplication fields. Webhook management uses a server-only integration key and HMAC-SHA256 signatures. See <Link href="/developers">MIHARI Intelligence API</Link> for live endpoint examples.</p>
+            </div>
+          </section>
+
           <section className="docs-section" id="wallet">
-            <p className="docs-kicker mono">06 / PROFILE ACCESS</p>
+            <p className="docs-kicker mono">07 / PROFILE ACCESS</p>
             <h2>Two ways to create and access a profile.</h2>
             <div className="wallet-doc-card">
               <div>
@@ -227,7 +260,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="access">
-            <p className="docs-kicker mono">07 / PRODUCT ACCESS</p>
+            <p className="docs-kicker mono">08 / PRODUCT ACCESS</p>
             <h2>Clear limits, checked onchain.</h2>
             <p>
               Every profile starts with useful Observer access. MIHARI adds the MHR balances across
@@ -260,7 +293,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="map">
-            <p className="docs-kicker mono">08 / MIHARI MAP</p>
+            <p className="docs-kicker mono">09 / MIHARI MAP</p>
             <h2>Your private monitoring and exposure workspace.</h2>
             <p>
               MIHARI MAP connects a personal watchlist with verified Robinhood Chain wallets. It
@@ -277,7 +310,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="map-pages">
-            <p className="docs-kicker mono">09 / MIHARI MAP PAGES</p>
+            <p className="docs-kicker mono">10 / MIHARI MAP PAGES</p>
             <h2>What each page does.</h2>
             <div className="docs-result-grid">
               <div><span className="mono">OVERVIEW</span><strong>Your profile at a glance</strong><p>See the number of monitored assets, verified wallets, detected Stock Token positions and holdings with matching events. Use the links in each panel to open the relevant page.</p></div>
@@ -310,7 +343,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="exposure-statuses">
-            <p className="docs-kicker mono">10 / EXPOSURE AND RISK</p>
+            <p className="docs-kicker mono">11 / EXPOSURE AND RISK</p>
             <h2>How to read a position and its risk status.</h2>
             <p>
               MIHARI reads token balances from Robinhood Chain Blockscout, recognizes only
@@ -360,7 +393,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="risk-graph">
-            <p className="docs-kicker mono">11 / UNIFIED RISK GRAPH</p>
+            <p className="docs-kicker mono">12 / UNIFIED RISK GRAPH</p>
             <h2>How to read an event-to-position path.</h2>
             <p>
               Risk Graph prioritizes direct wallet holdings and then adds watchlist assets as research
@@ -390,7 +423,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="defi-exposure">
-            <p className="docs-kicker mono">12 / DEFI EXPOSURE</p>
+            <p className="docs-kicker mono">13 / DEFI EXPOSURE</p>
             <h2>How MIHARI finds Stock Tokens beyond a direct wallet balance.</h2>
             <p>
               A Stock Token may leave the wallet balance after it is supplied to a lending market,
@@ -450,7 +483,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="policy-recommendations">
-            <p className="docs-kicker mono">13 / POLICY RECOMMENDATIONS</p>
+            <p className="docs-kicker mono">14 / POLICY RECOMMENDATIONS</p>
             <h2>From a detected event to a reviewable plan.</h2>
             <p>
               The Policy page starts with a server-verified Robinhood corporate action. MIHARI
@@ -483,7 +516,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="guard-actions">
-            <p className="docs-kicker mono">14 / GUARD ACTIONS</p>
+            <p className="docs-kicker mono">15 / GUARD ACTIONS</p>
             <h2>Approve a decision without giving up control.</h2>
             <p>
               Guard Actions is the next layer after a Policy Recommendation. An MHR Holder can
@@ -513,7 +546,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="share-signal">
-            <p className="docs-kicker mono">15 / SHARE SIGNAL</p>
+            <p className="docs-kicker mono">16 / SHARE SIGNAL</p>
             <h2>Share the warning, not your private data.</h2>
             <p>
               Share Signal turns a MIHARI finding into a short public post and a branded preview
@@ -533,7 +566,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="status">
-            <p className="docs-kicker mono">16 / PRODUCT STATUS</p>
+            <p className="docs-kicker mono">17 / PRODUCT STATUS</p>
             <h2>What works today - and what does not.</h2>
             <div className="status-table">
               {statusRows.map(([feature, status, explanation]) => (
@@ -547,7 +580,7 @@ export default function DocsPage() {
           </section>
 
           <section className="docs-section" id="terms">
-            <p className="docs-kicker mono">17 / KEY TERMS</p>
+            <p className="docs-kicker mono">18 / KEY TERMS</p>
             <h2>A short glossary.</h2>
             <dl className="docs-glossary">
               <div><dt>NAV</dt><dd>Net Asset Value: the calculated value of assets held by a vault or fund, minus its liabilities.</dd></div>

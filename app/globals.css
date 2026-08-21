@@ -1696,6 +1696,35 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .docs-glossary dt { font-weight: 700; }
 .docs-glossary dd { margin: 0; font-size: 0.82rem; line-height: 1.6; color: var(--heather-3); }
 
+.developers-page { min-height: 100vh; }
+.developers-hero { min-height: 510px; padding: clamp(4rem, 9vw, 9rem) clamp(1.5rem, 8vw, 9rem) 4rem; border-bottom: 1px solid var(--ink); display: grid; align-content: end; background: var(--ink); color: var(--paper); }
+.developers-hero > p:first-child,
+.developers-section > p:first-child { margin: 0 0 1.25rem; font-size: 0.66rem; letter-spacing: 0.1em; }
+.developers-hero h1 { max-width: 960px; margin: 0; font-size: clamp(3.6rem, 9vw, 8.8rem); font-weight: 560; line-height: 0.86; letter-spacing: -0.075em; }
+.developers-hero > p:not(:first-child) { max-width: 620px; margin: 2rem 0 0; font-size: clamp(1rem, 1.7vw, 1.25rem); line-height: 1.65; color: color-mix(in srgb, var(--paper) 75%, transparent); }
+.developers-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 1.25rem; margin-top: 2rem; }
+.developers-actions > a:not(.primary-action) { color: var(--paper); border-bottom: 1px solid var(--paper); font-size: 0.9rem; }
+.developers-principles { display: grid; grid-template-columns: repeat(3, 1fr); margin: 0 clamp(1.5rem, 5vw, 5rem); border-left: 1px solid var(--ink); border-top: 1px solid var(--ink); }
+.developers-principles article { min-height: 250px; display: flex; flex-direction: column; gap: 0.9rem; padding: 1.6rem; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.developers-principles strong { margin-top: auto; font-size: 1.25rem; letter-spacing: -0.03em; }
+.developers-principles p { max-width: 340px; margin: 0; color: var(--heather-3); font-size: 0.9rem; line-height: 1.6; }
+.developers-section { padding: 5rem clamp(1.5rem, 8vw, 9rem); border-bottom: 1px solid var(--ink); }
+.developers-section h2 { max-width: 800px; margin: 0; font-size: clamp(2.6rem, 5vw, 5rem); font-weight: 560; line-height: 0.92; letter-spacing: -0.065em; }
+.developers-endpoints { display: grid; margin-top: 2.5rem; border-top: 1px solid var(--ink); border-left: 1px solid var(--ink); }
+.developers-endpoints article { display: grid; grid-template-columns: 115px minmax(260px, 0.8fr) minmax(280px, 1.2fr); gap: 1.5rem; align-items: center; padding: 1.4rem; border-right: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+.developers-method { width: max-content; padding: 0.45rem 0.55rem; background: var(--neon); border: 1px solid var(--ink); font-size: 0.7rem; }
+.developers-endpoints code { overflow-wrap: anywhere; font: 0.9rem/1.5 var(--font-mono), monospace; }
+.developers-endpoints p { margin: 0; color: var(--heather-3); font-size: 0.92rem; line-height: 1.55; }
+.developers-examples { background: var(--heather-1); }
+.developers-code-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 2.5rem; }
+.developers-code-grid article { min-height: 190px; display: flex; flex-direction: column; justify-content: space-between; padding: 1.3rem; background: var(--ink); color: var(--paper); }
+.developers-code-grid strong { font-size: 1.1rem; }
+.developers-code-grid pre { margin: 1.5rem 0 0; white-space: pre-wrap; overflow-wrap: anywhere; font: 0.76rem/1.7 var(--font-mono), monospace; color: var(--neon); }
+.developers-boundary { display: grid; grid-template-columns: minmax(260px, 0.9fr) minmax(280px, 1.1fr); gap: clamp(2rem, 8vw, 10rem); background: var(--neon); }
+.developers-boundary h2 { margin-top: 1rem; font-size: clamp(2.3rem, 4.5vw, 4.3rem); }
+.developers-boundary > div:last-child { padding-top: 1.7rem; }
+.developers-boundary p { margin: 0 0 1.25rem; font-size: 1rem; line-height: 1.65; }
+
 /* Authentication */
 .auth-page {
   min-height: 100vh;
@@ -2916,6 +2945,11 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
   .docs-sidebar-status span { display: none; }
   .docs-flow { grid-template-columns: repeat(2, 1fr); }
   .docs-workflow { grid-template-columns: repeat(2, 1fr); }
+  .developers-principles,
+  .developers-code-grid { grid-template-columns: 1fr; }
+  .developers-endpoints article { grid-template-columns: 105px 1fr; }
+  .developers-endpoints article p { grid-column: 2; }
+  .developers-boundary { grid-template-columns: 1fr; gap: 1rem; }
 }
 
 @media (max-width: 600px) {
@@ -2933,4 +2967,8 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
   .status-table > div { grid-template-columns: 1fr auto; }
   .status-table p { grid-column: 1 / -1; }
   .docs-glossary > div { grid-template-columns: 1fr; gap: 0.4rem; }
+  .developers-hero { min-height: 440px; }
+  .developers-endpoints article { grid-template-columns: 1fr; gap: 0.8rem; }
+  .developers-endpoints article p { grid-column: auto; }
+  .developers-section { padding-top: 3.5rem; padding-bottom: 3.5rem; }
 }

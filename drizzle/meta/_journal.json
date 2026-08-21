@@ -43,6 +43,13 @@
       "when": 1786968888991,
       "tag": "0005_concerned_tusk",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1787317200000,
+      "tag": "0006_api_intelligence_webhooks",
+      "breakpoints": true
     }
   ]
 }

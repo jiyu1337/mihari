@@ -6,6 +6,7 @@ const DEFAULT_SYMBOLS = ["NVDA", "AAPL", "TSLA"];
 type Deployment = {
   contractAddress: string;
   chainId: number;
+  networkName?: string;
 };
 
 export type RobinhoodAsset = {
@@ -18,6 +19,9 @@ export type RobinhoodAsset = {
   pendingMultiplierEffectiveTime?: string;
   status: string;
   tokenDecimals?: number;
+  isin?: string;
+  logoUrl?: string;
+  tradingCapabilities?: Record<string, unknown>;
 };
 
 export type RobinhoodCorporateAction = {
@@ -38,6 +42,11 @@ export type RobinhoodPrice = {
   currency: string;
   isTradingHalt: boolean;
   generatedAt: string;
+  dailyTradingVolume?: string;
+  dailyHigh?: string;
+  dailyLow?: string;
+  mintBurnTokenVolume?: string;
+  mintBurnUsdVolume?: string;
 };
 
 export type MarketSnapshot = {

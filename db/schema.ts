@@ -15,6 +15,7 @@ export const eventSeverity = pgEnum("event_severity", ["low", "medium", "high", 
 export const policyMode = pgEnum("policy_mode", ["observe", "guard", "automate"]);
 export const eventStatus = pgEnum("event_status", ["detected", "reviewed", "actioned", "resolved"]);
 export const guardActionStatus = pgEnum("guard_action_status", ["draft", "approved", "dismissed"]);
+export const webhookDeliveryStatus = pgEnum("webhook_delivery_status", ["pending", "delivered", "failed"]);
 
 export const accounts = pgTable("accounts", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -123,4 +124,31 @@ export const guardActions = pgTable("guard_actions", {
 }, (table) => [
   uniqueIndex("guard_actions_account_source_intent_idx").on(table.accountId, table.sourceHash, table.intent),
   index("guard_actions_account_created_idx").on(table.accountId, table.createdAt),
+]);
+
+// Integration-owned records. These never reference MIHARI accounts, wallets or positions.
+export const apiWebhookSubscriptions = pgTable("api_webhook_subscriptions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  label: text("label").notNull(),
+  url: text("url").notNull(),
+  secret: text("secret").notNull(),
+  eventTypes: jsonb("event_types").$type<string[]>().default([]).notNull(),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const apiWebhookDeliveries = pgTable("api_webhook_deliveries", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  subscriptionId: uuid("subscription_id").references(() => apiWebhookSubscriptions.id, { onDelete: "cascade" }).notNull(),
+  eventType: text("event_type").notNull(),
+  fingerprint: text("fingerprint").notNull(),
+  status: webhookDeliveryStatus("status").default("pending").notNull(),
+  responseStatus: integer("response_status"),
+  error: text("error"),
+  deliveredAt: timestamp("delivered_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex("api_webhook_delivery_subscription_fingerprint_idx").on(table.subscriptionId, table.fingerprint),
+  index("api_webhook_delivery_subscription_created_idx").on(table.subscriptionId, table.createdAt),
 ]);

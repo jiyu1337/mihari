@@ -23,6 +23,8 @@
     ·
     <a href="https://mihari.pro/docs"><strong>Documentation</strong></a>
     ·
+    <a href="https://mihari.pro/developers"><strong>Intelligence API</strong></a>
+    ·
     <a href="#quick-start"><strong>Quick start</strong></a>
   </p>
 </div>
@@ -83,6 +85,7 @@ MIHARI currently monitors and recommends. It does not move funds or execute tran
 | Guard Action Preview | `BETA` | Lets MHR Holders prepare a bounded action for an official event matched to a verified wallet holding |
 | Private decision receipts | `BETA` | Records the event hash, reviewed preview and explicit operator decision in the private MIHARI workspace |
 | Share Signal | `LIVE` | Creates a public X post and branded risk card without exposing wallet addresses, balances or private receipt data |
+| MIHARI Intelligence API | `BETA` | Read-only official Stock Token events, asset context and MIHARI policy interpretation for external products. Never returns wallet, profile or receipt data |
 | MHR Holder access | `BETA` | Unlocks larger limits, personal DeFi scanning and protocol paths in the Risk Graph after an onchain balance check |
 | Ecosystem coverage registry | `LIVE` | Shows which Robinhood Chain sources are checked today and which adapters remain planned |
 | Protocol execution | `NEXT` | Guard approval does not submit a protocol transaction or move funds today |
@@ -110,6 +113,40 @@ flowchart LR
 ```
 
 MIHARI is intentionally hybrid. Official market data and AI inference run offchain; future policy configuration, execution receipts and attestations are designed for Robinhood Chain.
+
+## MIHARI Intelligence API
+
+The public v1 API makes the same official corporate-action context used by MIHARI available to dashboards and early Robinhood Chain integrations.
+
+### MCP for AI agents
+
+MIHARI also runs a remote, read-only Model Context Protocol server at `https://mihari.pro/mcp`. Compatible clients can use four tools directly: risk feed, quote integrity, public market dependencies and Stock Token lookup. It uses JSON-RPC Streamable HTTP and has no access to MIHARI accounts, wallet addresses, balances or transaction execution.
+
+| Endpoint | Returns |
+| --- | --- |
+| `GET /api/v1` | Machine-readable public-beta API index, endpoints and safety boundary. |
+| `GET /api/v1/catalog` | Full active Stock Token catalog with official deployments, multiplier state and available tradability metadata. |
+| `GET /api/v1/risk-feed` | The integration-ready feed for 1 to 10 selected Stock Tokens: official contract and market context, multiplier state, normalized event details, MIHARI risk and policy checks. Use `?symbols=AAPL,NVDA`. |
+| `GET /api/v1/quote-integrity` | Multiplier-aware quote consistency checks for 1 to 10 Stock Tokens. Returns raw source quote, token-context quote and stale, halted or pending-multiplier flags. |
+| `GET /api/v1/dependencies` | Public market dependencies across supported venues for 1 to 5 Stock Tokens. Never represents a user's personal positions. |
+| `GET /api/v1/events` | Official Robinhood corporate actions. Add `?symbols=AAPL,NVDA` to narrow the scope. |
+| `GET /api/v1/assets/{symbol}` | Active deployment, multiplier, available price fields and matching corporate actions for one Stock Token. |
+| `GET /api/v1/events/{eventId}/analysis?symbol=AAPL` | Cached AI interpretation when available, otherwise the MIHARI deterministic policy analysis for the verified official record. |
+| `GET /api/v1/coverage` | Active, beta and planned MIHARI protocol adapters without any user or position data. |
+| `GET/POST/PATCH/DELETE /api/v1/webhooks` | Approved integration webhook management with HMAC-signed corporate-action deliveries. |
+
+```bash
+curl "https://mihari.pro/api/v1/risk-feed?symbols=AAPL,NVDA"
+curl "https://mihari.pro/api/v1/catalog?symbols=AAPL,NVDA"
+curl "https://mihari.pro/api/v1/events?symbols=AAPL,NVDA"
+curl "https://mihari.pro/api/v1/assets/AAPL"
+curl "https://mihari.pro/api/v1/quote-integrity?symbols=AAPL,NVDA"
+curl "https://mihari.pro/api/v1/dependencies?symbols=AAPL,NVDA"
+```
+
+Events include a source fingerprint, revision identifier and deduplication key so integrations can avoid reprocessing unchanged official records. Quote Integrity explicitly keeps raw Robinhood REST prices separate from multiplier-adjusted token context.
+
+v1 read endpoints are open during beta. Signed webhook management requires a server-only `MIHARI_API_ADMIN_KEY`; the scheduled dispatcher requires `CRON_SECRET`. Webhook payloads contain only normalized official event data and revisions. Simulated fallback data, MIHARI accounts, linked wallets, balances, private Guard receipts and account-specific analyses are never exposed. API output is advisory only and never submits a transaction. See [mihari.pro/developers](https://mihari.pro/developers) for examples and boundaries.
 
 ## $MHR
 

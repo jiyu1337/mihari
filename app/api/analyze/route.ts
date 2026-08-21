@@ -1,4 +1,3 @@
-import { createHash } from "node:crypto";
 import { openai } from "@ai-sdk/openai";
 import { and, count, eq, gte } from "drizzle-orm";
 import { generateText, Output } from "ai";
@@ -9,7 +8,7 @@ import { analyses, corporateActions } from "@/db/schema";
 import { getAuthenticatedAccount } from "@/lib/account";
 import { analysisSchema, type AnalysisResponse } from "@/lib/analysis";
 import { getAccountEntitlements } from "@/lib/entitlements";
-import { buildDeterministicPolicy } from "@/lib/policy-recommendation";
+import { ANALYSIS_PROMPT_VERSION, deterministicAnalysis, evidenceHash } from "@/lib/intelligence";
 import type { CorporateEvent } from "@/lib/product-data";
 import { getMarketSnapshot } from "@/lib/robinhood";
 
@@ -17,7 +16,7 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MODEL = process.env.MIHARI_AI_MODEL ?? "gpt-5-mini";
-const PROMPT_VERSION = "corporate-action-policy-v2";
+const PROMPT_VERSION = ANALYSIS_PROMPT_VERSION;
 const DAILY_AI_LIMIT = 25;
 
 const requestSchema = z.object({
@@ -25,54 +24,10 @@ const requestSchema = z.object({
   symbol: z.string().trim().min(1).max(24).transform((value) => value.toUpperCase()),
 });
 
-function stableValue(value: unknown): unknown {
-  if (Array.isArray(value)) return value.map(stableValue);
-  if (value && typeof value === "object") {
-    return Object.fromEntries(
-      Object.entries(value as Record<string, unknown>)
-        .sort(([left], [right]) => left.localeCompare(right))
-        .map(([key, nestedValue]) => [key, stableValue(nestedValue)]),
-    );
-  }
-  return value;
-}
-
-function hash(value: unknown) {
-  return createHash("sha256").update(JSON.stringify(stableValue(value))).digest("hex");
-}
-
 function severityForDatabase(severity: CorporateEvent["severity"]): "low" | "medium" | "high" | "critical" {
   if (severity === "critical") return "critical";
   if (severity === "watch") return "high";
   return "low";
-}
-
-function deterministicFallback(event: CorporateEvent, warning?: string): AnalysisResponse {
-  const normalized = event.type.toLowerCase();
-  const isMultiplier = normalized.includes("multiplier") || normalized.includes("split");
-  const isDividend = normalized.includes("dividend");
-
-  const affectedSystems: AnalysisResponse["affectedSystems"] = isMultiplier
-    ? ["quotes", "nav", "vaults", "lending"]
-    : isDividend
-      ? ["nav", "vaults"]
-      : ["agents"];
-  const risk: AnalysisResponse["risk"] = isMultiplier ? "high" : "medium";
-
-  return {
-    summary: event.summary,
-    impactAssessment: event.impact,
-    affectedSystems,
-    risk,
-    recommendedAction: event.action,
-    policyAction: isMultiplier ? "pause_quotes" : "warn",
-    confidence: 82,
-    evidence: ["Official Robinhood corporate-action record", "MIHARI deterministic policy rules"],
-    policyRecommendation: buildDeterministicPolicy(event, { affectedSystems, risk }),
-    mode: "deterministic",
-    cached: false,
-    ...(warning ? { warning } : {}),
-  };
 }
 
 function json(body: unknown, status = 200) {
@@ -115,15 +70,15 @@ export async function POST(request: Request) {
   }
 
   const { event, evidencePayload } = official;
-  const sourceHash = hash(event.sourcePayload);
-  const inputHash = hash({ promptVersion: PROMPT_VERSION, sourceHash });
+  const sourceHash = evidenceHash(event.sourcePayload);
+  const inputHash = evidenceHash({ promptVersion: PROMPT_VERSION, sourceHash });
 
   if (!process.env.OPENAI_API_KEY) {
-    return json(deterministicFallback(event, "AI is not configured"));
+    return json(deterministicAnalysis(event, "AI is not configured"));
   }
 
   if (!getDatabaseUrl()) {
-    return json(deterministicFallback(event, "AI paused because persistence is unavailable"));
+    return json(deterministicAnalysis(event, "AI paused because persistence is unavailable"));
   }
 
   try {
@@ -141,7 +96,7 @@ export async function POST(request: Request) {
 
     const account = await getAuthenticatedAccount();
     if (!account) {
-      return json(deterministicFallback(event, "Sign in to request a new AI analysis"));
+      return json(deterministicAnalysis(event, "Sign in to request a new AI analysis"));
     }
 
     const entitlements = await getAccountEntitlements(account.id);
@@ -162,10 +117,10 @@ export async function POST(request: Request) {
     ]);
 
     if (Number(globalUsage[0]?.total ?? 0) >= DAILY_AI_LIMIT) {
-      return json(deterministicFallback(event, "Daily AI safety limit reached; rule-based analysis shown"));
+      return json(deterministicAnalysis(event, "Daily AI safety limit reached; rule-based analysis shown"));
     }
     if (Number(accountUsage[0]?.total ?? 0) >= entitlements.limits.aiAnalysesPerDay) {
-      return json(deterministicFallback(
+      return json(deterministicAnalysis(
         event,
         `${entitlements.tier === "holder" ? "Holder" : "Observer"} AI limit reached. Rule-based analysis shown`,
       ));
@@ -237,6 +192,6 @@ export async function POST(request: Request) {
     return json({ ...output, mode: "ai", cached: false, model: MODEL } satisfies AnalysisResponse);
   } catch (error) {
     console.error("[MIHARI] AI analysis unavailable", error instanceof Error ? error.name : "UnknownError");
-    return json(deterministicFallback(event, "AI analysis unavailable; rule-based analysis shown"));
+    return json(deterministicAnalysis(event, "AI analysis unavailable; rule-based analysis shown"));
   }
 }

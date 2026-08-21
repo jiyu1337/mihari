@@ -23,6 +23,7 @@ export function SiteHeader({ mode = "paper" }: SiteHeaderProps) {
         <Link href="/#protocol">Protocol</Link>
         <Link href="/map">Map</Link>
         <Link href="/docs">Docs</Link>
+        <Link href="/developers">API</Link>
         <Link className="nav-launch" href="/launch">
           Launch app <ArrowUpRight size={15} strokeWidth={1.8} />
         </Link>
