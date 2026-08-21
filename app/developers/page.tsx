@@ -61,6 +61,7 @@ export default function DevelopersPage() {
           <span><ShieldCheck size={15} /> Official Robinhood source</span>
           <span><Eye size={15} /> Read-only intelligence</span>
           <span><Network size={15} /> No API key for public reads</span>
+          <Link href="/developers/workspace">Developer workspace <ArrowRight size={15} /></Link>
         </div>
       </section>
 
@@ -100,7 +101,7 @@ export default function DevelopersPage() {
             <pre aria-label="REST API example"><code>{riskFeedExample}</code></pre>
             <div className="developers-card-footer">
               <span>REST · JSON · First call in seconds</span>
-              <a href="#endpoints">Explore endpoints <ArrowRight size={16} /></a>
+              <Link href="/developers/workspace">Manage API keys <ArrowRight size={16} /></Link>
             </div>
           </article>
         </div>

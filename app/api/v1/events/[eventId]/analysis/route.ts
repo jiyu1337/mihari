@@ -1,6 +1,7 @@
 import { getMarketSnapshot } from "@/lib/robinhood";
 import {
   eventIdSchema,
+  openPublicApiRequest,
   optionsResponse,
   publicApiError,
   publicApiResponse,
@@ -18,6 +19,8 @@ export async function OPTIONS() {
 }
 
 export async function GET(request: Request, { params }: RouteContext) {
+  const apiRequest = await openPublicApiRequest(request, "/api/v1/events/{eventId}/analysis");
+  if (apiRequest.denied) return apiRequest.denied;
   const [routeParams, url] = await Promise.all([params, Promise.resolve(new URL(request.url))]);
   const parsedEventId = eventIdSchema.safeParse(routeParams.eventId);
   const parsedSymbol = symbolSchema.safeParse(url.searchParams.get("symbol"));

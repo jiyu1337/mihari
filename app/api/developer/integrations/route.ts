@@ -1,0 +1,53 @@
+import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { z } from "zod";
+import { getDatabase, getDatabaseUrl } from "@/db/client";
+import { developerAccessRequests, developerApiKeys, developerApiUsage, developerIntegrations } from "@/db/schema";
+import { getAuthenticatedAccount } from "@/lib/account";
+import { createApiKeyMaterial, DEVELOPER_PLANS } from "@/lib/developer-access";
+
+export const runtime = "nodejs";
+
+const createSchema = z.object({ name: z.string().trim().min(2).max(80).default("My MIHARI integration") });
+
+function unavailable() {
+  return Response.json({ error: "Developer workspace storage is not configured" }, { status: 503 });
+}
+
+async function accountContext() {
+  const account = await getAuthenticatedAccount();
+  if (!account) return { response: Response.json({ error: "Sign in to open your developer workspace" }, { status: 401 }) };
+  if (!getDatabaseUrl()) return { response: unavailable() };
+  return { account, database: getDatabase() };
+}
+
+export async function GET() {
+  const context = await accountContext();
+  if (context.response) return context.response;
+  const { account, database } = context;
+  const integrations = await database.select().from(developerIntegrations).where(eq(developerIntegrations.accountId, account.id)).orderBy(desc(developerIntegrations.createdAt));
+  const result = await Promise.all(integrations.map(async (integration) => {
+    const [usage] = await database.select({ count: sql<number>`count(*)::int` }).from(developerApiUsage).where(and(
+      eq(developerApiUsage.integrationId, integration.id),
+      gte(developerApiUsage.createdAt, integration.cycleStartedAt),
+    ));
+    const keys = await database.select({ id: developerApiKeys.id, label: developerApiKeys.label, prefix: developerApiKeys.prefix, lastUsedAt: developerApiKeys.lastUsedAt, revokedAt: developerApiKeys.revokedAt, createdAt: developerApiKeys.createdAt }).from(developerApiKeys).where(eq(developerApiKeys.integrationId, integration.id)).orderBy(desc(developerApiKeys.createdAt));
+    const [request] = await database.select({ status: developerAccessRequests.status, requestedPlan: developerAccessRequests.requestedPlan, createdAt: developerAccessRequests.createdAt }).from(developerAccessRequests).where(eq(developerAccessRequests.integrationId, integration.id)).orderBy(desc(developerAccessRequests.createdAt)).limit(1);
+    return { ...integration, used: usage?.count ?? 0, keys, request: request ?? null };
+  }));
+  return Response.json({ plans: DEVELOPER_PLANS, integrations: result }, { headers: { "Cache-Control": "private, no-store" } });
+}
+
+export async function POST(request: Request) {
+  const context = await accountContext();
+  if (context.response) return context.response;
+  const { account, database } = context;
+  const parsed = createSchema.safeParse(await request.json().catch(() => ({})));
+  if (!parsed.success) return Response.json({ error: "Choose a short integration name" }, { status: 400 });
+  const existing = await database.select({ id: developerIntegrations.id }).from(developerIntegrations).where(eq(developerIntegrations.accountId, account.id)).limit(1);
+  if (existing[0]) return Response.json({ error: "This account already has a developer workspace" }, { status: 409 });
+  const key = createApiKeyMaterial();
+  const [integration] = await database.insert(developerIntegrations).values({ accountId: account.id, name: parsed.data.name, monthlyRequestLimit: DEVELOPER_PLANS.trial.limit }).returning();
+  if (!integration) return Response.json({ error: "Could not create developer workspace" }, { status: 500 });
+  const [createdKey] = await database.insert(developerApiKeys).values({ integrationId: integration.id, label: "Default key", prefix: key.prefix, secretHash: key.secretHash }).returning({ id: developerApiKeys.id });
+  return Response.json({ integration: { ...integration, used: 0, keys: [{ id: createdKey?.id, label: "Default key", prefix: key.prefix, revokedAt: null, lastUsedAt: null, createdAt: new Date() }] }, secret: key.secret }, { status: 201 });
+}
