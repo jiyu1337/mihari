@@ -8,10 +8,25 @@ type ApiKey = { id: string; label: string; prefix: string; lastUsedAt: string | 
 type Integration = { id: string; name: string; plan: "trial" | "builder" | "protocol"; status: string; monthlyRequestLimit: number; used: number; keys: ApiKey[]; request: { status: string; requestedPlan: string; createdAt: string } | null };
 type Plans = Record<"trial" | "builder" | "protocol", { label: string; limit: number; description: string }>;
 type WorkspaceData = { integrations: Integration[]; plans: Plans };
+type ApiResponse = { error?: string; secret?: string; [key: string]: unknown };
 
 function formatDate(value: string | null) {
   if (!value) return "Not used yet";
   return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(new Date(value));
+}
+
+async function readApiResponse(response: Response): Promise<ApiResponse> {
+  const body = await response.text();
+  if (!body) return { error: `MIHARI returned an empty response (${response.status}). Please reload and try again.` };
+  try {
+    return JSON.parse(body) as Record<string, unknown>;
+  } catch {
+    return { error: `MIHARI could not read the server response (${response.status}). Please reload and try again.` };
+  }
+}
+
+function responseError(payload: ApiResponse, fallback: string) {
+  return typeof payload.error === "string" ? payload.error : fallback;
 }
 
 export function DeveloperWorkspace() {
@@ -33,15 +48,16 @@ export function DeveloperWorkspace() {
     setLoading(true);
     try {
       const response = await fetch("/api/developer/integrations", { cache: "no-store" });
-      const payload = await response.json();
+      const payload = await readApiResponse(response);
       if (response.status === 401) {
         setRequiresSignIn(true);
         setData(null);
         return;
       }
-      if (!response.ok) throw new Error(payload.error ?? "Developer workspace is unavailable");
+      if (!response.ok) throw new Error(responseError(payload, "Developer workspace is unavailable"));
+      if (!Array.isArray(payload.integrations) || !payload.plans) throw new Error("Developer workspace returned incomplete data. Please reload and try again.");
       setRequiresSignIn(false);
-      setData(payload);
+      setData(payload as unknown as WorkspaceData);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Developer workspace is unavailable");
     } finally {
@@ -55,8 +71,9 @@ export function DeveloperWorkspace() {
     setBusy(true); setError(null);
     try {
       const response = await fetch("/api/developer/integrations", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ name: "My MIHARI integration" }) });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error ?? "Could not create developer workspace");
+      const payload = await readApiResponse(response);
+      if (!response.ok) throw new Error(responseError(payload, "Could not create developer workspace"));
+      if (typeof payload.secret !== "string") throw new Error("Workspace created, but the API key could not be displayed. Reload and create a new key from the key panel.");
       setVisibleSecret(payload.secret); setNotice("Your trial key is ready. Copy it now: it cannot be shown again.");
       await load();
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Could not create developer workspace"); }
@@ -67,8 +84,9 @@ export function DeveloperWorkspace() {
     setBusy(true); setError(null);
     try {
       const response = await fetch("/api/developer/keys", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ integrationId, label: keyLabel }) });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error ?? "Could not create API key");
+      const payload = await readApiResponse(response);
+      if (!response.ok) throw new Error(responseError(payload, "Could not create API key"));
+      if (typeof payload.secret !== "string") throw new Error("The API key could not be displayed. Please try again.");
       setVisibleSecret(payload.secret); setNotice("New key created. Copy it now: MIHARI only keeps a secure hash.");
       await load();
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Could not create API key"); }
@@ -80,8 +98,8 @@ export function DeveloperWorkspace() {
     setBusy(true); setError(null);
     try {
       const response = await fetch(`/api/developer/keys?id=${encodeURIComponent(id)}`, { method: "DELETE" });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error ?? "Could not revoke API key");
+      const payload = await readApiResponse(response);
+      if (!response.ok) throw new Error(responseError(payload, "Could not revoke API key"));
       setNotice("API key revoked."); await load();
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Could not revoke API key"); }
     finally { setBusy(false); }
@@ -91,8 +109,8 @@ export function DeveloperWorkspace() {
     setBusy(true); setError(null);
     try {
       const response = await fetch("/api/developer/contact", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ integrationId, requestedPlan, projectName, contactEmail, expectedMonthlyRequests: monthlyRequests, useCase }) });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error ?? "Could not send access request");
+      const payload = await readApiResponse(response);
+      if (!response.ok) throw new Error(responseError(payload, "Could not send access request"));
       setNotice("Request received. MIHARI team will review your access requirements manually."); await load();
     } catch (reason) { setError(reason instanceof Error ? reason.message : "Could not send access request"); }
     finally { setBusy(false); }
