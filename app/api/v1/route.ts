@@ -1,4 +1,4 @@
-import { optionsResponse, publicApiResponse } from "@/lib/public-api";
+import { openPublicApiRequest, optionsResponse, publicApiResponse } from "@/lib/public-api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -7,7 +7,9 @@ export async function OPTIONS() {
   return optionsResponse();
 }
 
-export async function GET() {
+export async function GET(request: Request) {
+  const apiRequest = await openPublicApiRequest(request, "/api/v1");
+  if (apiRequest.denied) return apiRequest.denied;
   return publicApiResponse({
     name: "MIHARI Intelligence API",
     status: "public_beta",

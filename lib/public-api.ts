@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { timingSafeEqual } from "node:crypto";
 import { z } from "zod";
 import { evidenceHash, getPublicAnalysis } from "@/lib/intelligence";
+import { recordDeveloperApiUsage, resolveDeveloperApiAccess, type DeveloperApiAccess } from "@/lib/developer-access";
 import type { CorporateEvent } from "@/lib/product-data";
 import type { RobinhoodAsset, RobinhoodPrice } from "@/lib/robinhood";
 
@@ -24,7 +25,7 @@ export function apiAdminAuthorized(request: Request) {
   return expectedBuffer.length === suppliedBuffer.length && timingSafeEqual(expectedBuffer, suppliedBuffer);
 }
 
-export function publicApiResponse(data: unknown, init?: { status?: number; cacheControl?: string }) {
+export function publicApiResponse(data: unknown, init?: { status?: number; cacheControl?: string; headers?: Record<string, string> }) {
   return NextResponse.json(
     {
       apiVersion: API_VERSION,
@@ -37,11 +38,50 @@ export function publicApiResponse(data: unknown, init?: { status?: number; cache
       headers: {
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Accept, Content-Type, Authorization",
+        "Access-Control-Allow-Headers": "Accept, Content-Type, Authorization, X-MIHARI-API-Key",
         "Cache-Control": init?.cacheControl ?? API_CACHE_CONTROL,
+        ...init?.headers,
       },
     },
   );
+}
+
+export async function openPublicApiRequest(request: Request, endpoint: string) {
+  const access = await resolveDeveloperApiAccess(request);
+  if (access.mode === "denied") {
+    return {
+      access,
+      denied: publicApiError(access.message, access.status),
+      complete: async (response: NextResponse) => response,
+    };
+  }
+
+  const headers = access.mode === "key"
+    ? {
+        "X-MIHARI-Plan": access.plan,
+        "X-MIHARI-Usage": String(access.used),
+        "X-MIHARI-Usage-Limit": String(access.limit),
+      }
+    : {};
+
+  // Count an accepted keyed call immediately. Endpoint handlers can still return a source error,
+  // but the integration has consumed a request and the dashboard remains an honest usage meter.
+  if (access.mode === "key") {
+    try {
+      await recordDeveloperApiUsage(access, endpoint, request.method, 200);
+    } catch {
+      // Telemetry must never make the intelligence API unavailable.
+    }
+  }
+
+  return {
+    access,
+    denied: null,
+    complete: async (response: NextResponse) => {
+      Object.entries(headers).forEach(([name, value]) => response.headers.set(name, value));
+      return response;
+    },
+  };
 }
 
 export function publicApiError(error: string, status: number) {
@@ -54,7 +94,7 @@ export function optionsResponse() {
     headers: {
       "Access-Control-Allow-Origin": "*",
       "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
-      "Access-Control-Allow-Headers": "Accept, Content-Type, Authorization",
+      "Access-Control-Allow-Headers": "Accept, Content-Type, Authorization, X-MIHARI-API-Key",
       "Access-Control-Max-Age": "86400",
     },
   });

@@ -1,5 +1,5 @@
 import { getMarketSnapshot } from "@/lib/robinhood";
-import { optionsResponse, publicApiError, publicApiResponse, publicAsset, symbolsQuerySchema } from "@/lib/public-api";
+import { openPublicApiRequest, optionsResponse, publicApiError, publicApiResponse, publicAsset, symbolsQuerySchema } from "@/lib/public-api";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,6 +21,8 @@ export async function OPTIONS() {
 }
 
 export async function GET(request: Request) {
+  const apiRequest = await openPublicApiRequest(request, "/api/v1/quote-integrity");
+  if (apiRequest.denied) return apiRequest.denied;
   const parsed = symbolsQuerySchema.safeParse(new URL(request.url).searchParams.get("symbols") ?? undefined);
   if (!parsed.success || !parsed.data.length || parsed.data.length > 10) {
     return publicApiError("Provide between 1 and 10 comma-separated Stock Token symbols", 400);

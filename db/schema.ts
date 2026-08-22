@@ -16,6 +16,9 @@ export const policyMode = pgEnum("policy_mode", ["observe", "guard", "automate"]
 export const eventStatus = pgEnum("event_status", ["detected", "reviewed", "actioned", "resolved"]);
 export const guardActionStatus = pgEnum("guard_action_status", ["draft", "approved", "dismissed"]);
 export const webhookDeliveryStatus = pgEnum("webhook_delivery_status", ["pending", "delivered", "failed"]);
+export const developerPlan = pgEnum("developer_plan", ["trial", "builder", "protocol"]);
+export const developerAccessStatus = pgEnum("developer_access_status", ["trial", "contact_requested", "active", "suspended"]);
+export const developerRequestStatus = pgEnum("developer_request_status", ["submitted", "reviewing", "approved", "declined"]);
 
 export const accounts = pgTable("accounts", {
   id: uuid("id").defaultRandom().primaryKey(),
@@ -151,4 +154,62 @@ export const apiWebhookDeliveries = pgTable("api_webhook_deliveries", {
 }, (table) => [
   uniqueIndex("api_webhook_delivery_subscription_fingerprint_idx").on(table.subscriptionId, table.fingerprint),
   index("api_webhook_delivery_subscription_created_idx").on(table.subscriptionId, table.createdAt),
+]);
+
+// Developer API access is owned by an authenticated MIHARI account. Key material is never stored,
+// only a one-way hash and a non-sensitive prefix that can be shown back to the account owner.
+export const developerIntegrations = pgTable("developer_integrations", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  accountId: uuid("account_id").references(() => accounts.id, { onDelete: "cascade" }).notNull(),
+  name: text("name").notNull(),
+  plan: developerPlan("plan").default("trial").notNull(),
+  status: developerAccessStatus("status").default("trial").notNull(),
+  monthlyRequestLimit: integer("monthly_request_limit").default(2500).notNull(),
+  cycleStartedAt: timestamp("cycle_started_at", { withTimezone: true }).defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index("developer_integrations_account_created_idx").on(table.accountId, table.createdAt),
+]);
+
+export const developerApiKeys = pgTable("developer_api_keys", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  integrationId: uuid("integration_id").references(() => developerIntegrations.id, { onDelete: "cascade" }).notNull(),
+  label: text("label").notNull(),
+  prefix: text("prefix").notNull(),
+  secretHash: text("secret_hash").notNull(),
+  lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
+  revokedAt: timestamp("revoked_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  uniqueIndex("developer_api_keys_secret_hash_idx").on(table.secretHash),
+  index("developer_api_keys_integration_created_idx").on(table.integrationId, table.createdAt),
+]);
+
+export const developerApiUsage = pgTable("developer_api_usage", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  apiKeyId: uuid("api_key_id").references(() => developerApiKeys.id, { onDelete: "cascade" }).notNull(),
+  integrationId: uuid("integration_id").references(() => developerIntegrations.id, { onDelete: "cascade" }).notNull(),
+  endpoint: text("endpoint").notNull(),
+  method: text("method").notNull(),
+  statusCode: integer("status_code").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index("developer_api_usage_key_created_idx").on(table.apiKeyId, table.createdAt),
+  index("developer_api_usage_integration_created_idx").on(table.integrationId, table.createdAt),
+]);
+
+export const developerAccessRequests = pgTable("developer_access_requests", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  accountId: uuid("account_id").references(() => accounts.id, { onDelete: "cascade" }).notNull(),
+  integrationId: uuid("integration_id").references(() => developerIntegrations.id, { onDelete: "set null" }),
+  requestedPlan: developerPlan("requested_plan").notNull(),
+  projectName: text("project_name").notNull(),
+  contactEmail: text("contact_email").notNull(),
+  expectedMonthlyRequests: integer("expected_monthly_requests").notNull(),
+  useCase: text("use_case").notNull(),
+  status: developerRequestStatus("status").default("submitted").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (table) => [
+  index("developer_access_requests_account_created_idx").on(table.accountId, table.createdAt),
 ]);

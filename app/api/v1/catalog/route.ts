@@ -1,6 +1,7 @@
 import { getAssetCatalog } from "@/lib/robinhood";
 import {
   optionsResponse,
+  openPublicApiRequest,
   publicApiError,
   publicApiResponse,
   publicAsset,
@@ -15,6 +16,8 @@ export async function OPTIONS() {
 }
 
 export async function GET(request: Request) {
+  const apiRequest = await openPublicApiRequest(request, "/api/v1/catalog");
+  if (apiRequest.denied) return apiRequest.denied;
   const parsedSymbols = symbolsQuerySchema.safeParse(new URL(request.url).searchParams.get("symbols") ?? undefined);
   if (!parsedSymbols.success) return publicApiError("Invalid symbols query", 400);
 
