@@ -38,16 +38,32 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  const context = await accountContext();
-  if (context.response) return context.response;
-  const { account, database } = context;
-  const parsed = createSchema.safeParse(await request.json().catch(() => ({})));
-  if (!parsed.success) return Response.json({ error: "Choose a short integration name" }, { status: 400 });
-  const existing = await database.select({ id: developerIntegrations.id }).from(developerIntegrations).where(eq(developerIntegrations.accountId, account.id)).limit(1);
-  if (existing[0]) return Response.json({ error: "This account already has a developer workspace" }, { status: 409 });
-  const key = createApiKeyMaterial();
-  const [integration] = await database.insert(developerIntegrations).values({ accountId: account.id, name: parsed.data.name, monthlyRequestLimit: DEVELOPER_PLANS.trial.limit }).returning();
-  if (!integration) return Response.json({ error: "Could not create developer workspace" }, { status: 500 });
-  const [createdKey] = await database.insert(developerApiKeys).values({ integrationId: integration.id, label: "Default key", prefix: key.prefix, secretHash: key.secretHash }).returning({ id: developerApiKeys.id });
-  return Response.json({ integration: { ...integration, used: 0, keys: [{ id: createdKey?.id, label: "Default key", prefix: key.prefix, revokedAt: null, lastUsedAt: null, createdAt: new Date() }] }, secret: key.secret }, { status: 201 });
+  try {
+    const context = await accountContext();
+    if (context.response) return context.response;
+    const { account, database } = context;
+    const parsed = createSchema.safeParse(await request.json().catch(() => ({})));
+    if (!parsed.success) return Response.json({ error: "Choose a short integration name" }, { status: 400 });
+
+    const [existing] = await database.select().from(developerIntegrations).where(eq(developerIntegrations.accountId, account.id)).limit(1);
+    const integration = existing ?? (await database.insert(developerIntegrations)
+      .values({ accountId: account.id, name: parsed.data.name, monthlyRequestLimit: DEVELOPER_PLANS.trial.limit })
+      .returning())[0];
+    if (!integration) return Response.json({ error: "Could not create developer workspace" }, { status: 500 });
+
+    const [existingKey] = await database.select({ id: developerApiKeys.id })
+      .from(developerApiKeys)
+      .where(eq(developerApiKeys.integrationId, integration.id))
+      .limit(1);
+    if (existingKey) return Response.json({ error: "This account already has a developer workspace. Create an additional key from the key panel." }, { status: 409 });
+
+    const key = createApiKeyMaterial();
+    const [createdKey] = await database.insert(developerApiKeys)
+      .values({ integrationId: integration.id, label: "Default key", prefix: key.prefix, secretHash: key.secretHash })
+      .returning({ id: developerApiKeys.id });
+    return Response.json({ integration: { ...integration, used: 0, keys: [{ id: createdKey?.id, label: "Default key", prefix: key.prefix, revokedAt: null, lastUsedAt: null, createdAt: new Date() }] }, secret: key.secret }, { status: existing ? 200 : 201 });
+  } catch (error) {
+    console.error("[developer-workspace] create failed", error);
+    return Response.json({ error: "Developer workspace could not be created. No API key was issued. Please reload and try again." }, { status: 500 });
+  }
 }
