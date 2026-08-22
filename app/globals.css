@@ -1638,7 +1638,7 @@ a.identity-choice { color: var(--ink); text-decoration: none; }
 .developer-secret-panel span { display: block; color: var(--neon); font-size: .62rem; letter-spacing: .09em; }
 .developer-secret-panel strong { display: block; max-width: 100%; margin: .7rem 0; overflow-wrap: anywhere; font: .88rem/1.5 var(--font-mono), monospace; }
 .developer-secret-panel p { margin: 0; color: color-mix(in srgb, var(--paper) 65%, transparent); font-size: .8rem; }
-.developer-secret-panel button, .developer-start-card button, .developer-key-create button, .developer-contact-form button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 46px; padding: 0 1rem; border: 1px solid var(--ink); background: var(--neon); color: var(--ink); font: .67rem/1 var(--font-mono), monospace; letter-spacing: .04em; cursor: pointer; }
+.developer-secret-panel button, .developer-start-card button, .developer-start-link, .developer-key-create button, .developer-contact-form button { display: inline-flex; align-items: center; justify-content: center; gap: .5rem; min-height: 46px; padding: 0 1rem; border: 1px solid var(--ink); background: var(--neon); color: var(--ink); font: .67rem/1 var(--font-mono), monospace; letter-spacing: .04em; cursor: pointer; text-decoration: none; }
 .developer-secret-panel button { flex: 0 0 auto; background: var(--neon); }
 .developer-workspace-loading, .developer-start-card { max-width: 900px; margin: clamp(3rem, 7vw, 7rem) auto; padding: clamp(2rem, 5vw, 4rem); border: 1px solid var(--ink); }
 .developer-workspace-loading { display: flex; align-items: center; justify-content: center; gap: .8rem; min-height: 200px; font: .7rem/1 var(--font-mono), monospace; }

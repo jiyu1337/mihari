@@ -21,6 +21,7 @@ export function DeveloperWorkspace() {
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [visibleSecret, setVisibleSecret] = useState<string | null>(null);
+  const [requiresSignIn, setRequiresSignIn] = useState(false);
   const [keyLabel, setKeyLabel] = useState("Production key");
   const [projectName, setProjectName] = useState("");
   const [contactEmail, setContactEmail] = useState("");
@@ -33,7 +34,13 @@ export function DeveloperWorkspace() {
     try {
       const response = await fetch("/api/developer/integrations", { cache: "no-store" });
       const payload = await response.json();
+      if (response.status === 401) {
+        setRequiresSignIn(true);
+        setData(null);
+        return;
+      }
       if (!response.ok) throw new Error(payload.error ?? "Developer workspace is unavailable");
+      setRequiresSignIn(false);
       setData(payload);
     } catch (reason) {
       setError(reason instanceof Error ? reason.message : "Developer workspace is unavailable");
@@ -111,7 +118,9 @@ export function DeveloperWorkspace() {
 
       {visibleSecret ? <section className="developer-secret-panel"><div><span className="mono">COPY ONCE / SECRET API KEY</span><strong>{visibleSecret}</strong><p>MIHARI never stores the raw key. Put it in a server-only environment variable.</p></div><button onClick={() => void copy()}><Copy size={17} />COPY KEY</button></section> : null}
 
-      {loading ? <div className="developer-workspace-loading"><LoaderCircle className="spin" size={30} />OPENING DEVELOPER WORKSPACE</div> : !integration ? (
+      {loading ? <div className="developer-workspace-loading"><LoaderCircle className="spin" size={30} />OPENING DEVELOPER WORKSPACE</div> : requiresSignIn ? (
+        <section className="developer-start-card"><KeyRound size={30} /><p className="mono">PRIVATE WORKSPACE / SIGN IN REQUIRED</p><h2>Open your developer workspace.</h2><p>Sign in to create private API keys, review usage and request Builder or Protocol access.</p><Link href="/sign-in?redirect_url=%2Fdevelopers%2Fworkspace" className="developer-start-link">SIGN IN <ArrowRight size={17} /></Link></section>
+      ) : !integration ? (
         <section className="developer-start-card"><KeyRound size={30} /><p className="mono">TRIAL ACCESS / 2,500 REQUESTS PER MONTH</p><h2>Create your first integration.</h2><p>Your trial gives you a private API key and usage record. Public beta reads remain available without a key.</p><button onClick={() => void createWorkspace()} disabled={busy}>{busy ? "CREATING" : "CREATE DEVELOPER WORKSPACE"}<ArrowRight size={17} /></button></section>
       ) : (
         <>
